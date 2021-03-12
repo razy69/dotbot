@@ -28,14 +28,16 @@ nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
 
-" Tab configuration
-set autoindent
+" Indent stuff
+set autoindent " always set autoindenting on
+set copyindent " copy the previous indentation on autoindenting
+set expandtab " expand tabs by default (overloadable per file type)
+set shiftround " use multiple of shiftwidth when indenting with '<' and '>'
+set shiftwidth=2 " number of spaces to use for autoindenting
 set smartindent
-set smarttab
-set tabstop=4
-set expandtab
-set softtabstop=4
-set shiftwidth=4
+set smarttab " insert tabs on the start of a line according to shiftwidth, not tabstop
+set softtabstop=2 " when hitting <BS>, pretend like a tab is removed, even if spaces
+set tabstop=2 " tabs are n spaces
 
 " Enable folding
 set foldmethod=indent
@@ -87,6 +89,8 @@ call plug#begin('~/.vim/plugged')
     Plug 'preservim/nerdtree'
     " Vim rainbow (https://github.com/frazrepo/vim-rainbow)
     Plug 'frazrepo/vim-rainbow'
+    " Vim yaml (https://github.com/mrk21/yaml-vim)
+    Plug 'mrk21/yaml-vim'
 call plug#end()
 
 " Set theme
@@ -121,3 +125,11 @@ let g:lightline = {
     \   'gitbranch': 'gitbranch#name',
     \ },
     \ }
+
+" Python settings
+au! BufNewFile,BufReadPost *.{py} set filetype=python foldmethod=indent
+autocmd FileType python setlocal ts=4 sts=4 sw=4 expandtab
+
+" Yaml settings
+au! BufNewFile,BufReadPost *.{yaml,yml} set filetype=yaml foldmethod=indent
+autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
