@@ -55,7 +55,6 @@ set encoding=UTF-8
 set list
 set showbreak=↪\
 set listchars=trail:•,precedes:❮,extends:❯,nbsp:␣,tab:⇥\
-"set listchars=trail:•,precedes:❮,extends:❯,nbsp:␣,eol:↵,tab:⇥\
 
 " Copy/Paste OSX
 set clipboard=unnamed
@@ -69,32 +68,34 @@ set undodir=~/.vim/undo//
 " Plugins
 " --------
 call plug#begin('~/.vim/plugged')
-    " Vim theme (https://github.com/patstockwell/vim-monokai-tasty)
-    Plug 'patstockwell/vim-monokai-tasty'
-    " ALE (https://github.com/dense-analysis/ale)
-    Plug 'dense-analysis/ale'
-    " Vim flake8 (https://github.com/nvie/vim-flake8)
-    Plug 'nvie/vim-flake8'
-    " Gitgutter (https://github.com/airblade/vim-gitgutter)
-    Plug 'airblade/vim-gitgutter'
-    " Lightline (https://github.com/itchyny/lightline.vim)
-    Plug 'itchyny/lightline.vim'
-    " Vim gitbranch (https://github.com/itchyny/vim-gitbranch)
-    Plug 'itchyny/vim-gitbranch'
-    " NERD Tree (https://github.com/preservim/nerdtree)
-    Plug 'preservim/nerdtree'
-    " Vim rainbow (https://github.com/frazrepo/vim-rainbow)
-    Plug 'frazrepo/vim-rainbow'
-    " Vim yaml (https://github.com/mrk21/yaml-vim)
-    Plug 'mrk21/yaml-vim'
-    " Vim diminactive (https://github.com/blueyed/vim-diminactive)
-    Plug 'blueyed/vim-diminactive'
+  " Vim theme (https://github.com/patstockwell/vim-monokai-tasty)
+  Plug 'patstockwell/vim-monokai-tasty'
+  " ALE (https://github.com/dense-analysis/ale)
+  Plug 'dense-analysis/ale'
+  " Vim flake8 (https://github.com/nvie/vim-flake8)
+  Plug 'nvie/vim-flake8'
+  " Gitgutter (https://github.com/airblade/vim-gitgutter)
+  Plug 'airblade/vim-gitgutter'
+  " Lightline (https://github.com/itchyny/lightline.vim)
+  Plug 'itchyny/lightline.vim'
+  " Vim gitbranch (https://github.com/itchyny/vim-gitbranch)
+  Plug 'itchyny/vim-gitbranch'
+  " NERD Tree (https://github.com/preservim/nerdtree)
+  Plug 'preservim/nerdtree'
+  " Vim rainbow (https://github.com/frazrepo/vim-rainbow)
+  Plug 'frazrepo/vim-rainbow'
+  " Vim yaml (https://github.com/mrk21/yaml-vim)
+  Plug 'mrk21/yaml-vim'
+  " Vim diminactive (https://github.com/blueyed/vim-diminactive)
+  Plug 'blueyed/vim-diminactive'
+  " Vim Indent Guides (https://github.com/nathanaelkane/vim-indent-guides)
+  Plug 'nathanaelkane/vim-indent-guides'
 call plug#end()
 
 " Set theme
 silent! colorscheme vim-monokai-tasty
 if !has('gui_running')
-    set t_Co=256
+  set t_Co=256
 endif
 set background=dark
 highlight Normal ctermbg=232
@@ -114,15 +115,15 @@ set noshowcmd " Disable display of last command
 set noshowmode " Disable -- INSERT --
 set laststatus=2
 let g:lightline = {
-    \ 'colorscheme': 'wombat',
-    \ 'active': {
-    \   'left': [ [ 'mode', 'paste' ],
-    \             [ 'gitbranch', 'readonly', 'absolutepath', 'modified' ] ]
-    \ },
-    \ 'component_function': {
-    \   'gitbranch': 'gitbranch#name',
-    \ },
-    \ }
+  \ 'colorscheme': 'wombat',
+  \ 'active': {
+  \   'left': [ [ 'mode', 'paste' ],
+  \             [ 'gitbranch', 'readonly', 'absolutepath', 'modified' ] ]
+  \ },
+  \ 'component_function': {
+  \   'gitbranch': 'gitbranch#name',
+  \ },
+  \ }
 
 " Python settings
 let python_highlight_all = 1
@@ -149,3 +150,11 @@ augroup END
 hi ColorColumn ctermbg=234
 let g:diminactive_enable_focus = 1
 let g:diminactive_use_syntax = 1
+
+" Vim Indent Guides
+let g:indent_guides_exclude_filetypes = ['help', 'nerdtree']
+let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_start_level = 2
+let g:indent_guides_guide_size = 1
+let g:indent_guides_auto_colors = 0
+hi IndentGuidesOdd ctermbg=236
