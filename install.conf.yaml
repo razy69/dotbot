@@ -40,7 +40,7 @@
       description: Install zsh-syntax-highlighting
     -
       command: '
-        for bin in flake8 git tmux vim zsh; do
+        for bin in git tmux vim zsh; do
           if ! command -v "$bin" &> /dev/null;
             then echo -e "\033[1;33m! $bin is not installed\033[0m";
           fi;
@@ -53,8 +53,3 @@
     -
       command: vim +'PlugInstall --sync' +qa
       description: Install vim plugins
-    -
-      command: '
-        patch -sf "${HOME}/.dotbot/zsh/ohmyzsh/themes/half-life.zsh-theme"
-              "${HOME}/.dotbot/zsh/half-life.zsh-theme.patch"'
-      description: Patching half-life zsh theme
