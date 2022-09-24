@@ -4,9 +4,6 @@ set encoding=UTF-8
 
 " Theming and colors
 set conceallevel=3
-if !exists('g:syntax_on')
-  syntax enable
-endif
 
 " General options
 set number                      "Show line numbers
@@ -30,6 +27,7 @@ set hidden
 set shortmess+=F                " Disabled "filename" XXXL, XXXC
 set noshowcmd                   " Disable display of last command
 set noshowmode                  " Disable -- INSERT --
+filetype off
 
 " Search highlight
 set hlsearch
@@ -91,12 +89,20 @@ set undodir=~/.vim/undo//
 
 " Python settings
 let python_highlight_all = 1
-au! BufNewFile,BufReadPost *.{py} set filetype=python foldmethod=indent
-autocmd FileType python setlocal ts=4 sts=4 sw=4 expandtab
+au BufNewFile,BufRead *.{py}
+  \ set tabstop=4 |
+  \ set softtabstop=4 |
+  \ set shiftwidth=4 |
+  \ set filetype=python |
+  \ set autoindent |
+  \ set expandtab |
+  \ set textwidth=120
 
-" Yaml settings
-au! BufNewFile,BufReadPost *.{yaml,yml} set filetype=yaml foldmethod=indent
-autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+" Other Languages settings
+au BufNewFile,BufRead *.js, *.html, *.css, *.yaml, *.json
+  \ set tabstop=2 |
+  \ set softtabstop=2 |
+  \ set shiftwidth=2
 
 " Need to install patched font:
 " https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/SourceCodePro
@@ -109,16 +115,33 @@ call plug#begin('~/.vim/plugged')
   Plug 'vim-airline/vim-airline'
   Plug 'vim-airline/vim-airline-themes'
   Plug 'preservim/nerdtree'
-  Plug 'Xuyuanp/nerdtree-git-plugin'
-  Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-  Plug 'nvie/vim-flake8'
+  Plug 'Xuyuanp/nerdtree-git-plugin', { 'on':  'NERDTreeToggle' }
+  Plug 'tiagofumo/vim-nerdtree-syntax-highlight', { 'on':  'NERDTreeToggle' }
   Plug 'airblade/vim-gitgutter'
-  Plug 'tpope/vim-fugitive'
-  Plug 'mrk21/yaml-vim'
   Plug 'blueyed/vim-diminactive'
   Plug 'nathanaelkane/vim-indent-guides'
   Plug 'ryanoasis/vim-devicons'
+  Plug 'tmhedberg/SimpylFold'
+  Plug 'vim-scripts/indentpython.vim'
+  Plug 'kien/ctrlp.vim'
+  Plug 'ycm-core/YouCompleteMe', { 'do': 'python3 ./install.py --all' }
+  Plug 'dense-analysis/ale'
 call plug#end()
+
+"Python with virtualenv support
+python3 << EOF
+import os
+import subprocess
+
+if "VIRTUAL_ENV" in os.environ:
+    project_base_dir = os.environ["VIRTUAL_ENV"]
+    script = os.path.join(project_base_dir, "bin/activate")
+    pipe = subprocess.Popen(". %s; env" % script, stdout=subprocess.PIPE, shell=True)
+    output = pipe.communicate()[0].decode('utf8').splitlines()
+    env = dict((line.split("=", 1) for line in output))
+    os.environ.update(env)
+
+EOF
 
 " Set theme
 silent! colorscheme vim-monokai-tasty
@@ -186,6 +209,39 @@ let g:indent_guides_guide_size = 1
 let g:indent_guides_auto_colors = 0
 hi IndentGuidesOdd ctermbg=236
 
+" Vim YouCompleteMe settings
+let g:ycm_python_interpreter_path = ''
+let g:ycm_python_sys_path = []
+let g:ycm_extra_conf_vim_data = [
+  \  'g:ycm_python_interpreter_path',
+  \  'g:ycm_python_sys_path'
+  \]
+let g:ycm_global_ycm_extra_conf = '~/.ycm_global_extra_conf.py'
+let g:ycm_autoclose_preview_window_after_completion=1
+map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
+
 " Highligh line in current window
 set cursorline!
 hi CursorLine ctermbg=234
+
+" Ale
+let g:ale_enabled = 1
+let g:ale_sign_error = 'x'
+let g:ale_sign_warning = '~'
+let g:ale_lint_on_enter = 1
+let g:ale_fix_on_save = 1
+let g:ale_open_list = 1
+let g:ale_lint_on_text_changed = 'never'
+let g:airline#extensions#ale#enabled = 1
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_warning_str = 'W'
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+let b:ale_linters = ['flake8', 'mypy']
+let g:ale_fixers = {
+\   '*': ['remove_trailing_lines', 'trim_whitespace'],
+\   'python': ['black', 'isort'],
+\}
+let g:ale_python_isort_options = '--line-length 120 --profile black'
+let g:ale_python_black_options = '--line-length 120'
+let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E203 --max-complexity=20'
+let g:ale_python_mypy_options = '--ignore-missing-imports --disallow-untyped-defs --show-error-codes --show-error-context --show-column-numbers --strict-equality --warn-no-return --warn-incomplete-stub --warn-redundant-casts --warn-unreachable'
