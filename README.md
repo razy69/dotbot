@@ -1,6 +1,8 @@
 # dotbot
 
-Configure dotfiles
+https://github.com/anishathalye/dotbot
+
+## Configure dotfiles
 
 - vim with vim-plug
   - vim-monokay-tasty
@@ -23,3 +25,9 @@ Configure dotfiles
 - git
   - gitignore
   - gitconfig
+
+## How to install
+
+```
+$ git clone https://github.com/razy69/dotbot ~/.dotbot && cd ~/.dotbot
+$ ./install
