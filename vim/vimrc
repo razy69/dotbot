@@ -4,7 +4,6 @@ syntax on
 " General options
 set number
 set showmatch
-set hlsearch
 set novisualbell
 set noerrorbells
 set smartcase
@@ -66,9 +65,6 @@ set backupdir=~/.vim/backup//
 set directory=~/.vim/swp//
 set undodir=~/.vim/undo//
 
-" Enable all Python syntax highlighting features
-let python_highlight_all = 1
-
 " --------
 " Plugins
 " --------
@@ -91,6 +87,8 @@ call plug#begin('~/.vim/plugged')
     Plug 'frazrepo/vim-rainbow'
     " Vim yaml (https://github.com/mrk21/yaml-vim)
     Plug 'mrk21/yaml-vim'
+    " Vim diminactive (https://github.com/blueyed/vim-diminactive)
+    Plug 'blueyed/vim-diminactive'
 call plug#end()
 
 " Set theme
@@ -99,8 +97,8 @@ if !has('gui_running')
     set t_Co=256
 endif
 set background=dark
-highlight Normal ctermbg=NONE
-highlight nonText ctermbg=NONE
+highlight Normal ctermbg=232
+highlight nonText ctermbg=232
 
 " Vim rainbow settings
 let g:rainbow_active = 1
@@ -127,9 +125,27 @@ let g:lightline = {
     \ }
 
 " Python settings
+let python_highlight_all = 1
 au! BufNewFile,BufReadPost *.{py} set filetype=python foldmethod=indent
 autocmd FileType python setlocal ts=4 sts=4 sw=4 expandtab
 
 " Yaml settings
 au! BufNewFile,BufReadPost *.{yaml,yml} set filetype=yaml foldmethod=indent
 autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+
+" Search highlight
+set hlsearch
+hi Search ctermbg=222
+
+" Highligh line in current window
+hi CursorLine ctermbg=234
+augroup CursorLine
+  au!
+  au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+  au WinLeave * setlocal nocursorline
+augroup END
+
+" Vim diminactive settings
+hi ColorColumn ctermbg=234
+let g:diminactive_enable_focus = 1
+let g:diminactive_use_syntax = 1
