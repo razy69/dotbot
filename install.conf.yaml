@@ -1,0 +1,43 @@
+- defaults:
+    link:
+        create: true
+        relink: true
+- create:
+    - ~/bin
+    - ~/.vim
+    - ~/.vim/autoload
+    - ~/.vim/plugged
+    - ~/.vim/backup
+    - ~/.vim/swp
+    - ~/.vim/undo
+- clean:
+    ~/:
+        force: true
+- link:
+    ~/.gitconfig:
+        path: git/gitconfig
+    ~/.gitignore:
+        path: git/gitignore
+    ~/.zshrc:
+        path: zsh/zshrc
+    ~/.oh-my-zsh:
+        path: zsh/ohmyzsh
+    ~/.tmux.conf:
+        path: tmux/tmux.conf
+    ~/.tmux:
+        path: tmux/tmux
+    ~/.vimrc:
+        path: vim/vimrc
+    ~/.vim/autoload/plug.vim:
+        path: vim/vim-plug/plug.vim
+- shell:
+    -
+      command: git submodule update --init --recursive
+      description: Installing submodules
+    -
+      command: for bin in flake8 git tmux vim zsh; do if ! command -v "$bin" &> /dev/null; then echo -e "\033[1;33m! $bin is not installed on your system\033[0m"; fi; done
+      description: Checking installed binaries
+      stdout: true
+    -
+      command: vim +'PlugInstall --sync' +qa
+      description: Install vim plugins
