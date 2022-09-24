@@ -45,6 +45,9 @@
       description: Checking installed binaries
       stdout: true
     -
+      command: ~/.tmux/plugins/tpm/bin/install_plugins
+      description: Install tmux plugins
+    -
       command: vim +'PlugInstall --sync' +qa
       description: Install vim plugins
     -

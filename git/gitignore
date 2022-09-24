@@ -45,3 +45,6 @@ Temporary Items
 *~
 *.swp
 *.swo
+
+# Intellij
+.idea
