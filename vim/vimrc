@@ -174,7 +174,7 @@ augroup nerdtreehidecwd
 augroup end
 
 " Vim diminactive settings
-hi ColorColumn ctermbg=234
+hi ColorColumn ctermbg=232
 let g:diminactive_enable_focus = 1
 let g:diminactive_use_syntax = 1
 
