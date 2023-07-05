@@ -5,12 +5,7 @@
       relink: true
 - create:
     - ~/bin
-    - ~/.vim
-    - ~/.vim/autoload
-    - ~/.vim/plugged
-    - ~/.vim/backup
-    - ~/.vim/swp
-    - ~/.vim/undo
+    - ~/.config
 - clean:
     ~/:
       force: true
@@ -27,25 +22,15 @@
       path: tmux/tmux.conf
     ~/.tmux:
       path: tmux/tmux
-    ~/.vimrc:
-      path: vim/vimrc
-    ~/.vim/autoload/plug.vim:
-      path: vim/vim-plug/plug.vim
-    ~/.ycm_global_extra_conf.py:
-      path: scripts/ycm_global_extra_conf.py
+    ~/.config/nvim:
+      path: nvim
 - shell:
     -
       command: git submodule update --init --recursive
       description: Installing submodules
     -
       command: '
-        test -f ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-        || git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-        '
-      description: Install zsh-syntax-highlighting
-    -
-      command: '
-        for bin in git tmux vim zsh; do
+        for bin in git tmux nvim zsh; do
           if ! command -v "$bin" &> /dev/null;
             then echo -e "\033[1;33m! $bin is not installed\033[0m";
           fi;
@@ -56,5 +41,5 @@
       command: ~/.tmux/plugins/tpm/bin/install_plugins
       description: Install tmux plugins
     -
-      command: vim +'PlugInstall --sync' +qa
-      description: Install vim plugins
+      command: nvim --headless "+Lazy! sync" +qa
+      description: Install nvim plugins

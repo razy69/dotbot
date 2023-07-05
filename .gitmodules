@@ -14,9 +14,3 @@
 [submodule "tmux/tmux/plugins/tpm"]
 	path = tmux/tmux/plugins/tpm
 	url = https://github.com/tmux-plugins/tpm.git
-[submodule "vim/vim-plug"]
-	path = vim/vim-plug
-	url = https://github.com/junegunn/vim-plug.git
-[submodule "tmux/tmux/plugins/tmux-better-mouse-mode"]
-	path = tmux/tmux/plugins/tmux-better-mouse-mode
-	url = https://github.com/NHDaly/tmux-better-mouse-mode
