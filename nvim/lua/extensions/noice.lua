@@ -4,14 +4,9 @@
   See: https://github.com/folke/noice.nvim
 ]]
 
-local Popup = require("nui.popup")
 local noice = require("noice")
 
-local popup = Popup({
-  position = "50%",
-})
-
-noice.setup({
+noice.setup{
   lsp = {
     -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
     override = {
@@ -20,38 +15,9 @@ noice.setup({
       ["cmp.entry.get_documentation"] = true,
       },
   },
-  -- cmdline = {
-  --   enabled = true, -- enables the Noice cmdline UI
-  --   view = "cmdline",
-  -- },
-  views = {
-    cmdline_popup = {
-      position = {
-        row = 5,
-        col = "50%",
-      },
-      size = {
-        width = 60,
-        height = "auto",
-      },
-    },
-    popupmenu = {
-      relative = "editor",
-      position = {
-        row = 8,
-        col = "50%",
-      },
-      size = {
-        width = 60,
-        height = 10,
-      },
-      border = {
-        style = "rounded",
-        padding = { 0, 1 },
-      },
-      win_options = {
-        winhighlight = { Normal = "Normal", FloatBorder = "DiagnosticInfo" },
-      },
-    },
-  }
-})
+  cmdline = {
+    enabled = true, -- enables the Noice cmdline UI
+    view = "cmdline",
+    conceal = false,
+  },
+}

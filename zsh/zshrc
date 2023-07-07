@@ -6,7 +6,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # Path
-export PATH="${HOME}/bin:/usr/local/bin:${PATH}"
+export PATH="${HOME}/.cargo/bin:${HOME}/.local/bin:${HOME}/bin:/usr/local/bin:${PATH}"
 
 # Zsh home
 export ZSH="${HOME}/.zsh"
@@ -40,6 +40,9 @@ zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=
 autoload -Uz compinit && compinit
 
 # Other
+autoload -U select-word-style
+select-word-style bash
+export WORDCHARS='.-'
 unsetopt BEEP
 
 # Alias
@@ -53,6 +56,7 @@ alias gco="git checkout"
 alias gb="git checkout -b"
 alias gpf="git push --force"
 alias gp="git pull --rebase"
+alias vim="nvim"
 
 # Tmux share ssh-agent
 function update_environment_from_tmux() {

@@ -17,7 +17,7 @@ fn.sign_define("DiagnosticSignInfo",
 fn.sign_define("DiagnosticSignHint",
 {text = " ", texthl = "DiagnosticSignHint"})
 
-neotree.setup({
+neotree.setup{
   close_if_last_window = true,
   enable_git_status = true,
   enable_diagnostics = false,
@@ -116,4 +116,4 @@ neotree.setup({
       end
     },
   },
-})
+}

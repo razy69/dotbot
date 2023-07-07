@@ -19,7 +19,7 @@ mason.setup({
   }
 })
 
-mason_lspconfig.setup({
+mason_lspconfig.setup{
   ensure_installed = {
     "bashls",               -- LSP for Bash
     "dockerls",             -- LSP for Docker
@@ -32,9 +32,9 @@ mason_lspconfig.setup({
     "ruff_lsp",             -- LSP for Python Ruff
     "terraformls",          -- LSP for Terraform
   }
-})
+}
 
-mason_null_ls.setup({
+mason_null_ls.setup{
   ensure_installed = {
     "mypy",
     "rstcheck",
@@ -42,10 +42,10 @@ mason_null_ls.setup({
     "shellcheck",
     "yamllint",
   }
-})
+}
 
 -- Setup every needed language server in lspconfig
-mason_lspconfig.setup_handlers {
+mason_lspconfig.setup_handlers{
   function (server_name)
     lspconfig[server_name].setup {}
   end,

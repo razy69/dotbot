@@ -8,6 +8,7 @@ local cmp = require("cmp")
 local lspkind = require("lspkind")
 
 cmp.setup{
+
   snippet = {
     expand = function(args)
       require"luasnip".lsp_expand(args.body) -- Luasnip expand
@@ -16,6 +17,7 @@ cmp.setup{
 
   -- Mappings for cmp
   mapping = {
+
     -- Autocompletion menu
     ["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i" }),
     ["<CR>"] = cmp.config.disable,                      -- Turn off autocomplete on <CR>

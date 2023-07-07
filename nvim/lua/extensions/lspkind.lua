@@ -6,7 +6,7 @@
 
 local lspkind = require("lspkind")
 
-lspkind.init({
+lspkind.init{
   mode = "symbol",
   preset = "codicons",
-})
+}
