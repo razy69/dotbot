@@ -4,30 +4,52 @@ https://github.com/anishathalye/dotbot
 
 ## Configure dotfiles
 
-- vim with vim-plug
-  - vim-monokay-tasty
-  - ale
-  - vim-flake8
-  - vim-gitgutter
-  - lightline
-  - vim-gitbranch
-  - nerdtree
-  - vim-rainbow
-- tmux with tpm
+zsh
+  - fast-syntax-highlighting
+  - zsh-autosuggestions
+  - zsh-completions
+  - Powerlevel10k
+
+vim
+  - vim-monokai-tasty 
+
+nvim
+  - lazy.nvim
+  - indent-blankline 
+  - bufferline
+  - mason 
+  - neo-tree
+  - telescope
+  - nvim-cmp
+  - lspkind-vim
+  - gitsigns
+  - trouble
+  - noice
+  - treesitter
+  - lualine
+  - monokai-pro
+
+tmux
+  - tpm
   - tmux-resurrect
   - tmux-continuum
-  - tmux-better-mouse-mode
-- zsh with oh-my-zsh
-  - command-not-found
-  - extract
-  - git
-  - ssh-agent
-- git
-  - gitignore
-  - gitconfig
 
 ## How to install
 
-```
+```bash
 $ git clone https://github.com/razy69/dotbot ~/.dotbot && cd ~/.dotbot
 $ ./install
+```
+
+## How to register new keymap
+
+```bash
+$ autoload -Uz zkbd
+$ zkbd
+```
+
+Then move generated file to `~/.dotbot/zsh/keymaps/`.
+
+## Additional Setup
+
+Download, install and setup terminal font: https://www.nerdfonts.com/font-downloads
