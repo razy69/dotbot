@@ -1,41 +1,55 @@
 [user]
-    name = Julian Da Cunha
-    email = j.dacunha@pm.me
-    #signingkey = To Set
+  name = Julian Da Cunha
+  email = j.dacunha@pm.me
+  #signingkey = To Set
 
 [core]
-    editor = vim
-    whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
-    excludesfile = ~/.gitignore
+  editor = nvim
+  whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
+  excludesfile = ~/.gitignore
+  pager = delta
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate = true
+  light = false
+
+[merge]
+  conflictStyle = diff3
 
 [push]
-    default = current
+  default = current
 
 [pull]
-    rebase = true
+  rebase = true
+
+[diff]
+  colorMoved = default
 
 [color]
-    ui = auto
+  ui = auto
 
 [color "branch"]
-    current = yellow bold
-    local = green bold
-    remote = cyan bold
+  current = yellow bold
+  local = green bold
+  remote = cyan bold
 
 [color "diff"]
-    meta = yellow bold
-    frag = magenta bold
-    old = red bold
-    new = green bold
-    whitespace = red reverse
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
+  whitespace = red reverse
 
 [color "status"]
-    added = green bold
-    changed = yellow bold
-    untracked = red bold
+  added = green bold
+  changed = yellow bold
+  untracked = red bold
 
 [alias]
-    loga = log --oneline --graph --color --decorate
+  loga = log --oneline --graph --color --decorate
 
 [credential]
 	helper = store
