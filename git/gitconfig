@@ -1,7 +1,7 @@
 [user]
   name = Julian Da Cunha
   email = j.dacunha@pm.me
-  #signingkey = To Set
+  #signingkey =
 
 [core]
   editor = nvim
@@ -10,14 +10,23 @@
   pager = delta
 
 [interactive]
-  diffFilter = delta --color-only
+  diffFilter = delta --diff-so-fancy --color-only --features=interactive
 
 [delta]
   navigate = true
   light = false
+  side-by-side = true
+  line-numbers = true
+  features = decorations
+  syntax-theme = Monokai Extended Origin
+  true-color = always
 
 [merge]
   conflictStyle = diff3
+  editor = nvim
+  whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
+  excludesfile = ~/.gitignore
+  pager = less -R
 
 [push]
   default = current
@@ -27,29 +36,13 @@
 
 [diff]
   colorMoved = default
+  rebase = true
 
 [color]
   ui = auto
-
-[color "branch"]
-  current = yellow bold
-  local = green bold
-  remote = cyan bold
-
-[color "diff"]
-  meta = yellow bold
-  frag = magenta bold
-  old = red bold
-  new = green bold
-  whitespace = red reverse
-
-[color "status"]
-  added = green bold
-  changed = yellow bold
-  untracked = red bold
 
 [alias]
   loga = log --oneline --graph --color --decorate
 
 [credential]
-	helper = store
+  helper = store

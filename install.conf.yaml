@@ -3,9 +3,11 @@
     link:
       create: true
       relink: true
+      relative: true
 - create:
     - ~/bin
     - ~/.config
+    - ~/.vim
 - clean:
     ~/:
       force: true
@@ -30,6 +32,10 @@
       path: tmux/tmux
     ~/.config/nvim:
       path: nvim
+    ~/.vim/colors:
+      path: vim/colors
+    ~/.vimrc:
+      path: vim/vimrc
 - shell:
     -
       command: git submodule update --init --recursive
