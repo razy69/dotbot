@@ -1,19 +1,15 @@
 require "helpers/globals"
 require "helpers/keyboard"
 
--- Overview of which map command works in which mode.
 
---      COMMANDS                    MODES ~
--- :map   :noremap  :unmap     Normal, Visual, Select, Operator-pending
--- :nmap  :nnoremap :nunmap    Normal
--- :vmap  :vnoremap :vunmap    Visual and Select
--- :smap  :snoremap :sunmap    Select
--- :xmap  :xnoremap :xunmap    Visual
--- :omap  :onoremap :ounmap    Operator-pending
--- :map!  :noremap! :unmap!    Insert and Command-line
--- :imap  :inoremap :iunmap    Insert
--- :lmap  :lnoremap :lunmap    Insert, Command-line, Lang-Arg
--- :cmap  :cnoremap :cunmap    Command-line
+-- Overview of which map command works in which mode.
+--
+-- nm(key, command)   Normal mode
+-- im(key, command)   Input mode
+-- vm(key, command)   Visual mode
+-- tm(key, command)   Terminal mode
+--
+
 
 g.mapleader = " "                                                                -- Use Space, like key for alternative hotkeys
 
@@ -21,17 +17,16 @@ g.mapleader = " "                                                               
 nm("<leader>s", "<cmd>update<CR>")                                               -- Save file
 nm("<leader>q", "<cmd>quit<CR>")                                                 -- Quit file
 nm("<leader>t", "<cmd>tabnew<CR>")                                               -- Open new tab
-nm("<leader>n", "<cmd>tabnext<CR>")                                              -- Move to next tab
-nm("<leader>p", "<cmd>tabprevious<CR>")                                          -- Move to prev tab
-nm("<leader>c", "<cmd>tabclose<CR>")                                             -- Close current tab
 nm("<leader><BS>", "za<CR>")                                                     -- Folding with the spacebar
 -- }}}
 
 -- LSP {{{
+nm("T", "<cmd>lua vim.lsp.buf.type_definition()<CR>")                             -- Type definition
 nm("K", "<cmd>lua vim.lsp.buf.hover()<CR>")                                      -- Hover object
 nm("ga", "<cmd>lua vim.lsp.buf.code_action()<CR>")                               -- Code actions
 nm("gR", "<cmd>lua vim.lsp.buf.rename()<CR>")                                    -- Rename an object
 nm("gD", "<cmd>lua vim.lsp.buf.declaration()<CR>")                               -- Go to declaration
+nm("gr", "<cmd>lua vim.lsp.buf.references()<CR>")                                -- Go to references
 -- }}}
 
 -- Telescope {{{
@@ -54,4 +49,9 @@ nm("<leader>e", "<cmd>NeoTreeFocusToggle<CR>")                                  
 
 -- Noice {{{
 nm("<leader>h", "<cmd>Noice telescope<CR>")                                      -- Opens Noice message history in Telescope
+-- }}}
+
+
+-- WhichKey {{{
+nm("<leader>`", "<cmd>WhichKey<CR>")                                             -- Open WhichKey
 -- }}}

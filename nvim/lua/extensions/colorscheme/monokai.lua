@@ -34,4 +34,4 @@ monokai.setup{
   },
 }
 
-cmd([[colorscheme monokai-pro]])
+cmd.colorscheme("monokai-pro")

@@ -3,29 +3,46 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Path
-export PATH="${HOME}/.cargo/bin:${HOME}/.local/bin:${HOME}/bin:/usr/local/bin:${PATH}"
-
 # Zsh home
 export ZSH="${HOME}/.zsh"
 
-# Theme
-source "${ZSH}/themes/powerlevel10k/powerlevel10k.zsh-theme"
+# Path
+path=(
+  $HOME/.local/bin
+  $HOME/bin
+  $path
+)
+export PATH
 
-# Plugins
-source "${ZSH}/config/plugins.zsh"
-
-# Keybindings
-source "${ZSH}/config/bindings.zsh"
+# Rust
+[[ ! -f "${HOME}/.cargo/env" ]] || source "${HOME}/.cargo/env"
 
 # Settings
 source "${ZSH}/config/settings.zsh"
 
-# Aliases
-source "${ZSH}/config/aliases.zsh"
+# Keybindings
+source "${ZSH}/config/bindings.zsh"
+
+# Theme
+source "${ZSH}/themes/powerlevel10k/powerlevel10k.zsh-theme"
 
 # Functions
 source "${ZSH}/config/functions.zsh"
 
-# Powerlevel10k settings
-[[ ! -f "${ZSH}/config/p10k.zsh" ]] || source "${ZSH}/config/p10k.zsh"
+# Aliases
+source "${ZSH}/config/aliases.zsh"
+
+# Completion
+source "${ZSH}/config/completions.zsh"
+
+# Secrets
+[[ ! -f "${ZSH}/config/secrets.zsh" ]] || source "${ZSH}/config/secrets.zsh"
+
+# Work
+[[ ! -f "${ZSH}/config/work.zsh" ]] || source "${ZSH}/config/work.zsh"
+
+# Powerlevel10k
+source "${ZSH}/config/p10k.zsh"
+
+# Plugins
+source "${ZSH}/config/plugins.zsh"

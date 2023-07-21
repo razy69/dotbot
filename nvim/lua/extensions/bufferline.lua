@@ -4,13 +4,11 @@
   See: https://github.com/akinsho/bufferline.nvim
 ]]
 
-opt.termguicolors = true
-
 require("bufferline").setup{
   options = {
     mode = "tabs",
-    show_buffer_close_icons = false,
-    show_close_icon = false,
+    show_buffer_close_icons = true,
+    show_close_icon = true,
     enforce_regular_tabs = true,
   }
 }

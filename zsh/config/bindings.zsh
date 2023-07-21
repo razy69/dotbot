@@ -10,18 +10,41 @@ source "${ZSH}/keymaps/${TERM}-${${DISPLAY:t}:-${VENDOR}-${OSTYPE}}"
 ##
 
 bindkey -e
-bindkey \^u backward-kill-line
+bindkey '^u' backward-kill-line
 
-# # [Home] - Start of line
+# [Home] - Start of line
 [[ -n ${key[Home]} ]] && bindkey "${key[Home]}" beginning-of-line
 
-# # [End] - End of line
+# [End] - End of line
 [[ -n ${key[End]} ]] && bindkey "${key[End]}" end-of-line
 
+# [Delete] - Delete char
+[[ -n ${key[Delete]} ]] && bindkey "${key[Delete]}" delete-char
+
+# [Up] - Previous command
+[[ -n ${key[Up]} ]] && bindkey "${key[Up]}" up-line-or-local-history
+
+# [Down] - Next command
+[[ -n ${key[Down]} ]] && bindkey "${key[Down]}" down-line-or-local-history
+
+up-line-or-local-history() {
+    zle set-local-history 1
+    zle up-line-or-history
+    zle set-local-history 0
+}
+zle -N up-line-or-local-history
+down-line-or-local-history() {
+    zle set-local-history 1
+    zle down-line-or-history
+    zle set-local-history 0
+}
+zle -N down-line-or-local-history
+
 # [Ctrl-X, Ctrl-E] - Edit the current command line in $EDITOR
-autoload -U edit-command-line
+autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey '\C-x\C-e' edit-command-line
 
-# [Esc-W] - Kill from the cursor to the mark
-bindkey '\ew' kill-region
+# [Ctrl-R] - History inc search
+bindkey '^r' history-incremental-search-backward
+bindkey '^f' history-incremental-search-forward

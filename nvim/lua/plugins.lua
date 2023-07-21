@@ -165,6 +165,20 @@ return {
   },
   -- }}}
 
+  -- Which-Key {{
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    init = function()
+      vim.o.timeout = true
+      vim.o.timeoutlen = 500
+    end,
+    config = function()
+      require("extensions.which-key")
+    end
+  },
+  -- }}
+
   -- Theme Monokai {{{
   {
     "loctvl842/monokai-pro.nvim",
