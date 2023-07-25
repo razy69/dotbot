@@ -9,13 +9,13 @@ local neotree = require("neo-tree")
 cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
 
 fn.sign_define("DiagnosticSignError",
-{text = "x ", texthl = "DiagnosticSignError"})
+{text = "", texthl = "DiagnosticSignError"})
 fn.sign_define("DiagnosticSignWarn",
-{text = "! ", texthl = "DiagnosticSignWarn"})
+{text = "", texthl = "DiagnosticSignWarn"})
 fn.sign_define("DiagnosticSignInfo",
-{text = "i ", texthl = "DiagnosticSignInfo"})
+{text = "", texthl = "DiagnosticSignInfo"})
 fn.sign_define("DiagnosticSignHint",
-{text = " ", texthl = "DiagnosticSignHint"})
+{text = "", texthl = "DiagnosticSignHint"})
 
 neotree.setup{
   close_if_last_window = true,
