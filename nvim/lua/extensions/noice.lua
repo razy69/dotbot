@@ -19,5 +19,9 @@ noice.setup{
     enabled = true, -- enables the Noice cmdline UI
     view = "cmdline",
     conceal = false,
+    format = {
+      cmdline = { pattern = "^:", icon = "❯", lang = "vim" },
+      filter = { pattern = "^:%s*!", icon = "$", lang = "bash" },
+    },
   },
 }

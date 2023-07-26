@@ -66,6 +66,7 @@ return {
     dependencies = {
       "nvim-lua/plenary.nvim",
       "ahmedkhalf/project.nvim",
+      "nvim-telescope/telescope-ui-select.nvim",
     },
     config = function()
       require("extensions.telescope")
@@ -190,6 +191,27 @@ return {
     "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
     config = function()
       require("extensions.lsp-lines")
+    end,
+  },
+  -- }}
+
+  -- Alpha Nvim {{
+  {
+    "goolord/alpha-nvim",
+    event = "VimEnter",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("extensions.alpha")
+    end,
+  },
+  -- }}
+
+  -- Neovim Session Manager {{
+  {
+    "Shatur/neovim-session-manager",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require("extensions.session-manager")
     end,
   },
   -- }}
