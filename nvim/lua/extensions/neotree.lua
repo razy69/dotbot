@@ -44,6 +44,11 @@ neotree.setup{
       noremap = true,
       nowait = true,
     },
+    mappings = {
+      ["e"] = function() api.nvim_exec("Neotree focus filesystem left", true) end,
+      ["b"] = function() api.nvim_exec("Neotree focus buffers left", true) end,
+      ["g"] = function() api.nvim_exec("Neotree focus git_status left", true) end,
+    },
   },
   filesystem = {
     filtered_items = {
