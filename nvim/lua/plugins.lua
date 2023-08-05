@@ -186,15 +186,6 @@ return {
   },
   -- }}
 
-  -- LSP Lines {{
-  {
-    "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
-    config = function()
-      require("extensions.lsp-lines")
-    end,
-  },
-  -- }}
-
   -- Alpha Nvim {{
   {
     "goolord/alpha-nvim",

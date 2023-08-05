@@ -10,8 +10,10 @@ require "helpers/globals"
 cmd[[autocmd FileType * setlocal formatoptions-=cro]]
 
 -- Tabs {{{
+cmd[[autocmd FileType python setlocal tabstop=4 softtabstop=4 shiftwidth=4]]
 opt.expandtab = true                   -- Use spaces by default
-opt.shiftwidth = 2                     -- Set amount of space characters, when we press "<" or ">"
+opt.shiftround = true                  -- Round indent
+opt.shiftwidth = 2                     -- the number of spaces inserted for each indentation
 opt.tabstop = 2                        -- 1 tab equal 2 spaces
 opt.softtabstop = 2                    -- When hitting <BS>, pretend like a tab is removed, even if spaces
 opt.smartindent = true                 -- Turn on smart indentation. See in the docs for more info
@@ -38,6 +40,7 @@ opt.showcmd = false                    -- Disable display of last command
 opt.showmode = false                   -- Disable -- INSERT --
 opt.guicursor = "i-v-n:ver25-iCursor"  -- Set vertical cursor in insert mode
 opt.termguicolors = true               -- Enable 24-bit colour
+opt.hidden = true                      -- Enable modified buffers in background
 -- }}}
 
 -- Search {{{
@@ -53,6 +56,49 @@ opt.splitbelow = true                  -- Put new windows below current
 opt.splitright = true                  -- Put new vertical splits to right
 -- }}}
 
+-- Diagnostics {{{
+fn.sign_define(
+  "DiagnosticSignError",
+  {
+    text = "",
+    texthl = "DiagnosticSignError",
+    numhl = "",
+    linehl = "",
+  }
+)
+
+fn.sign_define(
+  "DiagnosticSignWarn",
+  {
+    text = "",
+    texthl = "DiagnosticSignWarn",
+    numhl = "",
+    linehl = "",
+  }
+)
+
+fn.sign_define(
+  "DiagnosticSignInfo",
+  {
+    text = "",
+    texthl = "DiagnosticSignInfo",
+    numhl = "",
+    linehl = "",
+  }
+)
+
+fn.sign_define(
+  "DiagnosticSignHint",
+  {
+    text = "",
+    texthl = "DiagnosticSignHint",
+    numhl = "",
+    linehl = "",
+  }
+)
+
+-- }}}
+ 
 -- Default Plugins {{{
 local disabled_built_ins = {
     "netrw",
