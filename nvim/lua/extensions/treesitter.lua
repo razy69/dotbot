@@ -6,7 +6,7 @@
 
 opt.foldmethod = "expr"
 opt.foldexpr = "nvim_treesitter#foldexpr()"
-opt.foldlevelstart = -1
+opt.foldlevelstart = 0
 opt.foldenable = false
 opt.foldlevel = 99
 
@@ -37,6 +37,7 @@ require("nvim-treesitter.configs").setup{
     "markdown",
     "markdown_inline",
     "perl",
+    "puppet",
     "python",
     "regex",
     "ruby",
@@ -75,3 +76,14 @@ require("nvim-treesitter.configs").setup{
     max_file_lines = 3000
   }
 }
+
+vim.diagnostic.config({
+  virtual_text = {
+    -- source = "always",  -- Or "if_many"
+    prefix = "▎", -- Could be '■', '▎', 'x'
+  },
+  severity_sort = true,
+  float = {
+    source = "always",  -- Or "if_many"
+  },
+})

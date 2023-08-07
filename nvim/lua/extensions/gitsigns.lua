@@ -5,7 +5,6 @@
 ]]
 
 local gitsigns = require("gitsigns")
-local null_ls = require("null-ls")
 
 gitsigns.setup{
   signs = {
@@ -23,10 +22,4 @@ gitsigns.setup{
     delay = 1000,
     ignore_whitespace = false,
   },
-}
-
-null_ls.setup{
-  sources = {
-    null_ls.builtins.code_actions.gitsigns,
-  }
 }
