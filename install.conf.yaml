@@ -9,6 +9,7 @@
     - ~/.config
     - ~/.vim
     - ~/.zsh/completions
+    - ~/notes
 - clean:
     ~/:
       force: true
@@ -43,7 +44,7 @@
       description: Installing submodules
     -
       command: '
-        for bin in bat delta erd exa fd git tmux nvim rg zsh; do
+        for bin in bat catimg delta erd exa fd git tmux nvim rg zsh; do
           if ! command -v "$bin" &> /dev/null;
             then echo -e "\033[1;33m! $bin is not installed\033[0m";
           fi;

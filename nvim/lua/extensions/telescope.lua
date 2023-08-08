@@ -27,3 +27,4 @@ telescope.setup{
 telescope.load_extension("noice")
 telescope.load_extension("projects")
 telescope.load_extension("ui-select")
+telescope.load_extension("media_files")

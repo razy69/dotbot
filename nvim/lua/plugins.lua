@@ -69,9 +69,23 @@ return {
       "nvim-lua/plenary.nvim",
       "ahmedkhalf/project.nvim",
       "nvim-telescope/telescope-ui-select.nvim",
+      "nvim-telescope/telescope-media-files.nvim",
     },
     config = function()
       require("extensions.telescope")
+    end
+  },
+  -- }}}
+
+  -- Telekasten
+  {
+    "renerocksai/telekasten.nvim",
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+      "renerocksai/calendar-vim",
+    },
+    config = function()
+      require("extensions.telekasten")
     end
   },
   -- }}}
