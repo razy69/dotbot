@@ -12,12 +12,14 @@ return {
   -- Indentation Highlighting {{{
   {
     "lukas-reineke/indent-blankline.nvim",
+    lazy = false,
   },
   -- }}}
 
   -- Bufferline {{{
   {
     "akinsho/bufferline.nvim",
+    lazy = false,
     dependencies = {
       "nvim-tree/nvim-web-devicons"
     },
@@ -31,6 +33,7 @@ return {
   {
     "williamboman/mason.nvim",
     build = ":MasonUpdate",
+    lazy = false,
     dependencies = {
       "mfussenegger/nvim-dap",
       "rcarriga/nvim-dap-ui",
@@ -49,6 +52,7 @@ return {
   {
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
+    lazy = false,
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons",
@@ -70,6 +74,7 @@ return {
       "ahmedkhalf/project.nvim",
       "nvim-telescope/telescope-ui-select.nvim",
       "nvim-telescope/telescope-media-files.nvim",
+      "debugloop/telescope-undo.nvim",
     },
     config = function()
       require("extensions.telescope")
@@ -80,6 +85,7 @@ return {
   -- Telekasten
   {
     "renerocksai/telekasten.nvim",
+    event = "VeryLazy",
     dependencies = {
       "nvim-telescope/telescope.nvim",
       "renerocksai/calendar-vim",
@@ -130,17 +136,6 @@ return {
   },
   -- }}}
 
-  -- Trouble {{{
-  {
-    "folke/trouble.nvim",
-    lazy = true,
-    dependencies = "nvim-tree/nvim-web-devicons",
-    config = function()
-      require("extensions.trouble")
-    end
-  },
-  -- }}}
-
   -- Noice {{{
   {
     "folke/noice.nvim",
@@ -170,7 +165,8 @@ return {
   -- Lualine {{{
   {
     "nvim-lualine/lualine.nvim",
-    lazy = false,
+    --lazy = false,
+    event = { "BufReadPost", "BufNewFile" },
     dependencies = "nvim-tree/nvim-web-devicons",
     config = function()
       require("extensions.lualine")
@@ -178,7 +174,7 @@ return {
   },
   -- }}}
 
-  -- Which-Key {{
+  -- Which-Key {{{
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
@@ -190,19 +186,20 @@ return {
       require("extensions.which-key")
     end
   },
-  -- }}
+  -- }}}
 
-  -- Nvim-Navic {{
+  -- Nvim-Navic {{{
   {
     "SmiteshP/nvim-navic",
+    lazy = false,
     dependencies = "neovim/nvim-lspconfig",
     config = function()
       require("extensions.nvim-navic-conf")
     end
   },
-  -- }}
+  -- }}}
 
-  -- Alpha Nvim {{
+  -- Alpha Nvim {{{
   {
     "goolord/alpha-nvim",
     event = "VimEnter",
@@ -211,17 +208,29 @@ return {
       require("extensions.alpha")
     end,
   },
-  -- }}
+  -- }}}
 
-  -- Neovim Session Manager {{
+  -- Neovim Session Manager {{{
   {
     "Shatur/neovim-session-manager",
+    event = "VeryLazy",
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
       require("extensions.session-manager")
     end,
   },
-  -- }}
+  -- }}}
+
+  -- Neoclip {{{
+  {
+    "AckslD/nvim-neoclip.lua",
+    event = "VeryLazy",
+    dependencies = "nvim-telescope/telescope.nvim",
+    config = function()
+      require("neoclip").setup()
+    end,
+  },
+  -- }}}
 
   -- Theme Monokai {{{
   {

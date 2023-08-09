@@ -21,7 +21,7 @@ lint.linters_by_ft = {
 
 
 -- Lint on Leave Insert Mode
-autocmd("InsertLeave" , {
+autocmd("BufWritePost" , {
   callback = function()
     lint.try_lint()
   end
