@@ -73,6 +73,7 @@ mason_lspconfig.setup{
     "gopls",                -- LSP for Go
     "yamlls",               -- LSP for YAML
     "jsonls",               -- LSP for JSON
+    --"jedi_language_server", -- LSP for Python
     "pyright",              -- LSP for Python
     "terraformls",          -- LSP for Terraform
   }

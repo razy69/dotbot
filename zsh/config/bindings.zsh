@@ -2,7 +2,8 @@
 # Keymap
 ##
 
-source "${ZSH}/keymaps/${TERM}-${${DISPLAY:t}:-${VENDOR}-${OSTYPE}}"
+term_profile="${ZSH}/keymaps/${TERM}-${${DISPLAY:t}:-${VENDOR}-${OSTYPE}}"
+[[ ! -f "${term_profile}" ]] || source "${term_profile}"
 
 
 ##
