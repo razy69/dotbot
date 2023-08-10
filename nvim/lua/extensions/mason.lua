@@ -15,10 +15,9 @@ local augroup = vim.api.nvim_create_augroup   -- Create/get autocommand group
 local autocmd = vim.api.nvim_create_autocmd   -- Create autocommand
 
 lint.linters_by_ft = {
-  python = {"ruff", "mypy",},
+  python = {"mypy",},
   markdown = {"markdownlint",},
 }
-
 
 -- Lint on Leave Insert Mode
 autocmd("BufWritePost" , {
@@ -36,6 +35,7 @@ formatter.setup {
   -- All formatter configurations are opt-in
   filetype = {
     python = {
+      require("formatter.filetypes.python").isort,
       require("formatter.filetypes.python").black,
     },
     -- Use the special "*" filetype for defining formatter configurations on
@@ -73,8 +73,8 @@ mason_lspconfig.setup{
     "gopls",                -- LSP for Go
     "yamlls",               -- LSP for YAML
     "jsonls",               -- LSP for JSON
-    --"jedi_language_server", -- LSP for Python
-    "pyright",              -- LSP for Python
+    "jedi_language_server", -- LSP for Python
+    "ruff_lsp",             -- LSP for Python
     "terraformls",          -- LSP for Terraform
   }
 }
