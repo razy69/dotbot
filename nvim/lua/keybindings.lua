@@ -26,6 +26,7 @@ nm("K", "<cmd>lua vim.lsp.buf.hover()<CR>")                                     
 nm("ga", "<cmd>lua vim.lsp.buf.code_action()<CR>")                                                -- Code actions
 nm("gR", "<cmd>lua vim.lsp.buf.rename()<CR>")                                                     -- Rename an object
 nm("gD", "<cmd>lua vim.lsp.buf.declaration()<CR>")                                                -- Go to declaration
+nm("<leader>D", "<cmd>lua vim.diagnostic.open_float()<CR>")                                       -- Open diagnostics float window
 -- }}}
 
 -- Telescope {{{

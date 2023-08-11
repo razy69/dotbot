@@ -76,14 +76,3 @@ require("nvim-treesitter.configs").setup{
     max_file_lines = 3000
   }
 }
-
-vim.diagnostic.config({
-  virtual_text = {
-    -- source = "always",  -- Or "if_many"
-    prefix = "▎", -- Could be '■', '▎', 'x'
-  },
-  severity_sort = true,
-  float = {
-    source = "always",  -- Or "if_many"
-  },
-})
