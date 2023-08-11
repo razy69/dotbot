@@ -11,49 +11,54 @@ require "helpers/keyboard"
 --
 
 
-g.mapleader = " "                                                                          -- Use Space, like key for alternative hotkeys
+g.mapleader = " "                                                                                 -- Use Space, like key for alternative hotkeys
 
 -- VIM {{{
-nm("<leader>s", "<cmd>update<CR>")                                                         -- Save file
-nm("<leader>q", "<cmd>quit<CR>")                                                           -- Quit file
-nm("<leader>t", "<cmd>tabnew<CR>")                                                         -- Open new tab
-nm("<leader><BS>", "za<CR>")                                                               -- Folding with the spacebar
+nm("<leader>s", "<cmd>update<CR>")                                                                -- Save file
+nm("<leader>q", "<cmd>quit<CR>")                                                                  -- Quit file
+nm("<leader>qa", "<cmd>quitall<CR>")                                                              -- Quit nvim
+nm("<leader>t", "<cmd>tabnew<CR>")                                                                -- Open new tab
+nm("<leader><BS>", "za<CR>")                                                                      -- Folding with the spacebar
 -- }}}
 
 -- LSP {{{
-nm("T", "<cmd>lua vim.lsp.buf.type_definition()<CR>")                                      -- Type definition
-nm("K", "<cmd>lua vim.lsp.buf.hover()<CR>")                                                -- Hover object
-nm("ga", "<cmd>lua vim.lsp.buf.code_action()<CR>")                                         -- Code actions
-nm("gR", "<cmd>lua vim.lsp.buf.rename()<CR>")                                              -- Rename an object
-nm("gD", "<cmd>lua vim.lsp.buf.declaration()<CR>")                                         -- Go to declaration
-nm("gr", "<cmd>lua vim.lsp.buf.references()<CR>")                                          -- Go to references
+nm("K", "<cmd>lua vim.lsp.buf.hover()<CR>")                                                       -- Hover object
+nm("ga", "<cmd>lua vim.lsp.buf.code_action()<CR>")                                                -- Code actions
+nm("gR", "<cmd>lua vim.lsp.buf.rename()<CR>")                                                     -- Rename an object
+nm("gD", "<cmd>lua vim.lsp.buf.declaration()<CR>")                                                -- Go to declaration
 -- }}}
 
 -- Telescope {{{
-nm("gd", "<cmd>lua require'telescope.builtin'.lsp_definitions({jump_type='vsplit'})<CR>")  -- Goto declaration
-nm("<leader>O", "<cmd>Telescope oldfiles<CR>")                                             -- Show recent files
-nm("<leader>o", "<cmd>Telescope find_files<CR>")                                           -- Search for a file (ignoring git-ignore)
-nm("<leader>i", "<cmd>Telescope jumplist<CR>")                                             -- Show jumplist (previous locations)
-nm("<leader>f", "<cmd>Telescope live_grep<CR>")                                            -- Find a string in project
-nm("<leader>b", "<cmd>Telescope buffers<CR>")                                              -- Show all buffers
-nm("<leader>a", "<cmd>Telescope<CR>")                                                      -- Show all commands
-nm("<leader>d", "<cmd>Telescope diagnostics<CR>")                                          -- Show diagnostics
-nm("<leader>u", "<cmd>Telescope undo<CR>")                                                 -- Show Telescope undo menu
-nm("<leader>p", "<cmd>Telescope neoclip<CR>")                                              -- Show Telescope neoclip menu
+nm("gd", "<cmd>lua require('telescope.builtin').lsp_definitions({jump_type='vsplit'})<CR>")       -- Goto definitions
+nm("gr", "<cmd>lua require('telescope.builtin').lsp_references({jump_type='vsplit'})<CR>")        -- Goto references
+nm("<leader>O", "<cmd>Telescope oldfiles<CR>")                                                    -- Show recent files
+nm("<leader>o", "<cmd>Telescope find_files<CR>")                                                  -- Search for a file (ignoring git-ignore)
+nm("<leader>i", "<cmd>Telescope jumplist<CR>")                                                    -- Show jumplist (previous locations)
+nm("<leader>f", "<cmd>Telescope live_grep<CR>")                                                   -- Find a string in project
+nm("<leader>b", "<cmd>Telescope buffers<CR>")                                                     -- Show all buffers
+nm("<leader>a", "<cmd>Telescope<CR>")                                                             -- Show all commands
+nm("<leader>d", "<cmd>Telescope diagnostics<CR>")                                                 -- Show diagnostics
+nm("<leader>u", "<cmd>Telescope undo<CR>")                                                        -- Show Telescope undo menu
+nm("<leader>p", "<cmd>Telescope neoclip<CR>")                                                     -- Show Telescope neoclip menu
+nm("<leader>gc", "<cmd>lua require('telescope.builtin').git_commits()<CR>")                       -- Lists commits for current directory with diff preview
+nm("<leader>gf", "<cmd>lua require('telescope.builtin').git_files()<CR>")                         -- Fuzzy search for files tracked by Git. This command lists the output of the `git ls-files` command.
+nm("<leader>gb", "<cmd>lua require('telescope.builtin').git_branches()<CR>")                      -- List branches for current directory, with output from `git log --oneline` shown in the preview window
+nm("<leader>gs", "<cmd>lua require('telescope.builtin').git_status()<CR>")                        -- Lists git status for current directory
+nm("<leader>gst", "<cmd>lua require('telescope.builtin').git_stash()<CR>")                        -- Lists stash items in current directory
 -- }}}
 
 -- Neo Tree {{{
-nm("<leader>e", "<cmd>Neotree toggle<CR>")                                                 -- Toggle file explorer
+nm("<leader>e", "<cmd>Neotree toggle<CR>")                                                        -- Toggle file explorer
 -- }}}
 
 -- Noice {{{
-nm("<leader>h", "<cmd>Noice telescope<CR>")                                                -- Opens Noice message history in Telescope
+nm("<leader>h", "<cmd>Noice telescope<CR>")                                                       -- Opens Noice message history in Telescope
 -- }}}
 
 -- WhichKey {{{
-nm("<leader>`", "<cmd>WhichKey<CR>")                                                       -- Open WhichKey
+nm("<leader>`", "<cmd>WhichKey<CR>")                                                              -- Open WhichKey
 -- }}}
 
 -- Telekasten {{{
-nm("<leader>n", "<cmd>Telekasten panel<CR>")                                               -- Open Telekasten Menu
+nm("<leader>n", "<cmd>Telekasten panel<CR>")                                                      -- Open Telekasten Menu
 -- }}}

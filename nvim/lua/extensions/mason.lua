@@ -14,6 +14,9 @@ local formatter_ft_any = require("formatter.filetypes.any")
 local augroup = vim.api.nvim_create_augroup   -- Create/get autocommand group
 local autocmd = vim.api.nvim_create_autocmd   -- Create autocommand
 
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+
 lint.linters_by_ft = {
   python = {"mypy",},
   markdown = {"markdownlint",},
@@ -83,6 +86,7 @@ mason_lspconfig.setup{
 mason_lspconfig.setup_handlers{
   function (server_name)
     lspconfig[server_name].setup {
+      capabilities = capabilities,
       settings = {
         Lua = {
           diagnostics = {

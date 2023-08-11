@@ -10,34 +10,48 @@ local lspkind = require("lspkind")
 
 cmp.setup{
 
+  snippet = {
+    -- REQUIRED - you must specify a snippet engine
+    expand = function(args)
+      require("luasnip").lsp_expand(args.body) -- For `luasnip` users.
+    end,
+  },
+
   -- Mappings for cmp
-  mapping = {
+  mapping = cmp.mapping.preset.insert({
 
     -- Autocompletion menu
-    ["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i" }),
-    ["<CR>"] = cmp.config.disable,                      -- Turn off autocomplete on <CR>
-    ["<C-y>"] = cmp.mapping.confirm({ select = true }), -- Turn on autocomplete on <C-y>
-
-    -- Use <C-e> to abort autocomplete
-    ["<C-e>"] = cmp.mapping({
-      i = cmp.mapping.abort(), -- Abort completion
-      c = cmp.mapping.close(), -- Close completion window
-    }),
+    ["<C-Space>"] = cmp.mapping.complete(),
+    ["<C-e>"] = cmp.mapping.abort(),
+    ["<CR>"] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
 
     -- Use <C-p> and <C-n> to navigate through completion variants
     ["<C-p>"] = cmp.mapping(cmp.mapping.select_prev_item(), { "i", "c" }),
     ["<C-n>"] = cmp.mapping(cmp.mapping.select_next_item(), { "i", "c" }),
-  },
+  }),
 
   sources = cmp.config.sources({
-    { name = "nvim_lsp" },                -- LSP
-    { name = "nvim_lsp_signature_help" }, -- LSP for parameters in functions
-    { name = "nvim_lua" },                -- Lua Neovim API
-    { name = "luasnip" },                 -- Luasnip
-    { name = "buffer" },                  -- Buffers
-    { name = "path" },                    -- Paths
-    { name = "emoji" },                   -- Emoji
+    { name = "nvim_lsp", keyword_length = 1 },  -- LSP
+    { name = "nvim_lsp_signature_help" },       -- LSP for parameters in functions
+    { name = "path" },                          -- Paths
+    { name = "buffer", keyword_length = 4 },    -- Buffers
+    { name = "nvim_lua" },                      -- Lua Neovim API
+    { name = "luasnip" },                       -- Luasnip
+    { name = "emoji" },                         -- Emoji
   }),
+
+  sorting = {
+    comparators = {
+      cmp.config.compare.offset,
+      cmp.config.compare.exact,
+      cmp.config.compare.score,
+      require("cmp-under-comparator").under,
+      cmp.config.compare.kind,
+      cmp.config.compare.sort_text,
+      cmp.config.compare.length,
+      cmp.config.compare.order,
+    },
+  },
 
   formatting = {
     format = lspkind.cmp_format({
@@ -47,5 +61,3 @@ cmp.setup{
     })
   }
 }
-
-require("cmp_nvim_lsp").default_capabilities()
