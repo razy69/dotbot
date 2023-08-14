@@ -8,7 +8,18 @@ local cmp = require("cmp")
 local lspkind = require("lspkind")
 
 
-cmp.setup{
+cmp.setup({
+
+  enabled = function()
+    local lnum, col = vim.fn.line("."), math.min(vim.fn.col("."), #vim.fn.getline("."))
+    for _, syn_id in ipairs(vim.fn.synstack(lnum, col)) do
+      syn_id = vim.fn.synIDtrans(syn_id) -- Resolve :highlight links
+      if vim.fn.synIDattr(syn_id, "name") == "Comment" then
+        return false
+        end
+    end
+    return true
+  end,
 
   snippet = {
     -- REQUIRED - you must specify a snippet engine
@@ -23,21 +34,33 @@ cmp.setup{
     -- Autocompletion menu
     ["<C-Space>"] = cmp.mapping.complete(),
     ["<C-e>"] = cmp.mapping.abort(),
-    ["<CR>"] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+    ["<CR>"] = cmp.mapping({
+      i = function(fallback)
+        if cmp.visible() and cmp.get_active_entry() then
+          cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
+        else
+          fallback()
+        end
+      end,
+      s = cmp.mapping.confirm({ select = true }),
+      c = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
+    }),
 
     -- Use <C-p> and <C-n> to navigate through completion variants
     ["<C-p>"] = cmp.mapping(cmp.mapping.select_prev_item(), { "i", "c" }),
+    ["<S-Tab>"] = cmp.mapping(cmp.mapping.select_prev_item(), { "i", "s" }),
     ["<C-n>"] = cmp.mapping(cmp.mapping.select_next_item(), { "i", "c" }),
+    ["<Tab>"] = cmp.mapping(cmp.mapping.select_next_item(), { "i", "s" }),
   }),
 
   sources = cmp.config.sources({
-    { name = "nvim_lsp", keyword_length = 1 },  -- LSP
-    { name = "nvim_lsp_signature_help" },       -- LSP for parameters in functions
-    { name = "path" },                          -- Paths
-    { name = "buffer", keyword_length = 4 },    -- Buffers
-    { name = "nvim_lua" },                      -- Lua Neovim API
-    { name = "luasnip" },                       -- Luasnip
-    { name = "emoji" },                         -- Emoji
+    { name = "nvim_lsp", keyword_length = 2 },  							-- LSP
+    { name = "nvim_lsp_signature_help", keyword_length = 2 }, -- LSP for parameters in functions
+    { name = "buffer", keyword_length = 2 },     							-- Buffers
+    { name = "path", keyword_length = 3},	                    -- Paths
+    { name = "nvim_lua" },                      							-- Lua Neovim API
+    { name = "luasnip" },                       							-- Luasnip
+    { name = "emoji" },                         							-- Emoji
   }),
 
   sorting = {
@@ -59,5 +82,6 @@ cmp.setup{
       maxwidth = 50, -- prevent the popup from showing more than provided characters (e.g 50 will not show more than 50 characters)
       ellipsis_char = "...", -- when popup menu exceed maxwidth, the truncated part would show ellipsis_char instead (must define maxwidth first)
     })
-  }
-}
+  },
+
+})
