@@ -10,18 +10,18 @@ local dashboard = require("alpha.themes.dashboard")
 
 -- Hide/Show tabline
 vim.api.nvim_create_autocmd("User", {
-	pattern = "AlphaReady",
+  pattern = "AlphaReady",
   desc = "disable tabline for alpha",
   callback = function()
-  	vim.opt.showtabline = 0
+    vim.opt.showtabline = 0
   end,
 })
 
 vim.api.nvim_create_autocmd("BufUnload", {
-	buffer = 0,
+  buffer = 0,
   desc = "enable tabline after alpha",
   callback = function()
-  	vim.opt.showtabline = 2
+    vim.opt.showtabline = 2
   end,
 })
 

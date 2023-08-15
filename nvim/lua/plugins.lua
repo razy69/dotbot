@@ -15,6 +15,12 @@ return {
   },
   -- }}}
 
+  -- Rainbow delimiters {{{
+  {
+    "HiPhish/rainbow-delimiters.nvim",
+  },
+  -- }}}
+
   -- Theme Monokai {{{
   {
     "loctvl842/monokai-pro.nvim",
@@ -100,9 +106,11 @@ return {
   {
     "hrsh7th/nvim-cmp",
     event = "InsertEnter",
+    build = "make install_jsregexp",
     dependencies = {
       "L3MON4D3/LuaSnip",
       "saadparwaiz1/cmp_luasnip",
+      "hrsh7th/cmp-cmdline",
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-path",
@@ -242,20 +250,60 @@ return {
 
   -- Vim Illuminate {{{
   {
-		"RRethy/vim-illuminate",
-		config = function()
-			require("illuminate").configure()
-		end,
+    "RRethy/vim-illuminate",
+    config = function()
+      require("illuminate").configure()
+    end,
   },
   -- }}}
 
-  -- hlargs.vim {{{
+  -- hlargs {{{
   {
     "m-demare/hlargs.nvim",
     config = function()
-     require("hlargs").setup()
+      require("hlargs").setup()
     end
   },
   -- }}}
 
+  -- trim.nvim {{{
+  {
+    "cappyzawa/trim.nvim",
+    opts = {}
+  },
+  -- }}}
+
+  -- nvim-autopairs {{{
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    opts = {} -- this is equalent to setup({}) function
+  },
+  -- }}}
+
+  -- sentiment.nvim {{{
+  {
+    "utilyre/sentiment.nvim",
+    version = "*",
+    event = "VeryLazy", -- keep for lazy loading
+    opts = {
+      -- config
+    },
+    init = function()
+      -- `matchparen.vim` needs to be disabled manually in case of lazy loading
+      vim.g.loaded_matchparen = 1
+    end,
+  },
+  -- }}}
+
+  -- Pretty Fold {{{
+  {
+    "anuvyklack/pretty-fold.nvim",
+    config = function()
+      require("pretty-fold").setup({
+        fill_char = "-",
+      })
+    end,
+  },
+  -- }}}
 }

@@ -9,17 +9,15 @@ local mason_lspconfig = require("mason-lspconfig")
 local lspconfig = require("lspconfig")
 local lint = require("lint")
 local formatter = require("formatter")
-local formatter_ft_any = require("formatter.filetypes.any")
 
 local augroup = vim.api.nvim_create_augroup   -- Create/get autocommand group
 local autocmd = vim.api.nvim_create_autocmd   -- Create autocommand
 
-local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-
+-- Linters {{{
 lint.linters_by_ft = {
-  python = {"mypy",},
-  markdown = {"markdownlint",},
+  python = { "mypy" },
+  markdown = { "markdownlint" },
 }
 
 -- Lint on Leave Insert Mode
@@ -28,35 +26,30 @@ autocmd("BufWritePost" , {
     lint.try_lint()
   end
 })
+-- }}}
 
--- Provides the Format, FormatWrite, FormatLock, and FormatWriteLock commands
+
+-- Formatters {{{
 formatter.setup {
-  -- Enable or disable logging
   logging = true,
-  -- Set the log level
   log_level = vim.log.levels.WARN,
-  -- All formatter configurations are opt-in
   filetype = {
     python = {
       require("formatter.filetypes.python").isort,
       require("formatter.filetypes.python").black,
     },
-    -- Use the special "*" filetype for defining formatter configurations on
-   ["*"] = {
-      -- "formatter.filetypes.any" defines default configurations for any
-      -- filetype
-      formatter_ft_any.remove_trailing_whitespace
-    }
   }
 }
 
--- Format on Save
+-- fmt on save
 augroup("FormatAutogroup", { clear = true })
 autocmd("BufWritePost", {
   group = "FormatAutogroup",
   command = "FormatWriteLock",
 })
+-- }}}
 
+-- Mason Setup + LSP {{{
 mason.setup({
   ui = {
     icons = {
@@ -82,24 +75,36 @@ mason_lspconfig.setup{
   }
 }
 
--- Setup every needed language server in lspconfig
-mason_lspconfig.setup_handlers{
-  function (server_name)
-    lspconfig[server_name].setup {
+
+-- Setup LSP config
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+mason_lspconfig.setup_handlers({
+  function(server_name)
+    local opts = {
       capabilities = capabilities,
-      settings = {
+    }
+
+    if server_name == "lua_ls" then
+      opts["settings"] = {
         Lua = {
           diagnostics = {
-            globals = { "vim" }
+            globals = { "vim" },
           },
         },
-      },
-    }
-  end,
-}
+      }
+    end
 
--- Setup diagnostics for all LSP handlers
-vim.diagnostic.config({
+    lspconfig[server_name].setup(opts)
+  end,
+})
+-- }}}
+
+
+-- Default diagnostics config {{{
+local diagnostics_opts = {
+  severity_sort = true,
+  signs = true,
   virtual_text = {
     spacing = 4,
     prefix = "▎",
@@ -111,8 +116,6 @@ vim.diagnostic.config({
       )
     end,
   },
-  severity_sort = true,
-  signs = true,
   float = {
     border = "none",
     format = function(diagnostic)
@@ -123,34 +126,7 @@ vim.diagnostic.config({
       )
     end,
   },
-})
+}
 
-
-vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-  vim.lsp.diagnostic.on_publish_diagnostics, {
-    virtual_text = {
-      spacing = 4,
-      prefix = "▎",
-      format = function(diagnostic)
-        return string.format(
-          "%s (%s) [%s]",
-          diagnostic.message,
-          diagnostic.source,
-          diagnostic.code or diagnostic.user_data.lsp.code
-        )
-      end,
-    },
-    signs = true,
-    float = {
-      border = "none",
-      format = function(diagnostic)
-        return string.format(
-          "%s (%s) [%s]",
-          diagnostic.message,
-          diagnostic.source,
-          diagnostic.code or diagnostic.user_data.lsp.code
-        )
-      end,
-    },
-  }
-)
+vim.diagnostic.config(diagnostics_opts)
+-- }}}
