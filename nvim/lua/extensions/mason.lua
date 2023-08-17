@@ -42,11 +42,11 @@ formatter.setup {
 }
 
 -- fmt on save
-augroup("FormatAutogroup", { clear = true })
-autocmd("BufWritePost", {
-  group = "FormatAutogroup",
-  command = "FormatWriteLock",
-})
+--augroup("FormatAutogroup", { clear = true })
+--autocmd("BufWritePost", {
+--  group = "FormatAutogroup",
+--  command = "FormatWriteLock",
+--})
 -- }}}
 
 -- Mason Setup + LSP {{{

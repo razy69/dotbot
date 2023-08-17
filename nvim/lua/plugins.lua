@@ -79,7 +79,7 @@ return {
   -- Lualine {{{
   {
     "nvim-lualine/lualine.nvim",
-    event = { "BufReadPost", "BufNewFile" },
+    event = { "BufReadPost", "BufNewFile", "BufNew", },
     dependencies = "nvim-tree/nvim-web-devicons",
     config = function()
       require("extensions.lualine")
@@ -218,7 +218,7 @@ return {
     event = "VeryLazy",
     dependencies = "nvim-telescope/telescope.nvim",
     config = function()
-      require("neoclip").setup()
+      require("extensions.neoclip")
     end,
   },
   -- }}}
