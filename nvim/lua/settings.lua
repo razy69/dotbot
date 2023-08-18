@@ -59,6 +59,33 @@ opt.splitright = true                  -- Put new vertical splits to right
 -- }}}
 
 -- Diagnostics {{{
+
+vim.diagnostic.config({
+  severity_sort = true,
+  signs = true,
+  virtual_text = {
+    spacing = 4,
+    prefix = "▎",
+    format = function(diagnostic)
+      return string.format(
+        "%s (%s)",
+        diagnostic.message,
+        diagnostic.source
+      )
+    end,
+  },
+  float = {
+    border = "none",
+    format = function(diagnostic)
+      return string.format(
+        "%s (%s)",
+        diagnostic.message,
+        diagnostic.source
+      )
+    end,
+  },
+})
+
 fn.sign_define(
   "DiagnosticSignError",
   {

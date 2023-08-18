@@ -9,100 +9,8 @@ require("helpers/globals")
 
 return {
 
-  -- Indentation Highlighting {{{
-  {
-    "lukas-reineke/indent-blankline.nvim",
-  },
-  -- }}}
-
-  -- Rainbow delimiters {{{
-  {
-    "HiPhish/rainbow-delimiters.nvim",
-  },
-  -- }}}
-
-  -- Theme Monokai {{{
-  {
-    "loctvl842/monokai-pro.nvim",
-    lazy = false,
-    dependencies = "nvim-tree/nvim-web-devicons",
-    config = function()
-      require("extensions.colorscheme.monokai")
-    end
-  },
-  -- }}}
-
-  -- Mason {{{
-  {
-    "williamboman/mason.nvim",
-    build = ":MasonUpdate",
-    lazy = false,
-    dependencies = {
-      "mfussenegger/nvim-dap",
-      "rcarriga/nvim-dap-ui",
-      "williamboman/mason-lspconfig.nvim",
-      "neovim/nvim-lspconfig",
-      "mhartington/formatter.nvim",
-      "mfussenegger/nvim-lint",
-    },
-    config = function()
-      require("extensions.mason")
-    end
-  },
-  -- }}}
-
-  -- Noice {{{
-  {
-    "folke/noice.nvim",
-    event = "VeryLazy",
-    dependencies = {
-      "MunifTanjim/nui.nvim",
-      "rcarriga/nvim-notify",
-    },
-    config = function()
-      require("extensions.noice")
-    end
-  },
-  -- }}}
-
-  -- TreeSitter {{{
-  {
-    "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
-    config = function()
-      require("extensions.treesitter")
-    end
-  },
-  -- }}}
-
-  -- Lualine {{{
-  {
-    "nvim-lualine/lualine.nvim",
-    event = { "BufReadPost", "BufNewFile", "BufNew", },
-    dependencies = "nvim-tree/nvim-web-devicons",
-    config = function()
-      require("extensions.lualine")
-    end
-  },
-  -- }}}
-
-  -- Neo Tree {{{
-  {
-    "nvim-neo-tree/neo-tree.nvim",
-    branch = "v3.x",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons",
-      "MunifTanjim/nui.nvim",
-    },
-    config = function ()
-      require("extensions.neotree")
-    end
-  },
-  -- }}}
-
-  -- CMP {{{
+-- Autocompletion [[
+  -- nvim-cmp
   {
     "hrsh7th/nvim-cmp",
     event = "InsertEnter",
@@ -124,18 +32,195 @@ return {
       require("extensions.cmp")
     end
   },
-  -- }}}
+-- ]]
 
-  -- LSP Kind {{{
+-- LSP [[
+  -- Mason
+  {
+    "williamboman/mason.nvim",
+    build = ":MasonUpdate",
+    lazy = false,
+    dependencies = {
+      "mfussenegger/nvim-dap",
+      "rcarriga/nvim-dap-ui",
+      "williamboman/mason-lspconfig.nvim",
+      "neovim/nvim-lspconfig",
+      "mhartington/formatter.nvim",
+      "mfussenegger/nvim-lint",
+    },
+    config = function()
+      require("extensions.mason")
+    end
+  },
+-- ]]
+
+-- Syntax [[
+  -- TreeSitter
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    event = { "BufReadPost", "BufNewFile" },
+    config = function()
+      require("extensions.treesitter")
+    end
+  },
+-- ]]
+
+-- Formatter [[
+  -- formatter.nvim
+  {
+    "mhartington/formatter.nvim",
+    lazy = true,
+    config = function()
+      require("extensions.formatter")
+    end
+  },
+
+  -- trim.nvim
+  {
+    "cappyzawa/trim.nvim",
+    opts = {}
+  },
+-- ]]
+
+-- Linter [[
+  -- nvim-lint
+  {
+    "mfussenegger/nvim-lint",
+    lazy = true,
+    config = function()
+      require("extensions.lint")
+    end
+  },
+-- ]]
+
+-- Visual [[
+  -- Theme Monokai
+  {
+    "loctvl842/monokai-pro.nvim",
+    lazy = false,
+    dependencies = "nvim-tree/nvim-web-devicons",
+    config = function()
+      require("extensions.colorscheme.monokai")
+    end
+  },
+
+  -- Indentation Highlighting
+  {
+    "lukas-reineke/indent-blankline.nvim",
+  },
+
+  -- Rainbow delimiters
+  {
+    "HiPhish/rainbow-delimiters.nvim",
+  },
+
+  -- Lualine (statusbar)
+  {
+    "nvim-lualine/lualine.nvim",
+    event = { "BufReadPost", "BufNewFile", "BufNew", },
+    dependencies = "nvim-tree/nvim-web-devicons",
+    config = function()
+      require("extensions.lualine")
+    end
+  },
+
+  -- Noice
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "rcarriga/nvim-notify",
+    },
+    config = function()
+      require("extensions.noice")
+    end
+  },
+
+  -- LSP Kind
   {
     "onsails/lspkind-nvim",
     config = function()
       require("extensions.lspkind-conf")
     end
   },
-  -- }}}
 
-  -- Telescope {{{
+  -- Pretty Fold
+  {
+    "anuvyklack/pretty-fold.nvim",
+    config = function()
+      require("pretty-fold").setup({
+        fill_char = "-",
+      })
+    end,
+  },
+
+  -- Git Signs
+  {
+    "lewis6991/gitsigns.nvim",
+    config = function()
+      require("extensions.gitsigns")
+    end
+  },
+
+  -- Barbecue
+  {
+    "utilyre/barbecue.nvim",
+    dependencies = {
+      "SmiteshP/nvim-navic",
+      "nvim-tree/nvim-web-devicons",
+    },
+    config = function()
+      require("extensions.barbecue")
+    end,
+  },
+
+  -- Bufferline
+  {
+    "akinsho/bufferline.nvim",
+    dependencies = {
+      "nvim-tree/nvim-web-devicons"
+    },
+    config = function()
+      require("extensions.bufferline")
+    end,
+  },
+
+  -- Vim Illuminate
+  {
+    "RRethy/vim-illuminate",
+    config = function()
+      require("illuminate").configure()
+    end,
+  },
+
+  -- hlargs (highlight arg def and usage uwin treesitter)
+  {
+    "m-demare/hlargs.nvim",
+    dependencies = {"nvim-treesitter"},
+    config = function()
+      require("hlargs").setup()
+    end
+  },
+-- ]]
+
+-- Features [[
+  -- Neo Tree (file explorer)
+  {
+    "nvim-neo-tree/neo-tree.nvim",
+    branch = "v3.x",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-tree/nvim-web-devicons",
+      "MunifTanjim/nui.nvim",
+    },
+    config = function ()
+      require("extensions.neotree")
+    end
+  },
+
+  -- Telescope (fuzzy finder and more)
   {
     "nvim-telescope/telescope.nvim",
     tag = "0.1.2",
@@ -151,9 +236,8 @@ return {
       require("extensions.telescope")
     end
   },
-  -- }}}
 
-  -- Telekasten
+  -- Telekasten (note management)
   {
     "renerocksai/telekasten.nvim",
     event = "VeryLazy",
@@ -165,18 +249,8 @@ return {
       require("extensions.telekasten")
     end
   },
-  -- }}}
 
-  -- Git Signs {{{
-  {
-    "lewis6991/gitsigns.nvim",
-    config = function()
-      require("extensions.gitsigns")
-    end
-  },
-  -- }}}
-
-  -- Which-Key {{{
+  -- Which-Key (help)
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
@@ -188,9 +262,8 @@ return {
       require("extensions.which-key")
     end
   },
-  -- }}}
 
-  -- Alpha Nvim {{{
+  -- Alpha Nvim (startup menu)
   {
     "goolord/alpha-nvim",
     event = "VimEnter",
@@ -199,9 +272,8 @@ return {
       require("extensions.alpha")
     end,
   },
-  -- }}}
 
-  -- Neovim Session Manager {{{
+  -- Neovim Session Manager (manage vim sessions)
   {
     "Shatur/neovim-session-manager",
     event = "VeryLazy",
@@ -210,9 +282,8 @@ return {
       require("extensions.session-manager")
     end,
   },
-  -- }}}
 
-  -- Neoclip {{{
+  -- Neoclip (copy/paste manager)
   {
     "AckslD/nvim-neoclip.lua",
     event = "VeryLazy",
@@ -221,89 +292,25 @@ return {
       require("extensions.neoclip")
     end,
   },
-  -- }}}
 
-  -- Barbecue {{{
-  {
-    "utilyre/barbecue.nvim",
-    dependencies = {
-      "SmiteshP/nvim-navic",
-      "nvim-tree/nvim-web-devicons",
-    },
-    config = function()
-      require("extensions.barbecue")
-    end,
-  },
-  -- }}}
-
-  -- Bufferline {{{
-  {
-    "akinsho/bufferline.nvim",
-    dependencies = {
-      "nvim-tree/nvim-web-devicons"
-    },
-    config = function()
-      require("extensions.bufferline")
-    end,
-  },
-  -- }}}
-
-  -- Vim Illuminate {{{
-  {
-    "RRethy/vim-illuminate",
-    config = function()
-      require("illuminate").configure()
-    end,
-  },
-  -- }}}
-
-  -- hlargs {{{
-  {
-    "m-demare/hlargs.nvim",
-    config = function()
-      require("hlargs").setup()
-    end
-  },
-  -- }}}
-
-  -- trim.nvim {{{
-  {
-    "cappyzawa/trim.nvim",
-    opts = {}
-  },
-  -- }}}
-
-  -- nvim-autopairs {{{
-  {
-    "windwp/nvim-autopairs",
-    event = "InsertEnter",
-    opts = {} -- this is equalent to setup({}) function
-  },
-  -- }}}
-
-  -- sentiment.nvim {{{
+  -- sentiment.nvim
   {
     "utilyre/sentiment.nvim",
     version = "*",
-    event = "VeryLazy", -- keep for lazy loading
+    event = "VeryLazy",
     opts = {
-      -- config
     },
     init = function()
-      -- `matchparen.vim` needs to be disabled manually in case of lazy loading
       vim.g.loaded_matchparen = 1
     end,
   },
-  -- }}}
 
-  -- Pretty Fold {{{
+  -- nvim-autopairs
   {
-    "anuvyklack/pretty-fold.nvim",
-    config = function()
-      require("pretty-fold").setup({
-        fill_char = "-",
-      })
-    end,
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    opts = {}
   },
-  -- }}}
+-- ]]
+
 }
