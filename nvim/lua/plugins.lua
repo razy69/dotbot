@@ -9,6 +9,36 @@ require("helpers/globals")
 
 return {
 
+-- LSP [[
+
+  -- LSP-Zero
+  {
+    "VonHeikemen/lsp-zero.nvim",
+    branch = "v2.x",
+    config = function()
+      require("extensions.lspzero")
+    end
+  },
+
+  -- Mason
+  {
+    "williamboman/mason.nvim",
+    build = ":MasonUpdate",
+    lazy = false,
+    dependencies = {
+      "mfussenegger/nvim-dap",
+      "rcarriga/nvim-dap-ui",
+      "williamboman/mason-lspconfig.nvim",
+      "neovim/nvim-lspconfig",
+      "mhartington/formatter.nvim",
+      "mfussenegger/nvim-lint",
+    },
+    config = function()
+      require("extensions.mason")
+    end
+  },
+-- ]]
+
 -- Autocompletion [[
   -- nvim-cmp
   {
@@ -34,26 +64,6 @@ return {
     },
     config = function()
       require("extensions.cmp")
-    end
-  },
--- ]]
-
--- LSP [[
-  -- Mason
-  {
-    "williamboman/mason.nvim",
-    build = ":MasonUpdate",
-    lazy = false,
-    dependencies = {
-      "mfussenegger/nvim-dap",
-      "rcarriga/nvim-dap-ui",
-      "williamboman/mason-lspconfig.nvim",
-      "neovim/nvim-lspconfig",
-      "mhartington/formatter.nvim",
-      "mfussenegger/nvim-lint",
-    },
-    config = function()
-      require("extensions.mason")
     end
   },
 -- ]]
