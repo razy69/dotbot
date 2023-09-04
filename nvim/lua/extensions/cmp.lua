@@ -7,6 +7,8 @@
 
 local lspkind = require("lspkind")
 local cmp = require("cmp")
+local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+local cmp_select_opts = {behavior = cmp.SelectBehavior.Select}
 local luasnip = require("luasnip")
 
 
@@ -15,21 +17,13 @@ lspkind.init{
   preset = "codicons",
 }
 
-local has_words_before = function()
-  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-end
+-- Add parentheses after selecting function or method item
+cmp.event:on(
+  "confirm_done",
+  cmp_autopairs.on_confirm_done()
+)
 
 cmp.setup({
-
-	enabled = function()
-		if require("cmp.config.context").in_treesitter_capture("comment") == true
-			or require("cmp.config.context").in_syntax_group("Comment") then
-			return false
-		else
-			return true
-		end
-	end,
 
 	snippet = {
 		-- REQUIRED - you must specify a snippet engine
@@ -44,69 +38,37 @@ cmp.setup({
   },
 
 	-- Mappings for cmp
-	mapping = cmp.mapping.preset.insert({
+	mapping = {
 
 		-- Autocompletion menu
 		["<C-Space>"] = cmp.mapping.complete(),
 		["<C-e>"] = cmp.mapping.abort(),
     ["<CR>"] = cmp.mapping.confirm({select = false}),
-		--[[["<CR>"] = cmp.mapping(function(fallback)
-      if luasnip.expand_or_jumpable() then
-        luasnip.expand_or_jump()
-        fallback()
-      elseif cmp.visible() and cmp.get_active_entry() then
-        cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
-      else
-        fallback()
-      end
-    end, { "i", "s" }),--]]
-
-		-- Use <C-p> and <C-n> to navigate through completion variants
-		["<C-n>"] = cmp.mapping(function(fallback)
+    ["<C-p>"] = cmp.mapping(function()
       if cmp.visible() then
-        cmp.select_next_item()
-      elseif has_words_before() then
-       	cmp.complete()
+        cmp.select_prev_item(cmp_select_opts)
       else
-        fallback()
+        cmp.complete()
       end
-		end, { "i", "s" }),
-    ["<Tab>"] = cmp.mapping(function(fallback)
+    end),
+    ["<C-n>"] = cmp.mapping(function()
       if cmp.visible() then
-        cmp.select_next_item()
-      elseif has_words_before() then
-       	cmp.complete()
+        cmp.select_next_item(cmp_select_opts)
       else
-        fallback()
+        cmp.complete()
       end
-		end, { "i", "s" }),
-
-    ["<C-p>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-      	cmp.select_prev_item()
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-    ["<S-Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-      	cmp.select_prev_item()
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-	}),
+    end),
+	},
 
 	autocomplete = false,
 
 	sources = cmp.config.sources({
     { name = "nvim_lsp" },
     { name = "nvim_lsp_signature_help" },
-    { name = "treesitter", keyword_length = 3, max_item_count = 3 },
+    { name = "treesitter", keyword_length = 3},
     { name = "path" },
     { name = "buffer", keyword_length = 3, max_item_count = 3 },
     { name = "luasnip", keyword_length = 3, max_item_count = 3 },
-    { name = "pandoc_references" },
     { name = "spell" },
     { name = "calc" },
     { name = "emoji" },

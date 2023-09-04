@@ -37,10 +37,10 @@ nm("<leader>o", "<cmd>Telescope find_files<CR>")                                
 nm("<leader>i", "<cmd>Telescope jumplist<CR>")                                                    -- Show jumplist (previous locations)
 nm("<leader>f", "<cmd>Telescope live_grep<CR>")                                                   -- Find a string in project
 nm("<leader>b", "<cmd>Telescope buffers<CR>")                                                     -- Show all buffers
-nm("<leader>a", "<cmd>Telescope<CR>")                                                             -- Show all commands
+nm("<leader>z", "<cmd>Telescope<CR>")                                                             -- Show all commands
 nm("<leader>d", "<cmd>Telescope diagnostics<CR>")                                                 -- Show diagnostics
-nm("<leader>u", "<cmd>Telescope undo<CR>")                                                        -- Show Telescope undo menu
-nm("<leader>p", "<cmd>Telescope neoclip<CR>")                                                     -- Show Telescope neoclip menu
+nm("<leader>u", "<cmd>Telescope undo<CR>")                                                        -- Show Telescope Undo menu
+nm("<leader>p", "<cmd>Telescope neoclip<CR>")                                                     -- Show Telescope Neoclip menu
 nm("<leader>gc", "<cmd>lua require('telescope.builtin').git_commits()<CR>")                       -- Lists commits for current directory with diff preview
 nm("<leader>gf", "<cmd>lua require('telescope.builtin').git_files()<CR>")                         -- Fuzzy search for files tracked by Git. This command lists the output of the `git ls-files` command.
 nm("<leader>gb", "<cmd>lua require('telescope.builtin').git_branches()<CR>")                      -- List branches for current directory, with output from `git log --oneline` shown in the preview window
@@ -70,6 +70,10 @@ nm("<leader>F", "<cmd>FormatWriteLock<CR>")                                     
 
 -- Linter {{{
 nm("<leader>l", "<cmd>lua require('lint').try_lint()<CR>")                                        -- Nvim Lint
+-- }}}
+
+-- Neogen {{{
+nm("<leader>a", "<cmd>lua require('neogen').generate()<CR>")                                      -- Neogen Annotations
 -- }}}
 
 -- Disable Exising Bindings {{{
