@@ -122,6 +122,7 @@ return {
   -- Indentation Highlighting
   {
     "lukas-reineke/indent-blankline.nvim",
+	   branch = "v3",
   },
 
   -- Rainbow delimiters
@@ -168,6 +169,11 @@ return {
       require("extensions.gitsigns")
     end
   },
+
+  -- Dropbar
+  -- {
+  --   "Bekaboo/dropbar.nvim"
+  -- },
 
   -- Barbecue
   {
@@ -314,7 +320,10 @@ return {
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
-    opts = {}
+    opts = {
+      enable_check_bracket_line = false,
+      check_ts = true,
+    }
   },
 
   -- better-escape.nvim
