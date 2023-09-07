@@ -122,7 +122,10 @@ return {
   -- Indentation Highlighting
   {
     "lukas-reineke/indent-blankline.nvim",
-	   branch = "v3",
+	  branch = "v3",
+    config = function ()
+      require("extensions.indent-blankline")
+     end
   },
 
   -- Rainbow delimiters
@@ -368,5 +371,4 @@ return {
   }
 
 -- ]]
-
 }

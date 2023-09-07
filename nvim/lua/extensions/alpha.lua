@@ -65,6 +65,9 @@ dashboard.section.buttons.val = {
 alpha.setup(dashboard.opts)
 
 -- Disable folding on alpha buffer
-cmd([[
-	autocmd FileType alpha setlocal nofoldenable
-]])
+api.nvim_create_autocmd("FileType", {
+  pattern = "alpha",
+  callback = function ()
+    opt.foldenable = false
+  end
+})
