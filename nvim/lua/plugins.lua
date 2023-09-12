@@ -14,10 +14,7 @@ return {
   -- LSP-Zero
   {
     "VonHeikemen/lsp-zero.nvim",
-    branch = "v2.x",
-    config = function()
-      require("extensions.lspzero")
-    end
+    branch = "v3.x",
   },
 
   -- Mason
