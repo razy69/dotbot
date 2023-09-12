@@ -9,6 +9,18 @@ require("helpers/globals")
 
 return {
 
+-- Syntax [[
+  -- TreeSitter
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    event = { "BufReadPost", "BufNewFile" },
+    config = function()
+      require("extensions.treesitter")
+    end
+  },
+-- ]]
+
 -- LSP [[
 
   -- LSP-Zero
@@ -63,18 +75,6 @@ return {
   },
 -- ]]
 
--- Syntax [[
-  -- TreeSitter
-  {
-    "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
-    config = function()
-      require("extensions.treesitter")
-    end
-  },
--- ]]
-
 -- Formatter [[
   -- formatter.nvim
   {
@@ -104,16 +104,6 @@ return {
 -- ]]
 
 -- Visual [[
-  -- Theme Monokai
-  {
-    "loctvl842/monokai-pro.nvim",
-    lazy = false,
-    dependencies = "nvim-tree/nvim-web-devicons",
-    config = function()
-      require("extensions.colorscheme.monokai")
-    end
-  },
-
   -- Indentation Highlighting
   {
     "lukas-reineke/indent-blankline.nvim",
@@ -231,8 +221,12 @@ return {
 
   -- Telescope (fuzzy finder and more)
   {
+    "nvim-telescope/telescope-fzf-native.nvim",
+    build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
+  },
+  {
     "nvim-telescope/telescope.nvim",
-    tag = "0.1.2",
+    tag = "0.1.3",
     lazy = true,
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -363,7 +357,17 @@ return {
     config = function ()
       require("extensions.neogen")
     end
-  }
+  },
+-- ]]
 
+-- Theme [[
+  {
+    "loctvl842/monokai-pro.nvim",
+    lazy = false,
+    dependencies = "nvim-tree/nvim-web-devicons",
+    config = function()
+      require("extensions.colorscheme.monokai")
+    end
+  },
 -- ]]
 }
