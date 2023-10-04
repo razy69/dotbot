@@ -14,7 +14,6 @@ require("lazy-bootstrap")
 require("settings")
 require("keybindings")
 
--- Plugin management {{{
+-- Plugin management
 local lazy = require("lazy")
 lazy.setup("plugins")
--- }}}
