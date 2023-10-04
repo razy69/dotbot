@@ -2,8 +2,6 @@
 # Completions
 ##
 
-autoload -U compinit
-
 zstyle ':completion:*' rehash true
 zstyle ':completion:::::default' menu yes select
 
@@ -19,12 +17,15 @@ zstyle ':completion:*' verbose true
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
+_comp_options+=(globdots)
+
 zmodload zsh/complist
+
 fpath=(
+  $ASDF_DIR/completions
   $ZSH/plugins/zsh-completions/src
   $ZSH/completions
   $fpath
 )
 
-compinit
-_comp_options+=(globdots)
+autoload -Uz compinit && compinit
