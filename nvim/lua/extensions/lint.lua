@@ -4,19 +4,18 @@
   Link: https://github.com/mfussenegger/nvim-lint
 ]]
 
---local augroup = vim.api.nvim_create_augroup   -- Create/get autocommand group
-local autocmd = vim.api.nvim_create_autocmd   -- Create autocommand
 
 local lint = require("lint")
 
 lint.linters_by_ft = {
-  python = { "mypy" },
+  ansible = { "ansible_lint" },
+  bash = { "shellcheck" },
+  golang = { "revive" },
+  json = { "jsonlint" },
+	lua = { "luacheck" },
   markdown = { "markdownlint" },
+  python = { "mypy", "bandit" },
+	rst = { "rstlint" },
+  sh = { "shellcheck" },
+  yaml = { "yamllint" },
 }
-
--- Lint on Leave Insert Mode
-autocmd("BufWritePost" , {
-  callback = function()
-    lint.try_lint()
-  end
-})

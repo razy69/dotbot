@@ -7,17 +7,6 @@
 require "helpers/globals"
 
 -- Tabs {{{
-
--- Python autocmd to setup tab
-api.nvim_create_autocmd("FileType", {
-  pattern = "python",
-  callback = function ()
-    opt.tabstop = 4
-    opt.softtabstop = 4
-    opt.shiftwidth = 4
-  end
-})
-
 opt.expandtab = true                   -- Use spaces by default
 opt.shiftround = true                  -- Round indent
 opt.shiftwidth = 2                     -- the number of spaces inserted for each indentation

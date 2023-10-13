@@ -9,7 +9,7 @@ require("helpers/globals")
 
 return {
 
--- Syntax [[
+  -- Syntax [[
   -- TreeSitter
   {
     "nvim-treesitter/nvim-treesitter",
@@ -19,9 +19,9 @@ return {
       require("extensions.treesitter")
     end
   },
--- ]]
+  -- ]]
 
--- LSP [[
+  -- LSP [[
 
   -- LSP-Zero
   {
@@ -39,16 +39,14 @@ return {
       "rcarriga/nvim-dap-ui",
       "williamboman/mason-lspconfig.nvim",
       "neovim/nvim-lspconfig",
-      "mhartington/formatter.nvim",
-      "mfussenegger/nvim-lint",
     },
     config = function()
       require("extensions.mason")
     end
   },
--- ]]
+  -- ]]
 
--- Autocompletion [[
+  -- Autocompletion [[
   -- nvim-cmp
   {
     "hrsh7th/nvim-cmp",
@@ -73,44 +71,36 @@ return {
       require("extensions.cmp")
     end
   },
--- ]]
+  -- ]]
 
--- Formatter [[
-  -- formatter.nvim
+  -- Formatter [[
+  -- conform.nvim
   {
-    "mhartington/formatter.nvim",
-    lazy = true,
+    "stevearc/conform.nvim",
     config = function()
-      require("extensions.formatter")
+      require("extensions.conform")
     end
   },
+  -- ]]
 
-  -- trim.nvim
-  {
-    "cappyzawa/trim.nvim",
-    opts = {}
-  },
--- ]]
-
--- Linter [[
+  -- Linter [[
   -- nvim-lint
   {
     "mfussenegger/nvim-lint",
-    lazy = true,
     config = function()
       require("extensions.lint")
     end
   },
--- ]]
+  -- ]]
 
--- Visual [[
+  -- Visual [[
   -- Indentation Highlighting
   {
     "lukas-reineke/indent-blankline.nvim",
-	  branch = "master",
-    config = function ()
+    branch = "master",
+    config = function()
       require("extensions.indent-blankline")
-     end
+    end
   },
 
   -- Rainbow delimiters
@@ -145,7 +135,7 @@ return {
   {
     "kevinhwang91/nvim-ufo",
     dependencies = { "kevinhwang91/promise-async" },
-    config = function ()
+    config = function()
       require("extensions.nvim-ufo")
     end
   },
@@ -157,11 +147,6 @@ return {
       require("extensions.gitsigns")
     end
   },
-
-  -- Dropbar
-  -- {
-  --   "Bekaboo/dropbar.nvim"
-  -- },
 
   -- Barbecue
   {
@@ -197,14 +182,14 @@ return {
   -- hlargs (highlight arg def and usage uwin treesitter)
   {
     "m-demare/hlargs.nvim",
-    dependencies = {"nvim-treesitter"},
+    dependencies = { "nvim-treesitter" },
     config = function()
       require("hlargs").setup()
     end
   },
--- ]]
+  -- ]]
 
--- Features [[
+  -- Features [[
   -- Neo Tree (file explorer)
   {
     "nvim-neo-tree/neo-tree.nvim",
@@ -214,7 +199,7 @@ return {
       "nvim-tree/nvim-web-devicons",
       "MunifTanjim/nui.nvim",
     },
-    config = function ()
+    config = function()
       require("extensions.neotree")
     end
   },
@@ -222,7 +207,8 @@ return {
   -- Telescope (fuzzy finder and more)
   {
     "nvim-telescope/telescope-fzf-native.nvim",
-    build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
+    build =
+    "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
   },
   {
     "nvim-telescope/telescope.nvim",
@@ -329,7 +315,7 @@ return {
   -- numb.nvim
   {
     "nacro90/numb.nvim",
-    config = function ()
+    config = function()
       require("numb").setup()
     end,
   },
@@ -356,23 +342,23 @@ return {
   {
     "danymat/neogen",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
-    config = function ()
+    config = function()
       require("extensions.neogen")
     end
   },
 
-	{
+  {
     "s1n7ax/nvim-window-picker",
     name = "window-picker",
     event = "VeryLazy",
     version = "2.*",
     config = function()
-        require("window-picker").setup()
+      require("window-picker").setup()
     end,
-	},
--- ]]
+  },
+  -- ]]
 
--- Theme [[
+  -- Theme [[
   {
     "loctvl842/monokai-pro.nvim",
     lazy = false,
@@ -381,5 +367,5 @@ return {
       require("extensions.colorscheme.monokai")
     end
   },
--- ]]
+  -- ]]
 }
