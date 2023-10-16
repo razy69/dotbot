@@ -27,7 +27,7 @@ noice.setup({
   routes = {
     {
       filter = { event = "notify", find = "No information available", }, -- Suppress 'No information available' popup message
-      opts = { skip = true},
+      opts = { skip = true },
     },
   },
 })

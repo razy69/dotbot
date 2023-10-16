@@ -6,6 +6,7 @@
 
 
 local conform = require("conform")
+vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 
 conform.setup({
   format_on_save = {

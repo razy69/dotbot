@@ -27,8 +27,8 @@ lualine.setup({
       },
       {
         "diagnostics",
-        sources = {"nvim_lsp"},
-        symbols = {error = " ", warn = " ", info = " ", hint = " "},
+        sources = { "nvim_lsp" },
+        symbols = { error = " ", warn = " ", info = " ", hint = " " },
       },
     },
     lualine_c = {
@@ -43,7 +43,7 @@ lualine.setup({
   inactive_sections = {
     lualine_a = {},
     lualine_b = {},
-    lualine_c = {"filename"},
+    lualine_c = { "filename" },
     lualine_x = {},
     lualine_y = {},
     lualine_z = {}

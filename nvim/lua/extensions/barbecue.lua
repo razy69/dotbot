@@ -7,10 +7,10 @@
 local navic = require("nvim-navic")
 local barbecue = require("barbecue")
 
-navic.setup{
+navic.setup {
   lsp = {
     auto_attach = false,
-    preference = {"jedi_language_server", "ruff_lsp"}
+    preference = { "jedi_language_server", "ruff_lsp" }
   },
 }
 

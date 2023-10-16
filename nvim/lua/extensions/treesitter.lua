@@ -5,7 +5,7 @@
 ]]
 
 
-require("nvim-treesitter.configs").setup{
+require("nvim-treesitter.configs").setup {
   -- Needed parsers
   ensure_installed = {
     "bash",

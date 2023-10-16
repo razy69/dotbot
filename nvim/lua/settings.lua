@@ -7,53 +7,53 @@
 require "helpers/globals"
 
 -- Tabs {{{
-opt.expandtab = true                   -- Use spaces by default
-opt.shiftround = true                  -- Round indent
-opt.shiftwidth = 2                     -- the number of spaces inserted for each indentation
-opt.tabstop = 2                        -- 1 tab equal 2 spaces
-opt.softtabstop = 2                    -- When hitting <BS>, pretend like a tab is removed, even if spaces
-opt.smartindent = true                 -- Turn on smart indentation. See in the docs for more info
-opt.cmdheight = 1                      -- Set cmdline height
+opt.expandtab = true   -- Use spaces by default
+opt.shiftround = true  -- Round indent
+opt.shiftwidth = 2     -- the number of spaces inserted for each indentation
+opt.tabstop = 2        -- 1 tab equal 2 spaces
+opt.softtabstop = 2    -- When hitting <BS>, pretend like a tab is removed, even if spaces
+opt.smartindent = true -- Turn on smart indentation. See in the docs for more info
+opt.cmdheight = 1      -- Set cmdline height
 -- }}}
 
 -- Cursor {{{
-opt.cursorline = true                  -- Highlight current cursorline
+opt.cursorline = true -- Highlight current cursorline
 -- }}}
 
 -- Clipboard {{{
-opt.clipboard = "unnamedplus"          -- Use system clipboard
-opt.fixeol = true                      -- Turn off appending new line in the end of a file
+opt.clipboard = "unnamedplus" -- Use system clipboard
+opt.fixeol = true             -- Turn off appending new line in the end of a file
 -- }}}
 
 -- Format {{{
-opt.fileformat = "unix"                -- File line ending
-opt.fileencoding = "utf-8"             -- File encoding
+opt.fileformat = "unix"    -- File line ending
+opt.fileencoding = "utf-8" -- File encoding
 -- }}}
 
 -- Other {{{
-opt.laststatus = 0                     -- Disable Neovim builtin status bar
-opt.pumheight = 15                     -- Limit height of popupmenu
-opt.number = true                      -- Enable line number
-opt.wrap = true                        -- Enable line wrap
-opt.showcmd = false                    -- Disable display of last command
-opt.showmode = false                   -- Disable -- INSERT --
-opt.termguicolors = true               -- Enable 24-bit colour
-opt.hidden = true                      -- Enable modified buffers in background
+opt.laststatus = 0       -- Disable Neovim builtin status bar
+opt.pumheight = 15       -- Limit height of popupmenu
+opt.number = true        -- Enable line number
+opt.wrap = true          -- Enable line wrap
+opt.showcmd = false      -- Disable display of last command
+opt.showmode = false     -- Disable -- INSERT --
+opt.termguicolors = true -- Enable 24-bit colour
+opt.hidden = true        -- Enable modified buffers in background
 opt.guicursor = "i-ci:ver30-iCursor-blinkwait300-blinkon200-blinkoff150,n-v-c-sm:ver30"
 opt.completeopt = {}
 -- }}}
 
 -- Search {{{
-opt.ignorecase = true                  -- Ignore case if all characters in lower case
-opt.joinspaces = false                 -- Join multiple spaces in search
-opt.smartcase = true                   -- When there is a one capital letter search for exact match
-opt.showmatch = true                   -- Highlight search instances
-opt.incsearch = true                   -- Incremental search
+opt.ignorecase = true  -- Ignore case if all characters in lower case
+opt.joinspaces = false -- Join multiple spaces in search
+opt.smartcase = true   -- When there is a one capital letter search for exact match
+opt.showmatch = true   -- Highlight search instances
+opt.incsearch = true   -- Incremental search
 -- }}}
 
 -- Window {{{
-opt.splitbelow = true                  -- Put new windows below current
-opt.splitright = true                  -- Put new vertical splits to right
+opt.splitbelow = true -- Put new windows below current
+opt.splitright = true -- Put new vertical splits to right
 -- }}}
 
 -- Diagnostics {{{
