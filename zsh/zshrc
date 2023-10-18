@@ -5,9 +5,11 @@ fi
 
 # Zsh Home
 export ZSH="${HOME}/.zsh"
+export NVIM="${HOME}/.local/share/nvim"
 
 # Path
 path=(
+  ${NVIM}/mason/bin
   ${HOME}/.local/bin
   ${HOME}/bin
   $path

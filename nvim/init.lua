@@ -14,6 +14,7 @@ require("lazy-bootstrap")
 require("settings")
 require("keybindings")
 require("autocmd")
+require("commands")
 
 -- Plugin management
 local lazy = require("lazy")
