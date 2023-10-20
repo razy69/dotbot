@@ -41,7 +41,7 @@ return {
     end
   },
 
-  -- nvim-cmp
+  -- Completions
   {
     "hrsh7th/nvim-cmp",
     event = "InsertEnter",
@@ -66,23 +66,29 @@ return {
     end
   },
 
-  -- conform.nvim
+  -- Formatters
   {
     "stevearc/conform.nvim",
+    event = { "BufWritePre" },
+    cmd = { "ConformInfo" },
     config = function()
       require("extensions.conform")
     end
   },
 
-  -- nvim-lint
+  -- Linters
   {
     "mfussenegger/nvim-lint",
+    dependencies = {
+      "williamboman/mason.nvim",
+      "rshkarin/mason-nvim-lint",
+    },
     config = function()
       require("extensions.lint")
     end
   },
 
-  -- Indentation Highlighting
+  -- Indentation highlighting
   {
     "lukas-reineke/indent-blankline.nvim",
     event = { "BufReadPost", "BufNewFile" },
@@ -97,7 +103,7 @@ return {
     "HiPhish/rainbow-delimiters.nvim",
   },
 
-  -- Lualine (statusbar)
+  -- Statusbar
   {
     "nvim-lualine/lualine.nvim",
     event = { "BufReadPost", "BufNewFile", "BufNew" },
@@ -107,7 +113,7 @@ return {
     end
   },
 
-  -- Noice
+  -- New UI
   {
     "folke/noice.nvim",
     event = "VeryLazy",
@@ -120,7 +126,7 @@ return {
     end
   },
 
-  -- Nvim-UFO
+  -- Code folding
   {
     "kevinhwang91/nvim-ufo",
     dependencies = { "kevinhwang91/promise-async" },
@@ -137,7 +143,7 @@ return {
     end
   },
 
-  -- Barbecue
+  -- VSCode like winbar
   {
     "utilyre/barbecue.nvim",
     dependencies = {
@@ -149,7 +155,7 @@ return {
     end,
   },
 
-  -- Bufferline
+  -- Buffer line
   {
     "akinsho/bufferline.nvim",
     dependencies = {
@@ -160,7 +166,7 @@ return {
     end,
   },
 
-  -- Vim Illuminate
+  -- Words highlighting
   {
     "RRethy/vim-illuminate",
     config = function()
@@ -168,7 +174,7 @@ return {
     end,
   },
 
-  -- hlargs (highlight arg def and usage uwin treesitter)
+  -- Highlight arguments
   {
     "m-demare/hlargs.nvim",
     dependencies = { "nvim-treesitter" },
@@ -177,7 +183,7 @@ return {
     end
   },
 
-  -- Neo Tree (file explorer)
+  -- File explorer
   {
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
@@ -191,7 +197,7 @@ return {
     end
   },
 
-  -- Telescope (fuzzy finder and more)
+  -- Fuzzy finder and more
   {
     "nvim-telescope/telescope.nvim",
     tag = "0.1.4",
@@ -207,7 +213,7 @@ return {
     end
   },
 
-  -- Telekasten (note management)
+  -- Note management
   {
     "renerocksai/telekasten.nvim",
     dependencies = {
@@ -219,7 +225,7 @@ return {
     end
   },
 
-  -- Which-Key (help)
+  -- Keybindings Helper
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
@@ -232,7 +238,7 @@ return {
     end
   },
 
-  -- Alpha Nvim (startup menu)
+  -- Startup menu
   {
     "goolord/alpha-nvim",
     event = "VimEnter",
@@ -242,7 +248,7 @@ return {
     end,
   },
 
-  -- Neovim Session Manager (manage vim sessions)
+  -- Session Manager
   {
     "Shatur/neovim-session-manager",
     dependencies = { "nvim-lua/plenary.nvim" },
@@ -251,7 +257,7 @@ return {
     end,
   },
 
-  -- Neoclip (copy/paste manager)
+  -- Copy/paste manager
   {
     "AckslD/nvim-neoclip.lua",
     dependencies = "nvim-telescope/telescope.nvim",
@@ -260,7 +266,7 @@ return {
     end,
   },
 
-  -- sentiment.nvim
+  -- Outer pair highlight
   {
     "utilyre/sentiment.nvim",
     version = "*",
@@ -272,7 +278,7 @@ return {
     end,
   },
 
-  -- nvim-autopairs
+  -- Autopairs
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
@@ -282,7 +288,7 @@ return {
     }
   },
 
-  -- better-escape.nvim
+  -- Better escape
   {
     "max397574/better-escape.nvim",
     config = function()
@@ -290,7 +296,7 @@ return {
     end,
   },
 
-  -- numb.nvim
+  -- Peek lines
   {
     "nacro90/numb.nvim",
     config = function()
@@ -298,7 +304,7 @@ return {
     end,
   },
 
-  -- treesj
+  -- Split/join code blocks
   {
     "Wansmer/treesj",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
@@ -309,14 +315,14 @@ return {
     end,
   },
 
-  -- Comment.nvim
+  -- Comments
   {
     "numToStr/Comment.nvim",
     lazy = false,
     opts = {},
   },
 
-  -- Neogen
+  -- Docstrings
   {
     "danymat/neogen",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
