@@ -4,6 +4,3 @@ zsh/config/secrets.zsh
 
 # Tmux
 tmux/tmux/resurrect
-
-# Neovim
-nvim/lazy-lock.json 
