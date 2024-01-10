@@ -6,8 +6,9 @@
 
 local monokai = require("monokai-pro")
 
+
 monokai.setup({
-  devicons = true,
+  devicons = false,
   styles = {
     comment = { italic = false },
     keyword = { italic = false },       -- any other keyword
@@ -18,9 +19,7 @@ monokai.setup({
     annotation = { italic = false },
     tag_attribute = { italic = false }, -- attribute of tag in reactjs
   },
-  filter = "ristretto",
+  filter = "pro",
   background_clear = {},
   inc_search = "underline", -- underline | background
 })
-
-vim.cmd([[colorscheme monokai-pro]])
