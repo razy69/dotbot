@@ -22,4 +22,6 @@ lazy.setup("plugins")
 
 -- Setup colorscheme
 vim.opt.termguicolors = true
-vim.cmd("colorscheme monokai-pro")
+vim.cmd("colorscheme sonokai")
+vim.cmd("highlight! link Directory White")
+vim.cmd("highlight! link NeoTreeDirectoryIcon Grey")

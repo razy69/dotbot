@@ -1,5 +1,7 @@
-# Enable Powerlevel10k instant prompt
-export TERM="xterm-256color"
+# Define terminal
+export TERM="${TERM:=xterm-256color}"
+
+#Enable Powerlevel10k instant prompt
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
