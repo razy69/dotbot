@@ -6,11 +6,24 @@
 
 local lualine = require("lualine")
 
+local function get_venv(variable)
+  local py_vers =  string.sub(vim.fn.system{ "python3", "--version" }, 8, -2)
+  local venv = os.getenv(variable)
+  if venv ~= nil and string.find(venv, "/") then
+    local orig_venv = venv
+    for w in orig_venv:gmatch("([^/]+)") do
+      venv = w
+    end
+    venv = string.format("%s (%s)", venv, py_vers)
+  end
+  return venv
+end
+
 lualine.setup({
   icons_enabled = true,
-  theme = "monokai-pro",
   extensions = {
-    "lazy", "neo-tree", "nvim-dap-ui",
+    "lazy",
+    "neo-tree",
   },
   sections = {
     lualine_a = {
@@ -39,6 +52,18 @@ lualine.setup({
         path = 3,
       },
     },
+    lualine_x = {
+      {"encoding"},
+      {"fileformat"},
+      {"filetype"},
+      {
+        function()
+          local venv = get_venv("CONDA_DEFAULT_ENV") or get_venv("VIRTUAL_ENV") or "NO ENV"
+            return venv
+          end,
+        cond = function() return vim.bo.filetype == "python" end,
+      },
+    },
   },
   inactive_sections = {
     lualine_a = {},
@@ -50,3 +75,5 @@ lualine.setup({
   },
   inactive_winbar = {},
 })
+
+

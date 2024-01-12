@@ -40,6 +40,10 @@ opt.showmode = false     -- Disable -- INSERT --
 opt.hidden = true        -- Enable modified buffers in background
 opt.guicursor = "i-ci:ver30-iCursor-blinkwait300-blinkon200-blinkoff150,n-v-c-sm:ver30"
 opt.completeopt = {}
+opt.termguicolors = true
+vim.cmd("match EoLSpace /\\s\\+$/")
+vim.cmd("let &t_8f = '\\<Esc>[38;2;%lu;%lu;%lum'")
+vim.cmd("let &t_8b = '\\<Esc>[48;2;%lu;%lu;%lum'")
 -- }}}
 
 -- Search {{{
@@ -56,7 +60,6 @@ opt.splitright = true -- Put new vertical splits to right
 -- }}}
 
 -- Diagnostics {{{
-
 vim.diagnostic.config({
   severity_sort = true,
   signs = true,
@@ -122,7 +125,6 @@ fn.sign_define(
     linehl = "",
   }
 )
-
 -- }}}
 
 -- Default Plugins {{{

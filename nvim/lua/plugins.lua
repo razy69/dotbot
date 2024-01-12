@@ -50,6 +50,8 @@ return {
       "hrsh7th/cmp-path",
       "hrsh7th/cmp-nvim-lsp-signature-help",
       "hrsh7th/cmp-nvim-lua",
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-cmdline",
       "lukas-reineke/cmp-under-comparator",
       "ray-x/cmp-treesitter",
       "onsails/lspkind-nvim",
@@ -238,6 +240,15 @@ return {
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("extensions.alpha")
+    end,
+  },
+
+  -- Session Manager
+  {
+    "Shatur/neovim-session-manager",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require("extensions.session-manager")
     end,
   },
 

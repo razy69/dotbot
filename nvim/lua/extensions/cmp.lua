@@ -11,6 +11,8 @@ local cmp_autopairs = require("nvim-autopairs.completion.cmp")
 local cmp_action = require("lsp-zero").cmp_action()
 local luasnip = require("luasnip")
 
+require("luasnip.loaders.from_vscode").lazy_load()
+
 lspkind.init({
   mode = "symbol_text",
   preset = "codicons",
@@ -39,6 +41,8 @@ cmp.setup({
 
   -- Mappings for cmp
   mapping = {
+    ["<C-p>"] = cmp.mapping.select_prev_item(),
+    ["<C-n>"] = cmp.mapping.select_next_item(),
     ["<C-f>"] = cmp_action.luasnip_jump_forward(),
     ["<C-b>"] = cmp_action.luasnip_jump_backward(),
     ["<C-u>"] = cmp.mapping.scroll_docs(-4),
@@ -49,9 +53,24 @@ cmp.setup({
       select = false,
       behavior = cmp.ConfirmBehavior.Replace,
     }),
-    ["<C-n>"] = cmp.mapping.select_next_item(),
-    ["<C-p>"] = cmp.mapping.select_prev_item(),
-
+    ["<Tab>"] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_next_item()
+      elseif luasnip.expand_or_jumpable() then
+        luasnip.expand_or_jump()
+      else
+        fallback()
+      end
+    end, { "i", "s" }),
+    ["<S-Tab>"] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_prev_item()
+      elseif luasnip.jumpable(-1) then
+        luasnip.jump(-1)
+      else
+        fallback()
+      end
+    end, { "i", "s" }),
   },
 
   sources = cmp.config.sources({
@@ -67,19 +86,19 @@ cmp.setup({
     },
     {
       name = "treesitter",
-      keyword_length = 3,
       group_index = 2,
+      keyword_length = 2,
     },
     {
       name = "nvim_lua",
-      keyword_length = 3,
       group_index = 2,
+      keyword_length = 3,
     },
     {
       name = "path",
+      group_index = 3,
       keyword_length = 4,
       max_item_count = 3,
-      group_index = 3,
     },
   }),
 
@@ -126,5 +145,3 @@ cmp.setup.cmdline(":", {
       { name = "cmdline" }
     })
 })
-
-require("luasnip.loaders.from_vscode").lazy_load()
