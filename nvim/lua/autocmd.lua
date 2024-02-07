@@ -65,9 +65,38 @@ api.nvim_create_autocmd({ "BufWritePre" }, {
 })
 
 
--- Lint on Leave Insert Mode
-api.nvim_create_autocmd("BufWritePost", {
+-- Alpha vim Disable folding on alpha buffer
+api.nvim_create_autocmd("FileType", {
+  pattern = "alpha",
   callback = function()
-    require("lint").try_lint()
+    opt.foldenable = false
+		vim.cmd("highlight clear EoLSpace")
   end
+})
+
+-- Alpha vim Hide tabline
+api.nvim_create_autocmd("User", {
+  pattern = "AlphaReady",
+  desc = "disable tabline for alpha",
+  callback = function()
+    opt.showtabline = 0
+    local hl = api.nvim_get_hl_by_name("Cursor", true)
+    hl.blend = 100
+    api.nvim_set_hl(0, "Cursor", hl)
+    opt.guicursor:append("a:Cursor/lCursor")
+    require("illuminate").invisible_buf()
+  end,
+})
+
+-- Alpha vim Show tabline
+api.nvim_create_autocmd("BufUnload", {
+  buffer = 0,
+  desc = "enable tabline after alpha",
+  callback = function()
+    opt.showtabline = 2
+    local hl = api.nvim_get_hl_by_name("Cursor", true)
+    hl.blend = 0
+    api.nvim_set_hl(0, "Cursor", hl)
+    opt.guicursor:remove("a:Cursor/lCursor")
+  end,
 })

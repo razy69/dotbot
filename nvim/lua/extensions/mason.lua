@@ -7,6 +7,18 @@
 local mason = require("mason")
 local mason_lspconfig = require("mason-lspconfig")
 local lsp_zero = require("lsp-zero")
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+local lsp_config = require("lspconfig")
+local servers = {
+  "bashls",
+  "dockerls",
+  "lua_ls",
+  "emmet_ls",
+  "gopls",
+  "jedi_language_server",
+  "ruff_lsp",
+  "terraformls",
+}
 
 lsp_zero.on_attach(function(client, bufnr)
   lsp_zero.default_keymaps({
@@ -28,15 +40,11 @@ mason_lspconfig.setup({
   handlers = {
     lsp_zero.default_setup,
   },
-  ensure_installed = {
-    -- LSP
-    "bashls",               -- Bash
-    "dockerls",             -- Docker
-    "lua_ls",               -- Lua
-    "emmet_ls",             -- Emmet (Vue, HTML, CSS)
-    "gopls",                -- Golang
-    "jedi_language_server", -- Python
-    "ruff_lsp",             -- Python
-    "terraformls",          -- Terraform
-  },
+  ensure_installed = servers,
 })
+
+for _, lsp in ipairs(servers) do
+  lsp_config[lsp].setup {
+    capabilities = capabilities,
+  }
+end

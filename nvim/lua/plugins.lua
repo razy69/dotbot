@@ -52,6 +52,7 @@ return {
       "hrsh7th/cmp-nvim-lua",
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-cmdline",
+      "petertriho/cmp-git",
       "lukas-reineke/cmp-under-comparator",
       "ray-x/cmp-treesitter",
       "onsails/lspkind-nvim",
@@ -67,7 +68,7 @@ return {
     event = { "BufWritePre" },
     cmd = { "ConformInfo" },
     config = function()
-      require("extensions.conform")
+      require("extensions.formatter")
     end
   },
 
@@ -274,14 +275,6 @@ return {
     }
   },
 
-  -- Better escape
-  {
-    "max397574/better-escape.nvim",
-    config = function()
-      require("better_escape").setup()
-    end,
-  },
-
   -- Peek lines
   {
     "nacro90/numb.nvim",
@@ -318,13 +311,17 @@ return {
   },
 
   -- Colorscheme
-  -- {
-  --   "loctvl842/monokai-pro.nvim",
-  --   config = function()
-  --     require("extensions.colorscheme.monokai")
-  --   end
-  -- },
-
-  { "sainnhe/sonokai", name = "sonokai", priority = 1000 },
+  {
+    "loctvl842/monokai-pro.nvim",
+    config = function()
+      require("colorschemes.monokai")
+    end,
+    priority = 1001,
+  },
+  {
+    "sainnhe/sonokai",
+    name = "sonokai",
+    priority = 1000,
+  },
 
 }

@@ -6,11 +6,21 @@
 
 local navic = require("nvim-navic")
 local barbecue = require("barbecue")
+local servers = {
+  "bashls",
+  "dockerls",
+  "lua_ls",
+  "emmet_ls",
+  "gopls",
+  "jedi_language_server",
+  "ruff_lsp",
+  "terraformls",
+}
 
 navic.setup {
   lsp = {
-    auto_attach = false,
-    preference = { "jedi_language_server", "ruff_lsp" }
+    auto_attach = true,
+    preference = servers,
   },
 }
 
