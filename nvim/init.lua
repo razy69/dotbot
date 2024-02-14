@@ -20,5 +20,5 @@ require("commands")
 local lazy = require("lazy")
 lazy.setup("plugins")
 
--- Setup colorscheme
-require("colorschemes.sonokai")
+-- Colorscheme
+vim.cmd("colorscheme monokai-pro")

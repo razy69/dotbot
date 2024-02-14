@@ -166,7 +166,14 @@ return {
   {
     "RRethy/vim-illuminate",
     config = function()
-      require("illuminate").configure()
+      require("illuminate").configure({
+        filetypes_denylist = {
+          "dirbuf",
+          "dirvish",
+          "fugitive",
+          "neo-tree",
+        },
+      })
     end,
   },
 
@@ -310,13 +317,13 @@ return {
     end
   },
 
-  -- Colorscheme
+  -- Colorschemes
   {
     "loctvl842/monokai-pro.nvim",
     config = function()
       require("colorschemes.monokai")
     end,
-    priority = 1001,
+    priority = 1000,
   },
   {
     "sainnhe/sonokai",
