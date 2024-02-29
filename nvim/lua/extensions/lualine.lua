@@ -6,23 +6,24 @@
 
 local lualine = require("lualine")
 
-local function get_venv(variable)
+local function get_venv()
   local py_vers =  string.sub(vim.fn.system{ "python3", "--version" }, 8, -2)
-  local venv = os.getenv(variable)
-  if venv ~= nil and string.find(venv, "/") then
-    local orig_venv = venv
-    for w in orig_venv:gmatch("([^/]+)") do
-      venv = w
-    end
-    venv = string.format("%s (%s)", venv, py_vers)
+  local venv_path = os.getenv("VIRTUAL_ENV")
+
+  if venv_path == nil then
+    return string.format("system (%s)", py_vers)
+  else
+    local venv_name = vim.fn.fnamemodify(venv_path, ":t")
+    return string.format("%s (%s)", venv_name, py_vers)
   end
-  return venv
+
 end
 
 lualine.setup({
   icons_enabled = true,
   extensions = {
     "lazy",
+    "mason",
     "neo-tree",
   },
   sections = {
@@ -58,9 +59,8 @@ lualine.setup({
       {"filetype"},
       {
         function()
-          local venv = get_venv("CONDA_DEFAULT_ENV") or get_venv("VIRTUAL_ENV") or "NO ENV"
-            return venv
-          end,
+          return get_venv()
+        end,
         cond = function() return vim.bo.filetype == "python" end,
       },
     },
