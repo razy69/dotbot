@@ -95,22 +95,6 @@ return {
     end
   },
 
-  -- Indentation highlighting
-  {
-    "lukas-reineke/indent-blankline.nvim",
-    event = {"BufReadPost", "BufNewFile"},
-    config = function()
-      require("extensions.indent-blankline")
-    end,
-    main = "ibl",
-  },
-
-  -- Rainbow delimiters
-  {
-    "HiPhish/rainbow-delimiters.nvim",
-    event = {"BufReadPre", "BufNewFile", "BufNew"},
-  },
-
   -- Statusbar
   {
     "nvim-lualine/lualine.nvim",
@@ -128,16 +112,6 @@ return {
     dependencies = {"MunifTanjim/nui.nvim", "rcarriga/nvim-notify"},
     config = function()
       require("extensions.noice")
-    end
-  },
-
-  -- Code folding
-  {
-    "kevinhwang91/nvim-ufo",
-    event = {"BufReadPost", "BufNewFile", "BufNew"},
-    dependencies = {"kevinhwang91/promise-async"},
-    config = function()
-      require("extensions.nvim-ufo")
     end
   },
 
@@ -168,6 +142,32 @@ return {
     end,
   },
 
+  -- Code folding
+  {
+    "kevinhwang91/nvim-ufo",
+    event = {"BufReadPost", "BufNewFile", "BufNew"},
+    dependencies = {"kevinhwang91/promise-async"},
+    config = function()
+      require("extensions.nvim-ufo")
+    end
+  },
+
+  -- Indentation highlighting
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    event = {"BufReadPost", "BufNewFile"},
+    config = function()
+      require("extensions.indent-blankline")
+    end,
+    main = "ibl",
+  },
+
+  -- Rainbow delimiters
+  {
+    "HiPhish/rainbow-delimiters.nvim",
+    event = {"BufReadPre", "BufNewFile", "BufNew"},
+  },
+
   -- Words highlighting
   {
     "RRethy/vim-illuminate",
@@ -192,87 +192,6 @@ return {
     config = function()
       require("hlargs").setup()
     end
-  },
-
-  -- File explorer
-  {
-    "nvim-neo-tree/neo-tree.nvim",
-    branch = "v3.x",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons",
-      "MunifTanjim/nui.nvim",
-    },
-    config = function()
-      require("extensions.neotree")
-    end
-  },
-
-  -- Fuzzy finder and more
-  {
-    "nvim-telescope/telescope.nvim",
-    tag = "0.1.4",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "ahmedkhalf/project.nvim",
-      "nvim-telescope/telescope-ui-select.nvim",
-      "nvim-telescope/telescope-media-files.nvim",
-      "debugloop/telescope-undo.nvim",
-    },
-    config = function()
-      require("extensions.telescope")
-    end
-  },
-
-  -- Note management
-  {
-    "renerocksai/telekasten.nvim",
-    dependencies = {"nvim-telescope/telescope.nvim", "renerocksai/calendar-vim"},
-    config = function()
-      require("extensions.telekasten")
-    end
-  },
-
-  -- Keybindings Helper
-  {
-    "folke/which-key.nvim",
-    event = "VeryLazy",
-    init = function()
-      vim.opt.timeout = true
-      vim.opt.timeoutlen = 500
-    end,
-    config = function()
-      require("extensions.which-key")
-    end
-  },
-
-  -- Startup menu
-  {
-    "goolord/alpha-nvim",
-    event = {"VimEnter"},
-    dependencies = {"nvim-tree/nvim-web-devicons"},
-    config = function()
-      require("extensions.alpha")
-    end,
-  },
-
-  -- Session Manager
-  {
-    "Shatur/neovim-session-manager",
-    dependencies = {"nvim-lua/plenary.nvim"},
-    config = function()
-      require("extensions.session-manager")
-    end,
-  },
-
-  -- Outer pair highlight
-  {
-    "utilyre/sentiment.nvim",
-    version = "*",
-    event = "VeryLazy",
-    init = function()
-      vim.g.loaded_matchparen = 1
-    end,
   },
 
   -- Autopairs
@@ -308,6 +227,9 @@ return {
   {
     "numToStr/Comment.nvim",
     lazy = false,
+    init = function()
+      require("Comment").setup()
+    end
   },
 
   -- Docstrings
@@ -316,6 +238,85 @@ return {
     dependencies = {"nvim-treesitter/nvim-treesitter"},
     config = function()
       require("extensions.neogen")
+    end
+  },
+
+  -- Smooth scroll
+  {
+    "karb94/neoscroll.nvim",
+    config = function ()
+      require("neoscroll").setup({})
+    end
+  },
+
+  -- Startup menu
+  {
+    "goolord/alpha-nvim",
+    event = {"VimEnter"},
+    dependencies = {"nvim-tree/nvim-web-devicons"},
+    config = function()
+      require("extensions.alpha")
+    end,
+  },
+
+  -- Session Manager
+  {
+    "Shatur/neovim-session-manager",
+    dependencies = {"nvim-lua/plenary.nvim"},
+    config = function()
+      require("extensions.session-manager")
+    end,
+  },
+
+  -- File explorer
+  {
+    "nvim-neo-tree/neo-tree.nvim",
+    branch = "v3.x",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-tree/nvim-web-devicons",
+      "MunifTanjim/nui.nvim",
+    },
+    config = function()
+      require("extensions.neotree")
+    end
+  },
+
+  -- Fuzzy finder and more
+  {
+    "nvim-telescope/telescope.nvim",
+    tag = "0.1.5",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "ahmedkhalf/project.nvim",
+      "nvim-telescope/telescope-ui-select.nvim",
+      "nvim-telescope/telescope-media-files.nvim",
+      "debugloop/telescope-undo.nvim",
+    },
+    config = function()
+      require("extensions.telescope")
+    end
+  },
+
+  -- Note management
+  {
+    "renerocksai/telekasten.nvim",
+    dependencies = {"nvim-telescope/telescope.nvim", "renerocksai/calendar-vim"},
+    config = function()
+      require("extensions.telekasten")
+    end
+  },
+
+  -- Keybindings Helper
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    init = function()
+      vim.opt.timeout = true
+      vim.opt.timeoutlen = 500
+    end,
+    config = function()
+      require("extensions.which-key")
     end
   },
 

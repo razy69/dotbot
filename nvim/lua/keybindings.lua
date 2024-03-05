@@ -10,12 +10,14 @@ require "helpers/keyboard"
 -- tm(key, command)   Terminal mode
 
 
-g.mapleader =
-" "               -- Use Space, like key for alternative hotkeys
+g.mapleader = " "                  -- Use Space, like key for alternative hotkeys
 
 -- VIM {{{
-nm("<leader>t", "<cmd>tabnew<CR>") -- Open new tab
-nm("<leader><BS>", "za<CR>")       -- Folding with the spacebar
+nm("<leader>t", "<cmd>tabnew<CR>")       -- Open new tab
+nm("<leader>n", "<cmd>tabnext<CR>")      -- Go next tab
+nm("<leader>p", "<cmd>tabprevious<CR>")  -- Go previous tab
+nm("<leader>q", "<cmd>quitall!<CR>")     -- Fast neovim exit
+nm("<leader><BS>", "za<CR>")             -- Folding with the spacebar
 -- }}}
 
 -- LSP {{{
@@ -36,7 +38,6 @@ nm("<leader>b", "<cmd>Telescope buffers<CR>")                                   
 nm("<leader>z", "<cmd>Telescope<CR>")                                                       -- Show all commands
 nm("<leader>d", "<cmd>Telescope diagnostics<CR>")                                           -- Show diagnostics
 nm("<leader>u", "<cmd>Telescope undo<CR>")                                                  -- Show Telescope Undo menu
-nm("<leader>p", "<cmd>Telescope neoclip<CR>")                                               -- Show Telescope Neoclip menu
 nm("<leader>gcc", "<cmd>lua require('telescope.builtin').git_commits()<CR>")                -- Lists commits for current directory with diff preview
 nm("<leader>gf", "<cmd>lua require('telescope.builtin').git_files()<CR>")                   -- Fuzzy search for files tracked by Git. This command lists the output of the `git ls-files` command.
 nm("<leader>gbb", "<cmd>lua require('telescope.builtin').git_branches()<CR>")               -- List branches for current directory, with output from `git log --oneline` shown in the preview window
@@ -57,7 +58,7 @@ nm("<leader>`", "<cmd>WhichKey<CR>") -- Open WhichKey
 -- }}}
 
 -- Telekasten {{{
-nm("<leader>n", "<cmd>Telekasten panel<CR>") -- Open Telekasten Menu
+nm("<leader>nn", "<cmd>Telekasten panel<CR>") -- Open Telekasten Menu
 -- }}}
 
 -- Formatter {{{

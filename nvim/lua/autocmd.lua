@@ -27,14 +27,24 @@ api.nvim_create_autocmd("FileType", {
 
 
 -- Check if we need to reload the file when it changed
-api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
-  group = augroup("checktime"),
-  command = "checktime",
+--api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
+--  group = augroup("checktime"),
+--  command = "checktime",
+--})
+vim.api.nvim_create_autocmd({"BufEnter", "CursorHold", "CursorHoldI", "FocusGained", "TermClose", "TermLeave"}, {
+  command = "if mode() != 'c' | checktime | endif",
+  pattern = { "*" },
+})
+
+-- Notify if file changed
+vim.api.nvim_create_autocmd({"FileChangedShellPost"}, {
+  command = "echohl WarningMsg | echo 'File changed on disk. Buffer reloaded.' | echohl None",
+  pattern = { "*" },
 })
 
 
 -- Go to last loc when opening a buffer
-api.nvim_create_autocmd("BufReadPost", {
+api.nvim_create_autocmd({"BufReadPost"}, {
   group = augroup("last_loc"),
   callback = function(event)
     local exclude = { "gitcommit" }
@@ -53,7 +63,7 @@ api.nvim_create_autocmd("BufReadPost", {
 
 
 -- Auto create dir when saving a file, in case some intermediate directory does not exist
-api.nvim_create_autocmd({ "BufWritePre" }, {
+api.nvim_create_autocmd({"BufWritePre"}, {
   group = augroup("auto_create_dir"),
   callback = function(event)
     if event.match:match("^%w%w+://") then
@@ -66,7 +76,7 @@ api.nvim_create_autocmd({ "BufWritePre" }, {
 
 
 -- Alpha vim Disable folding on alpha buffer
-api.nvim_create_autocmd("FileType", {
+api.nvim_create_autocmd({"FileType"}, {
   pattern = "alpha",
   callback = function()
     opt.foldenable = false
@@ -75,7 +85,7 @@ api.nvim_create_autocmd("FileType", {
 })
 
 -- Alpha vim Hide tabline
-api.nvim_create_autocmd("User", {
+api.nvim_create_autocmd({"User"}, {
   pattern = "AlphaReady",
   desc = "disable tabline for alpha",
   callback = function()
@@ -89,7 +99,7 @@ api.nvim_create_autocmd("User", {
 })
 
 -- Alpha vim Show tabline
-api.nvim_create_autocmd("BufUnload", {
+api.nvim_create_autocmd({"BufUnload"}, {
   buffer = 0,
   desc = "enable tabline after alpha",
   callback = function()
