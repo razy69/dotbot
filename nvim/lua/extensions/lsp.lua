@@ -5,10 +5,11 @@
 ]]
 
 local mason = require("mason")
-local mason_lspconfig = require("mason-lspconfig")
-local lsp_zero = require("lsp-zero")
-local capabilities = require("cmp_nvim_lsp").default_capabilities()
+local mason_null_ls = require("mason-null-ls")
+local null_ls = require("null-ls")
 local lsp_config = require("lspconfig")
+local cmp_lsp = require("cmp_nvim_lsp")
+
 local servers = {
   "bashls",
   "dockerls",
@@ -20,9 +21,20 @@ local servers = {
   "terraformls",
 }
 
-lsp_zero.on_attach(function(client, bufnr)
-  lsp_zero.default_keymaps({buffer = bufnr})
-end)
+local capabilities = vim.tbl_deep_extend(
+  "force",
+  {},
+  vim.lsp.protocol.make_client_capabilities(),
+  cmp_lsp.default_capabilities()
+)
+
+-- local handlers = {
+--   function(server)
+--     lsp_config[server].setup({
+--       capabilities = capabilities,
+--     })
+--   end,
+-- }
 
 mason.setup({
   ui = {
@@ -34,15 +46,21 @@ mason.setup({
   }
 })
 
-mason_lspconfig.setup({
-  handlers = {
-    lsp_zero.default_setup,
-  },
+mason_null_ls.setup({
+  -- Anything supported by mason.
   ensure_installed = servers,
+  automatic_installation = false,
+  handlers = {},
+})
+
+null_ls.setup({
+  -- Anything not supported by mason.
+  sources = {}
 })
 
 for _, lsp in ipairs(servers) do
-  lsp_config[lsp].setup {
+  lsp_config[lsp].setup{
     capabilities = capabilities,
+    -- handlers = handlers,
   }
 end

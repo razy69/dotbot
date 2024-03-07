@@ -13,7 +13,7 @@ opt.shiftwidth = 2     -- the number of spaces inserted for each indentation
 opt.tabstop = 2        -- 1 tab equal 2 spaces
 opt.softtabstop = 2    -- When hitting <BS>, pretend like a tab is removed, even if spaces
 opt.smartindent = true -- Turn on smart indentation. See in the docs for more info
-opt.cmdheight = 1      -- Set cmdline height
+opt.cmdheight = 0      -- Set cmdline height
 -- }}}
 
 -- Cursor {{{
@@ -85,6 +85,7 @@ vim.diagnostic.config({
       )
     end,
   },
+  virtual_box = true,
 })
 
 fn.sign_define(
