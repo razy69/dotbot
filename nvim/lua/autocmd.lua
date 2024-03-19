@@ -32,11 +32,11 @@ api.nvim_create_autocmd("FileType", {
 --   pattern = { "*" },
 -- })
 --
--- -- Notify if file changed
--- vim.api.nvim_create_autocmd({"FileChangedShellPost"}, {
---   command = "echohl WarningMsg | echo 'File changed on disk. Buffer reloaded.' | echohl None",
---   pattern = { "*" },
--- })
+-- Notify if file changed
+vim.api.nvim_create_autocmd({"FileChangedShellPost"}, {
+  command = "echohl WarningMsg | echo 'File changed on disk. Buffer reloaded.' | echohl None | <cmd>LspRestart<CR>",
+  pattern = { "*" },
+})
 
 
 -- Go to last loc when opening a buffer

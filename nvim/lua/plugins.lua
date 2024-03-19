@@ -294,12 +294,22 @@ return {
   },
 
   -- Colorschemes
+  -- {
+  --   "loctvl842/monokai-pro.nvim",
+  --   lazy = false,
+  --   config = function()
+  --     require("colorschemes.monokai")
+  --   end,
+  --   priority = 1000,
+  -- },
+
   {
-    "loctvl842/monokai-pro.nvim",
+    "catppuccin/nvim",
     lazy = false,
-    config = function()
-      require("colorschemes.monokai")
+    config = function ()
+      require("colorschemes.catppuccin")
     end,
     priority = 1000,
   },
+
 }

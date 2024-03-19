@@ -15,6 +15,39 @@ local has_words_before = function()
   return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
 end
 
+local is_not_comment = function()
+	local context = require("cmp.config.context")
+	return not context.in_treesitter_capture("comment") and not context.in_syntax_group("Comment")
+end
+
+local is_not_filetype = function()
+	local ft = vim.bo.filetype
+	local exclude_ft = {
+		"neorepl",
+		"neoai-input",
+	}
+	for _, v in pairs(exclude_ft) do
+		if ft == v then
+			return false
+		end
+	end
+	return true
+end
+
+local is_not_buftype = function()
+	local bt = vim.bo.buftype
+	local exclude_bt = {
+		"prompt",
+		"nofile",
+	}
+	for _, v in pairs(exclude_bt) do
+		if bt == v then
+			return false
+		end
+	end
+	return true
+end
+
 require("luasnip.loaders.from_vscode").lazy_load()
 
 lspkind.init({
@@ -23,32 +56,39 @@ lspkind.init({
 })
 
 -- Add parentheses after selecting function or method item
-cmp.event:on(
-  "confirm_done",
-  cmp_autopairs.on_confirm_done()
-)
+-- cmp.event:on(
+--   "confirm_done",
+--   cmp_autopairs.on_confirm_done()
+-- )
 
 cmp.setup({
 
   -- Disabling completion in certain contexts
   enabled = function ()
-		-- disable completion in comments
-		local context = require "cmp.config.context"
-		-- keep command mode completion enabled when cursor is in a comment
-		if vim.api.nvim_get_mode().mode == "c" then
-			return true
-		else
-			return not context.in_treesitter_capture("comment")
-				and not context.in_syntax_group("Comment")
-		end
+    -- return is_not_comment() and is_not_buftype() and is_not_filetype()
+    return is_not_buftype() and is_not_filetype()
 	end,
 
   formatting = {
     format = lspkind.cmp_format({
       maxwidth = 50,
       ellipsis_char = "...",
-    })
+			mode = "symbol_text",
+				menu = ({
+				buffer = "[Buffer]",
+				nvim_lsp = "[LSP]",
+				luasnip = "[LuaSnip]",
+				treesitter = "[TreeSitter]",
+        async_path = "[Path]",
+        git = "[Git]",
+				nvim_lua = "[Lua]",
+			})
+    }),
   },
+
+	view = {
+  	entries = {name = "custom", selection_order = "near_cursor" },
+	},
 
   snippet = {
     expand = function(args)
@@ -90,7 +130,10 @@ cmp.setup({
   sources = cmp.config.sources({
     { name = "nvim_lsp" },
     { name = "nvim_lsp_signature_help" },
-    { name = "treesitter" },
+    {
+      name = "treesitter",
+      max_item_count = 3,
+    },
     {
       name = "luasnip",
       max_item_count = 1,
@@ -106,15 +149,6 @@ cmp.setup({
 		{
       name = "buffer",
       max_item_count = 1,
-      option = {
-				get_bufnrs = function()
-					local bufs = {}
-					for _, win in ipairs(vim.api.nvim_list_wins()) do
-						bufs[vim.api.nvim_win_get_buf(win)] = true
-					end
-					return vim.tbl_keys(bufs)
-				end,
-			},
     },
   }),
 
@@ -138,6 +172,7 @@ cmp.setup({
     },
   },
 })
+
 
 -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won"t work anymore).
 cmp.setup.cmdline({ "/", "?" }, {
