@@ -5,8 +5,6 @@
 ]]
 
 local monokai = require("monokai-pro")
-vim.cmd("highlight EoLSpace ctermbg=238 guibg=#cb214e")
-
 monokai.setup({
   transparent_background = false,
   terminal_colors = true,

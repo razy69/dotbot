@@ -6,18 +6,12 @@
 
 
 local cmp = require("cmp")
-local cmp_autopairs = require("nvim-autopairs.completion.cmp")
 local luasnip = require("luasnip")
 local lspkind = require("lspkind")
 
 local has_words_before = function()
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
   return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-end
-
-local is_not_comment = function()
-	local context = require("cmp.config.context")
-	return not context.in_treesitter_capture("comment") and not context.in_syntax_group("Comment")
 end
 
 local is_not_filetype = function()
@@ -56,6 +50,7 @@ lspkind.init({
 })
 
 -- Add parentheses after selecting function or method item
+-- local cmp_autopairs = require("nvim-autopairs.completion.cmp")
 -- cmp.event:on(
 --   "confirm_done",
 --   cmp_autopairs.on_confirm_done()
@@ -86,9 +81,9 @@ cmp.setup({
     }),
   },
 
-	view = {
-  	entries = {name = "custom", selection_order = "near_cursor" },
-	},
+	-- view = {
+  --  	entries = {name = "custom", selection_order = "near_cursor" },
+	-- },
 
   snippet = {
     expand = function(args)
@@ -96,14 +91,13 @@ cmp.setup({
     end,
   },
 
-  preselect = cmp.PreselectMode.Item,
-  completion = {
-    completeopt = "menu,menuone,noinsert",
-  },
+  -- preselect = cmp.PreselectMode.Item,
+  preselect = cmp.PreselectMode.None,
+  completion = { completeopt = "noselect" },
 
   -- Mappings for cmp
   mapping = {
-    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+    ["<CR>"] = cmp.mapping.confirm({ select = false }),
     ["<C-e>"] = cmp.mapping.abort(),
 		["<C-n>"] = cmp.mapping(function(fallback)
 			if cmp.visible() then
@@ -149,6 +143,8 @@ cmp.setup({
 		{
       name = "buffer",
       max_item_count = 1,
+      keyword_length = 500,
+      priority = 1,
     },
   }),
 

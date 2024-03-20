@@ -22,7 +22,7 @@ nm("<leader><BS>", "za<CR>")             -- Folding with the spacebar
 
 -- LSP {{{
 nm("ga", "<cmd>lua vim.lsp.buf.code_action()<CR>")          -- Code actions
-nm("gR", "<cmd>lua vim.lsp.buf.rename()<CR>")               -- Rename an object
+nm("gr", "<cmd>lua vim.lsp.buf.rename()<CR>")               -- Rename an object
 nm("gD", "<cmd>lua vim.lsp.buf.declaration()<CR>")          -- Go to declaration
 nm("<leader>D", "<cmd>lua vim.diagnostic.open_float()<CR>") -- Open diagnostics float window
 nm("<leader>R", "<cmd>LspRestart<CR>")                      -- Restart LSP Servers
@@ -30,7 +30,7 @@ nm("<leader>R", "<cmd>LspRestart<CR>")                      -- Restart LSP Serve
 
 -- Telescope {{{
 nm("gd", "<cmd>lua require('telescope.builtin').lsp_definitions({jump_type='vsplit'})<CR>") -- Goto definitions
-nm("gr", "<cmd>lua require('telescope.builtin').lsp_references({jump_type='vsplit'})<CR>")  -- Goto references
+nm("gR", "<cmd>lua require('telescope.builtin').lsp_references({jump_type='vsplit'})<CR>")  -- Goto references
 nm("<leader>O", "<cmd>Telescope oldfiles<CR>")                                              -- Show recent files
 nm("<leader>o", "<cmd>Telescope find_files<CR>")                                            -- Search for a file (ignoring git-ignore)
 nm("<leader>i", "<cmd>Telescope jumplist<CR>")                                              -- Show jumplist (previous locations)
@@ -77,6 +77,6 @@ nm("<leader>a", "<cmd>lua require('neogen').generate()<CR>") -- Neogen Annotatio
 nm("<leader>bg", "<cmd>BackgroundToggle<CR>")
 
 -- Disable Exising Bindings {{{
-im("<C-n>", "<Nop>")
-im("<C-p>", "<Nop>")
+-- im("<C-n>", "<Nop>")
+-- im("<C-p>", "<Nop>")
 -- }}}

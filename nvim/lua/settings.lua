@@ -7,13 +7,14 @@
 require "helpers/globals"
 
 -- Tabs {{{
-opt.expandtab = true   -- Use spaces by default
-opt.shiftround = true  -- Round indent
-opt.shiftwidth = 2     -- the number of spaces inserted for each indentation
-opt.tabstop = 2        -- 1 tab equal 2 spaces
-opt.softtabstop = 2    -- When hitting <BS>, pretend like a tab is removed, even if spaces
-opt.smartindent = true -- Turn on smart indentation. See in the docs for more info
-opt.cmdheight = 0      -- Set cmdline height
+opt.autoindent = true
+opt.expandtab = true    -- Use spaces by default
+opt.shiftround = true   -- Round indent
+opt.shiftwidth = 2      -- the number of spaces inserted for each indentation
+opt.tabstop = 2         -- 1 tab equal 2 spaces
+opt.softtabstop = 2     -- When hitting <BS>, pretend like a tab is removed, even if spaces
+opt.smartindent = true  -- Turn on smart indentation. See in the docs for more info
+opt.smarttab = true     -- Handle tabs more intelligently
 -- }}}
 
 -- Cursor {{{
@@ -32,6 +33,7 @@ opt.fileencoding = "utf-8" -- File encoding
 
 -- Other {{{
 opt.autoread = true      -- Watch for file changes
+opt.cmdheight = 0      -- Set cmdline height
 opt.laststatus = 0
 opt.pumheight = 15       -- Limit height of popupmenu
 opt.number = true        -- Enable line number
@@ -40,12 +42,14 @@ opt.showcmd = false      -- Disable display of last command
 opt.showmode = false     -- Disable -- INSERT --
 opt.hidden = true        -- Enable modified buffers in background
 opt.guicursor = "i-ci:ver30-iCursor-blinkwait300-blinkon200-blinkoff150,n-v-c-sm:ver30"
---opt.completeopt = {}
-opt.completeopt = { "menu", "menuone", "noselect" }
 opt.termguicolors = true
+opt.complete = ""
+opt.completeopt = ""
+
 vim.cmd("match EoLSpace /\\s\\+$/")
---vim.cmd("let &t_8f = '\\<Esc>[38;2;%lu;%lu;%lum'")
---vim.cmd("let &t_8b = '\\<Esc>[48;2;%lu;%lu;%lum'")
+vim.cmd("highlight EoLSpace ctermbg=238 guibg=#cb214e")
+vim.cmd("let &t_8f = '\\<Esc>[38;2;%lu;%lu;%lum'")
+vim.cmd("let &t_8b = '\\<Esc>[48;2;%lu;%lu;%lum'")
 -- }}}
 
 -- Search {{{
