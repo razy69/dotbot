@@ -29,7 +29,7 @@ lualine.setup({
   sections = {
     lualine_a = {
       {
-        "mode"
+        "mode",
       },
     },
     lualine_b = {
@@ -48,9 +48,6 @@ lualine.setup({
     lualine_c = {
       {
         "filename",
-        file_status = true,
-        newfile_status = false,
-        path = 3,
       },
     },
     lualine_x = {
@@ -68,7 +65,14 @@ lualine.setup({
   inactive_sections = {
     lualine_a = {},
     lualine_b = {},
-    lualine_c = { "filename" },
+    lualine_c = {
+      {
+        "filename",
+        file_status = true,
+        newfile_status = false,
+        path = 3,
+      },
+    },
     lualine_x = {},
     lualine_y = {},
     lualine_z = {}

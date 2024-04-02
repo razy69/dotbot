@@ -49,18 +49,10 @@ lspkind.init({
   preset = "codicons",
 })
 
--- Add parentheses after selecting function or method item
--- local cmp_autopairs = require("nvim-autopairs.completion.cmp")
--- cmp.event:on(
---   "confirm_done",
---   cmp_autopairs.on_confirm_done()
--- )
-
 cmp.setup({
 
   -- Disabling completion in certain contexts
   enabled = function ()
-    -- return is_not_comment() and is_not_buftype() and is_not_filetype()
     return is_not_buftype() and is_not_filetype()
 	end,
 
@@ -81,9 +73,19 @@ cmp.setup({
     }),
   },
 
-	-- view = {
-  --  	entries = {name = "custom", selection_order = "near_cursor" },
-	-- },
+  window = {
+    completion = cmp.config.window.bordered {
+      -- border = "single",
+      border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+      winhighlight = "Normal:CmpPmenu,CursorLine:PmenuSel,Search:None",
+    },
+    documentation = cmp.config.window.bordered {
+      documentation = {
+        border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+        winhighlight = "Normal:CmpPmenu,CursorLine:PmenuSel,Search:None",
+      },
+    },
+  },
 
   snippet = {
     expand = function(args)
@@ -91,9 +93,8 @@ cmp.setup({
     end,
   },
 
-  -- preselect = cmp.PreselectMode.Item,
-  preselect = cmp.PreselectMode.None,
-  completion = { completeopt = "noselect" },
+  preselect = cmp.SelectBehavior.Select,
+  completion = { completeopt = "menu,menuone,noinsert" },
 
   -- Mappings for cmp
   mapping = {
@@ -109,7 +110,7 @@ cmp.setup({
 			else
 				fallback()
 			end
-		end, { "i", "s" }),
+		end, { "i", "s", "c" }),
     ["<C-p>"] = cmp.mapping(function(fallback)
 			if cmp.visible() then
 				cmp.select_prev_item()
@@ -118,7 +119,7 @@ cmp.setup({
 			else
 				fallback()
 			end
-		end, { "i", "s" }),
+		end, { "i", "s", "c" }),
   },
 
   sources = cmp.config.sources({
@@ -170,7 +171,7 @@ cmp.setup({
 })
 
 
--- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won"t work anymore).
+-- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
 cmp.setup.cmdline({ "/", "?" }, {
   mapping = cmp.mapping.preset.cmdline(),
   sources = cmp.config.sources({
@@ -180,7 +181,7 @@ cmp.setup.cmdline({ "/", "?" }, {
   }),
 })
 
--- Use cmdline & path source for ":" (if you enabled `native_menu`, this won"t work anymore).
+-- Use cmdline & path source for ":" (if you enabled `native_menu`, this won't work anymore).
 cmp.setup.cmdline(":", {
   mapping = cmp.mapping.preset.cmdline(),
   sources = cmp.config.sources({

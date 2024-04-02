@@ -12,7 +12,7 @@ noice.setup({
     bottom_search = true, -- use a classic bottom cmdline for search
     command_palette = true, -- position the cmdline and popupmenu together
     long_message_to_split = true, -- long messages will be sent to a split
-    inc_rename = false, -- enables an input dialog for inc-rename.nvim
+    inc_rename = true, -- enables an input dialog for inc-rename.nvim
     lsp_doc_border = true, -- add a border to hover docs and signature help
   },
   lsp = {
@@ -26,9 +26,9 @@ noice.setup({
       enabled = false,
     },
     signature = {
-      enabled = true,
+      enabled = false,
       auto_open = {
-        enabled = true,
+        enabled = false,
         trigger = false,
       },
     },
@@ -48,4 +48,34 @@ noice.setup({
       opts = { skip = true },
     },
   },
+
+	cmdline_popup = {
+		position = {
+			row = 5,
+			col = "50%",
+		},
+		size = {
+			width = 60,
+			height = "auto",
+		},
+	},
+
+	popupmenu = {
+		enabled = true, -- enables the Noice popupmenu UI
+		backend = "cmp", -- backend to use to show regular cmdline completions
+		relative = "editor",
+		position = {
+			row = 8,
+			col = "50%",
+		},
+		size = {
+			width = 60,
+			height = 10,
+		},
+		border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+		win_options = {
+			winhighlight = { Normal = "Normal", FloatBorder = "DiagnosticInfo" },
+		},
+	},
+
 })

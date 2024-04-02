@@ -17,13 +17,13 @@ local servers = {
   "terraformls",
 }
 
-navic.setup {
+navic.setup({
   lsp = {
     auto_attach = true,
     preference = servers,
   },
   highlight = true,
-}
+})
 
 barbecue.setup({
   show_dirname = false,

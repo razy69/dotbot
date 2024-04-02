@@ -7,9 +7,9 @@
 local telescope = require("telescope")
 
 telescope.setup {
-  -- defaults = {
-  --   borderchars = { "█", " ", "▀", "█", "█", " ", " ", "▀" },
-  -- },
+  defaults = {
+    borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
+  },
   extensions = {
     ["ui-select"] = {
       require("telescope.themes").get_dropdown{}

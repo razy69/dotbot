@@ -25,6 +25,13 @@ return {
     end,
   },
 
+  -- Suspend/Resume LSP clients
+  {
+    "zeioth/garbage-day.nvim",
+    dependencies = "neovim/nvim-lspconfig",
+    event = "VeryLazy",
+  },
+
   -- Completions
   {
     "hrsh7th/nvim-cmp",
@@ -62,7 +69,8 @@ return {
   -- Statusbar
   {
     "nvim-lualine/lualine.nvim",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
+    -- event = { "BufReadPost", "BufNewFile", "BufNew" },
+    event = "VeryLazy",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("extensions.lualine")
@@ -82,6 +90,7 @@ return {
 		event = "VeryLazy",
 		dependencies = {
 			"MunifTanjim/nui.nvim",
+      -- "rcarriga/nvim-notify",
 		},
 		config = function()
 			require("extensions.noice")
@@ -100,7 +109,10 @@ return {
   {
     "utilyre/barbecue.nvim",
     event = { "BufReadPost", "BufNewFile", "BufNew" },
-    dependencies = { "SmiteshP/nvim-navic", "nvim-tree/nvim-web-devicons" },
+    dependencies = {
+      "SmiteshP/nvim-navic",
+      "nvim-tree/nvim-web-devicons",
+    },
     config = function()
       require("extensions.barbecue")
     end,
@@ -165,6 +177,12 @@ return {
     config = function()
       require("hlargs").setup()
     end,
+  },
+
+  -- Jump to outer node smartly
+  {
+    "Mr-LLLLL/treesitter-outer",
+    dependencies = "nvim-treesitter/nvim-treesitter",
   },
 
   -- Autopairs
