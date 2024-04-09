@@ -1,25 +1,28 @@
 [submodule "dotbot"]
-	path = dotbot
-	url = https://github.com/anishathalye/dotbot
-	ignore = dirty
+  path = dotbot
+  url = https://github.com/anishathalye/dotbot
+  ignore = dirty
 [submodule "tmux/tmux/plugins/tmux-continuum"]
-	path = tmux/tmux/plugins/tmux-continuum
-	url = https://github.com/tmux-plugins/tmux-continuum.git
+  path = tmux/tmux/plugins/tmux-continuum
+  url = https://github.com/tmux-plugins/tmux-continuum.git
 [submodule "tmux/tmux/plugins/tmux-resurrect"]
-	path = tmux/tmux/plugins/tmux-resurrect
-	url = https://github.com/tmux-plugins/tmux-resurrect.git
+  path = tmux/tmux/plugins/tmux-resurrect
+  url = https://github.com/tmux-plugins/tmux-resurrect.git
+[submodule "tmux/tmux/plugins/tmux-prefix-highlight"]
+  path = tmux/tmux/plugins/tmux-prefix-highlight
+  url = https://github.com/tmux-plugins/tmux-prefix-highlight
 [submodule "tmux/tmux/plugins/tpm"]
-	path = tmux/tmux/plugins/tpm
-	url = https://github.com/tmux-plugins/tpm.git
+  path = tmux/tmux/plugins/tpm
+  url = https://github.com/tmux-plugins/tpm.git
 [submodule "zsh/plugins/zsh-autosuggestions"]
-	path = zsh/plugins/zsh-autosuggestions
-	url = http://github.com/zsh-users/zsh-autosuggestions.git
+  path = zsh/plugins/zsh-autosuggestions
+  url = http://github.com/zsh-users/zsh-autosuggestions.git
 [submodule "zsh/plugins/zsh-completions"]
-	path = zsh/plugins/zsh-completions
-	url = http://github.com/zsh-users/zsh-completions.git
+  path = zsh/plugins/zsh-completions
+  url = http://github.com/zsh-users/zsh-completions.git
 [submodule "zsh/plugins/fast-syntax-highlighting"]
-	path = zsh/plugins/fast-syntax-highlighting
-	url = https://github.com/zdharma-zmirror/fast-syntax-highlighting
+  path = zsh/plugins/fast-syntax-highlighting
+  url = https://github.com/zdharma-zmirror/fast-syntax-highlighting
 [submodule "zsh/themes/powerlevel10k"]
-	path = zsh/themes/powerlevel10k
-	url = https://github.com/romkatv/powerlevel10k.git
+  path = zsh/themes/powerlevel10k
+  url = https://github.com/romkatv/powerlevel10k.git
