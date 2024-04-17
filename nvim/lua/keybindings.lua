@@ -39,11 +39,11 @@ nm("<leader>b", "<cmd>Telescope buffers<CR>")                                   
 nm("<leader>z", "<cmd>Telescope<CR>")                                                       -- Show all commands
 nm("<leader>d", "<cmd>Telescope diagnostics<CR>")                                           -- Show diagnostics
 nm("<leader>u", "<cmd>Telescope undo<CR>")                                                  -- Show Telescope Undo menu
-nm("<leader>gcc", "<cmd>lua require('telescope.builtin').git_commits()<CR>")                -- Lists commits for current directory with diff preview
-nm("<leader>gf", "<cmd>lua require('telescope.builtin').git_files()<CR>")                   -- Fuzzy search for files tracked by Git. This command lists the output of the `git ls-files` command.
-nm("<leader>gbb", "<cmd>lua require('telescope.builtin').git_branches()<CR>")               -- List branches for current directory, with output from `git log --oneline` shown in the preview window
-nm("<leader>gss", "<cmd>lua require('telescope.builtin').git_status()<CR>")                 -- Lists git status for current directory
-nm("<leader>gst", "<cmd>lua require('telescope.builtin').git_stash()<CR>")                  -- Lists stash items in current directory
+-- nm("<leader>gcc", "<cmd>lua require('telescope.builtin').git_commits()<CR>")                -- Lists commits for current directory with diff preview
+-- nm("<leader>gf", "<cmd>lua require('telescope.builtin').git_files()<CR>")                   -- Fuzzy search for files tracked by Git. This command lists the output of the `git ls-files` command.
+-- nm("<leader>gbb", "<cmd>lua require('telescope.builtin').git_branches()<CR>")               -- List branches for current directory, with output from `git log --oneline` shown in the preview window
+-- nm("<leader>gss", "<cmd>lua require('telescope.builtin').git_status()<CR>")                 -- Lists git status for current directory
+-- nm("<leader>gst", "<cmd>lua require('telescope.builtin').git_stash()<CR>")                  -- Lists stash items in current directory
 -- }}}
 
 -- Neo Tree {{{
@@ -62,12 +62,10 @@ nm("<leader>`", "<cmd>WhichKey<CR>") -- Open WhichKey
 nm("<leader>nn", "<cmd>Telekasten panel<CR>") -- Open Telekasten Menu
 -- }}}
 
--- Formatter {{{
-nm("<leader>F", "<cmd>FormatWriteLock<CR>") -- Nvim Formatter
--- }}}
-
--- Linter {{{
-nm("<leader>l", "<cmd>lua require('lint').try_lint()<CR>") -- Nvim Lint
+-- Spectre {{{
+nm("<leader>S", "<cmd>lua require('spectre').toggle()<CR>") -- Open/Close Spectre
+nm("<leader>sw", "<cmd>lua require('spectre').open_visual({select_word=true})<CR>") -- Search current word 
+nm("<leader>sW", "<cmd>lua require('spectre').open_file_search({select_word=true})<CR>") -- Search on current file 
 -- }}}
 
 -- Neogen {{{
