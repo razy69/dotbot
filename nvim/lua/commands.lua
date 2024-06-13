@@ -20,4 +20,8 @@ end, { range = true })
 
 vim.api.nvim_create_user_command("BackgroundToggle", function(args)
   vim.o.background = (vim.o.background == "dark") and "light" or "dark"
+  color_palette = (vim.o.background == "dark") and "frappe" or "latte"
+  require("tiny-devicons-auto-colors").setup({
+    colors = require("catppuccin.palettes").get_palette(color_palette)
+  })
 end, { range = true })

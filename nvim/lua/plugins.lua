@@ -355,6 +355,16 @@ return {
     end,
   },
 
+  -- Markdown TOC
+  {
+    "richardbizik/nvim-toc",
+    config = function ()
+      require("nvim-toc").setup({
+        toc_header = "Table of Contents",
+      })
+    end
+  },
+
   -- Colorschemes
   -- {
   --   "loctvl842/monokai-pro.nvim",
@@ -364,6 +374,17 @@ return {
   --   end,
   --   priority = 1000,
   -- },
+
+  {
+    "rachartier/tiny-devicons-auto-colors.nvim",
+    dependencies = {
+      "nvim-tree/nvim-web-devicons"
+    },
+    event = "VeryLazy",
+    config = function ()
+      require("tiny-devicons-auto-colors").setup()
+    end
+  },
 
   {
     "catppuccin/nvim",

@@ -26,3 +26,6 @@
 [submodule "zsh/themes/powerlevel10k"]
   path = zsh/themes/powerlevel10k
   url = https://github.com/romkatv/powerlevel10k.git
+[submodule "zsh/plugins/zsh-vi-mode"]
+	path = zsh/plugins/zsh-vi-mode
+	url = https://github.com/jeffreytse/zsh-vi-mode.git

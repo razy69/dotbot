@@ -5,15 +5,14 @@
 ]]
 
 local telescope = require("telescope")
-local trouble = require("trouble.providers.telescope")
--- local open_with_trouble = require("trouble.sources.telescope").open
+local trouble = require("trouble.sources.telescope")
 
 telescope.setup({
   defaults = {
     borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
     mappings = {
-      i = { ["<c-t>"] = trouble.open_with_trouble },
-      n = { ["<c-t>"] = trouble.open_with_trouble },
+      i = { ["<c-t>"] = trouble.open },
+      n = { ["<c-t>"] = trouble.open },
     },
   },
   extensions = {
