@@ -3,11 +3,10 @@
 ##
 
 # Fix cursor
-#function _fix_cursor() {
-#  echo -ne '\x1b[\x35 q'
-#}
-#
-#precmd_functions+=(_fix_cursor)
+function _fix_cursor() {
+  echo -ne '\x1b[\x35 q'
+}
+precmd_functions+=(_fix_cursor)
 
 
 # SSH Agent

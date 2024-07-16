@@ -12,13 +12,15 @@ require("lazy-bootstrap")
 
 -- Settings
 require("settings")
-require("keybindings")
 require("autocmd")
 require("commands")
 
 -- Plugin management
 local lazy = require("lazy")
 lazy.setup("plugins")
+
+-- Keymap
+require("keybindings")
 
 -- Colorscheme
 vim.cmd("colorscheme catppuccin")

@@ -1,80 +1,51 @@
-require "helpers/globals"
-require "helpers/keyboard"
+require("globals")
 
+-- Disable Exising Bindings
+vim.api.nvim_set_keymap("i", "<C-n>", "<Nop>", { noremap = true })
+vim.api.nvim_set_keymap("i", "<C-p>", "<Nop>", { noremap = true })
 
--- Overview of which map command works in which mode.
---
--- nm(key, command)   Normal mode
--- im(key, command)   Input mode
--- vm(key, command)   Visual mode
--- tm(key, command)   Terminal mode
+-- KEYMAP
+local wk = require("which-key")
+wk.add({
 
+  -- Which-Key
+  { "<leader>`", function() require("which-key").show() end, desc = "Show Keymap", mode = "n" },
 
-g.mapleader = " "                  -- Use Space, like key for alternative hotkeys
+  -- LSP
+  { "ga", function() vim.lsp.buf.code_action() end, desc = "LSP Code actions", mode = "n" },
+  { "gr", function() vim.lsp.buf.rename() end, desc = "LSP rename object", mode = "n" },
+  { "gD", function() vim.lsp.buf.declaration() end, desc = "LSP Go to declaration", mode = "n" },
+  { "<leader>D", function() vim.diagnostic.open_float() end, desc = "LSP diagnostics", mode = "n" },
+  { "<leader>R", "<cmd>LspRestart<cr>", desc = "Restart LSP Server", mode = "n" },
 
--- VIM {{{
-nm("<leader>t", "<cmd>tabnew<CR>")       -- Open new tab
-nm("<leader>n", "<cmd>tabnext<CR>")      -- Go next tab
-nm("<leader>p", "<cmd>tabprevious<CR>")  -- Go previous tab
-nm("<leader>q", "<cmd>quitall!<CR>")     -- Fast neovim exit
-nm("<leader><BS>", "za<CR>")             -- Folding with the spacebar
--- }}}
+  -- VIM
+  { "<leader>t", "<cmd>tabnew<cr>", desc = "Open new tab", mode = "n" },
+  { "<leader>n", "<cmd>tabnext<cr>", desc = "Go to next tab", mode = "n" },
+  { "<leader>p", "<cmd>tabprev<cr>", desc = "Go to previous tab", mode = "n" },
+  { "<leader>q", "<cmd>quitall!<cr>", desc = "Force quit nvim", mode = "n" },
+  { "<leader><bs>", "za<cr>", desc = "Fold/Unfold code", mode = "n" },
+  { "<leader>bg", "<cmd>BackgroundToggle<cr>", desc = "Toggle background light/dark", mode = "n" },
 
--- LSP {{{
-nm("ga", "<cmd>lua vim.lsp.buf.code_action()<CR>")          -- Code actions
-nm("gr", "<cmd>lua vim.lsp.buf.rename()<CR>")               -- Rename an object
-nm("gD", "<cmd>lua vim.lsp.buf.declaration()<CR>")          -- Go to declaration
-nm("<leader>D", "<cmd>lua vim.diagnostic.open_float()<CR>") -- Open diagnostics float window
-nm("<leader>R", "<cmd>LspRestart<CR>")                      -- Restart LSP Servers
--- }}}
+  -- Neotree
+  { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Open/Hide Neotree", mode = "n" },
 
--- Telescope {{{
-nm("gd", "<cmd>lua require('telescope.builtin').lsp_definitions({jump_type='vsplit'})<CR>") -- Goto definitions
-nm("gR", "<cmd>lua require('telescope.builtin').lsp_references({jump_type='vsplit'})<CR>")  -- Goto references
-nm("<leader>O", "<cmd>Telescope oldfiles<CR>")                                              -- Show recent files
-nm("<leader>o", "<cmd>Telescope find_files<CR>")                                            -- Search for a file (ignoring git-ignore)
-nm("<leader>i", "<cmd>Telescope jumplist<CR>")                                              -- Show jumplist (previous locations)
-nm("<leader>f", "<cmd>Telescope live_grep<CR>")                                             -- Find a string in project
-nm("<leader>b", "<cmd>Telescope buffers<CR>")                                               -- Show all buffers
-nm("<leader>z", "<cmd>Telescope<CR>")                                                       -- Show all commands
-nm("<leader>d", "<cmd>Telescope diagnostics<CR>")                                           -- Show diagnostics
-nm("<leader>u", "<cmd>Telescope undo<CR>")                                                  -- Show Telescope Undo menu
--- nm("<leader>gcc", "<cmd>lua require('telescope.builtin').git_commits()<CR>")                -- Lists commits for current directory with diff preview
--- nm("<leader>gf", "<cmd>lua require('telescope.builtin').git_files()<CR>")                   -- Fuzzy search for files tracked by Git. This command lists the output of the `git ls-files` command.
--- nm("<leader>gbb", "<cmd>lua require('telescope.builtin').git_branches()<CR>")               -- List branches for current directory, with output from `git log --oneline` shown in the preview window
--- nm("<leader>gss", "<cmd>lua require('telescope.builtin').git_status()<CR>")                 -- Lists git status for current directory
--- nm("<leader>gst", "<cmd>lua require('telescope.builtin').git_stash()<CR>")                  -- Lists stash items in current directory
--- }}}
+  -- Neogen
+  { "<leader>a", function() require("neogen").generate() end, desc = "Generate Annonations", mode = "n" },
 
--- Neo Tree {{{
-nm("<leader>e", "<cmd>Neotree toggle<CR>") -- Toggle file explorer
--- }}}
+  -- Telescope
+  { "gd", function() require("telescope.builtin").lsp_definitions({ jump_type="vsplit" }) end, desc = "LSP Go to definition", mode = "n" },
+  { "gR", function() require("telescope.builtin").lsp_references({ jump_type="vsplit" }) end, desc = "LSP Go to references", mode = "n" },
+  { "<leader>O", "<cmd>Telescope oldfiles<cr>", desc = "Show recent files", mode = "n" },
+  { "<leader>o", "<cmd>Telescope find_files<cr>", desc = "Search for a file", mode = "n" },
+  { "<leader>i", "<cmd>Telescope jumplist<cr>", desc = "Go to previous location", mode = "n" },
+  { "<leader>f", "<cmd>Telescope live_grep<cr>", desc = "Find string in project", mode = "n" },
+  { "<leader>b", "<cmd>Telescope buffers<cr>", desc = "Show all buffers", mode = "n" },
+  { "<leader>z", "<cmd>Telescope<cr>", desc = "Open Telescope", mode = "n" },
+  { "<leader>d", "<cmd>Telescope diagnostics<cr>", desc = "Show diagnostics", mode = "n" },
+  { "<leader>u", "<cmd>Telescope undo<cr>", desc = "Undo menu", mode = "n" },
+  { "<leader>h", "<cmd>Noice telescope<cr>", desc = "Open Noice history in Telescope", mode = "n" },
 
--- Noice {{{
-nm("<leader>h", "<cmd>Noice telescope<CR>") -- Opens Noice message history in Telescope
--- }}}
+  -- Telekasten
+  { "<leader>nn", "<cmd>Telekasten panel<cr>", desc = "Open Telekasten panel", mode = "n" },
 
--- WhichKey {{{
-nm("<leader>`", "<cmd>WhichKey<CR>") -- Open WhichKey
--- }}}
-
--- Telekasten {{{
-nm("<leader>nn", "<cmd>Telekasten panel<CR>") -- Open Telekasten Menu
--- }}}
-
--- Spectre {{{
-nm("<leader>S", "<cmd>lua require('spectre').toggle()<CR>") -- Open/Close Spectre
-nm("<leader>sw", "<cmd>lua require('spectre').open_visual({select_word=true})<CR>") -- Search current word 
-nm("<leader>sW", "<cmd>lua require('spectre').open_file_search({select_word=true})<CR>") -- Search on current file 
--- }}}
-
--- Neogen {{{
-nm("<leader>a", "<cmd>lua require('neogen').generate()<CR>") -- Neogen Annotations
--- }}}
-
-nm("<leader>bg", "<cmd>BackgroundToggle<CR>")
-
--- Disable Exising Bindings {{{
-im("<C-n>", "<Nop>")
-im("<C-p>", "<Nop>")
--- }}}
+})

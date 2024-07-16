@@ -3,7 +3,7 @@
   Description: Setup autocmd
 ]]
 
-require "helpers/globals"
+require("globals")
 
 
 -- Copied from LazyVim
