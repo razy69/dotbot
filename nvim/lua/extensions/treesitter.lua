@@ -55,3 +55,7 @@ require("nvim-treesitter.configs").setup {
     enable = true,
   },
 }
+
+
+-- Set telekasten filetype as `markdown`
+vim.treesitter.language.register("markdown", "telekasten")
