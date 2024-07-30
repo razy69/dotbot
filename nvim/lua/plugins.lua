@@ -56,7 +56,18 @@ return {
   -- LSP Code action
   {
     "luckasRanarison/clear-action.nvim",
-    opts = {},
+    config = function ()
+      require("clear-action").setup({
+        signs = {
+          icons = {
+            quickfix = "󰁨 ",
+            refactor = "󰖷 ",
+            source = "󰌹 ",
+            combined = " ", -- used when combine is set to true or as a fallback when there is no action kind
+          },
+        },
+      })
+    end,
   },
 
   -- TreeSitter
@@ -363,20 +374,22 @@ return {
     name = "render-markdown", -- Only needed if you have another plugin named markdown.nvim
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
     config = function()
-        require("render-markdown").setup({
-          file_types = { "markdown", "telekasten" },
-        })
+      require("render-markdown").setup({
+        file_types = { "markdown", "telekasten" },
+        latex = { enabled = false },
+        heading = {
+          icons = {"󰉫 ", "󰉬 ", "󰉭 ", "󰉮 ", "󰉯 ", "󰉰 "},
+          position = "inline",
+        },
+        checkbox = {
+          unchecked = { icon = "󰄱 " },
+          checked = { icon = " " },
+        },
+        bullet = {
+          icons = { "▶", "▷", "●", "○" },
+        },
+      })
     end,
-  },
-
-  -- Markdown TOC
-  {
-    "hedyhli/markdown-toc.nvim",
-    ft = "markdown",  -- Lazy load on markdown filetype
-    cmd = { "Mtoc" }, -- Or, lazy load on "Mtoc" command
-    opts = {
-      -- Your configuration here (optional)
-    },
   },
 
   -- Colorschemes
