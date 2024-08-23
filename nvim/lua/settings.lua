@@ -7,67 +7,128 @@
 require("globals")
 
 -- Configure timeout for which-key panel
-vim.opt.timeout = true
-vim.opt.timeoutlen = 500
+opt.ttimeout = true
+opt.ttimeoutlen = 10 -- Key code timeout
+opt.timeout = true
+opt.timeoutlen = 500 -- Mapping timeout
 
--- Set <leader> to `space`
-g.mapleader = " "
+-- Code Folding
+opt.foldcolumn = "0"
+opt.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+opt.foldlevelstart = 99
+opt.foldenable = true
+opt.foldtext = ""
+opt.foldexpr = ""
+g.foldmethod = ""
 
--- Tabs {{{
+-- Tabs
 opt.autoindent = true
-opt.expandtab = true    -- Use spaces by default
-opt.shiftround = true   -- Round indent
-opt.shiftwidth = 2      -- the number of spaces inserted for each indentation
-opt.tabstop = 2         -- 1 tab equal 2 spaces
-opt.softtabstop = 2     -- When hitting <BS>, pretend like a tab is removed, even if spaces
-opt.smartindent = true  -- Turn on smart indentation. See in the docs for more info
-opt.smarttab = true     -- Handle tabs more intelligently
--- }}}
+opt.expandtab = true   -- Use spaces by default
+opt.shiftround = true  -- Round indent
+opt.shiftwidth = 2     -- the number of spaces inserted for each indentation
+opt.tabstop = 2        -- 1 tab equal 2 spaces
+opt.softtabstop = 2    -- When hitting <BS>, pretend like a tab is removed, even if spaces
+opt.smartindent = true -- Turn on smart indentation. See in the docs for more info
+opt.smarttab = true    -- Handle tabs more intelligently
 
--- Cursor {{{
+-- Cursor
 opt.cursorline = true -- Highlight current cursorline
 opt.guicursor = "n-v-c-sm:block-Cursor-blinkon0,i-ci:ver30-Cursor,r:hor50-Cursor"
--- }}}
+opt.mousemoveevent = true
+opt.mouse = "a"
+vim.cmd("set guioptions-=T")
 
--- Clipboard {{{
-opt.clipboard = "unnamedplus" -- Use system clipboard
-opt.fixeol = true             -- Turn off appending new line in the end of a file
--- }}}
+-- Clipboard
+opt.clipboard:append("unnamedplus") -- Use system clipboard
+opt.fixeol = true                    -- Turn off appending new line in the end of a file
 
--- Format {{{
-opt.fileformat = "unix"    -- File line ending
-opt.fileencoding = "utf-8" -- File encoding
--- }}}
-
--- Other {{{
-opt.autoread = true      -- Watch for file changes
-opt.cmdheight = 0      -- Set cmdline height
+-- Other
+vim.cmd("match EoLSpace /\\s\\+$/")
+opt.fillchars:append("eob: ")
 opt.laststatus = 0
-opt.pumheight = 15       -- Limit height of popupmenu
-opt.number = true        -- Enable line number
-opt.wrap = true          -- Enable line wrap
-opt.showcmd = false      -- Disable display of last command
-opt.showmode = false     -- Disable -- INSERT --
-opt.hidden = true        -- Enable modified buffers in background
+opt.path:remove("/usr/include")
+opt.path:append("**")
+opt.splitkeep = "topline"
+opt.shortmess = "IOocWTtFxnflCi"
+opt.showtabline = 0
+opt.diffopt:append("linematch:60")
+opt.lazyredraw = false
+opt.winblend = 0
+opt.cmdheight = 0    -- Set cmdline height
+opt.pumheight = 15   -- Limit height of popupmenu
+opt.pumblend = 0
+opt.number = true    -- Enable line number
+opt.wrap = true      -- Enable line wrap
+opt.showcmd = false  -- Disable display of last command
+opt.showmode = false -- Disable -- INSERT --
+opt.hidden = true    -- Enable modified buffers in background
+opt.modeline = false
+opt.ruler = false
+opt.ttyfast = true
+opt.errorbells = false
+opt.visualbell = false
+opt.title = true
+opt.titlestring = "%<%F%=%l/%L - nvim"
 opt.termguicolors = true
-opt.complete = ""
-opt.completeopt = ""
--- }}}
+opt.confirm = true
+opt.spelloptions:append "camel"
+opt.smoothscroll = true
+opt.scrolloff = 2
+opt.backspace = "indent,eol,start"
+opt.conceallevel = 0
+opt.concealcursor = "n"
+g.no_gitrebase_maps = 1 -- See share/nvim/runtime/ftplugin/gitrebase.vim
+g.no_man_maps = 1       -- See share/nvim/runtime/ftplugin/man.vim
+g.editorconfig = false
+g.autoformat = false
+g.markdown_recommended_style = 0
+g.yaml_indent_multiline_scalar = 1
 
--- Search {{{
+-- Disable python/perl/ruby/node providers
+g.loaded_python3_provider = 0
+g.loaded_perl_provider = 0
+g.loaded_ruby_provider = 0
+g.loaded_node_provider = 0
+
+-- RipGrep options
+if fn.executable("rg") then
+  opt.grepprg = "rg --vimgrep --no-heading --smart-case"
+  opt.grepformat = "%f:%l:%c:%m,%f:%l:%m"
+end
+
+-- File
+opt.fileformats = { "unix", "dos", "mac" }
+opt.fileencoding = "utf-8" -- File encoding
+opt.encoding = "utf-8"
+opt.autowrite = false
+opt.autoread = false
+opt.undofile = true
+opt.undolevels = 10000
+opt.updatetime = 100
+opt.shada = ""
+g.bigfile_size = 1024 * 1024 * 5 -- 5 MB
+
+-- Wildmenu
+opt.wildmenu = true
+opt.wildmode = "list:longest"
+opt.wildignore =
+"**/.git/*,**/node_modules/*,.hg,.svn,*~,*.png,*.jpg,*.gif,*.settings,Thumbs.db,*.min.js,*.swp,publish/*,intermediate/*,*.o,*.hi,Zend,vendor,*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite"
+opt.wildoptions = { "pum" }
+
+-- Search
 opt.ignorecase = true  -- Ignore case if all characters in lower case
 opt.joinspaces = false -- Join multiple spaces in search
 opt.smartcase = true   -- When there is a one capital letter search for exact match
 opt.showmatch = true   -- Highlight search instances
 opt.incsearch = true   -- Incremental search
--- }}}
+opt.inccommand = "split"
+opt.gdefault = true
 
--- Window {{{
+-- Window
 opt.splitbelow = true -- Put new windows below current
 opt.splitright = true -- Put new vertical splits to right
--- }}}
 
--- Diagnostics {{{
+-- Diagnostics
 vim.diagnostic.config({
   severity_sort = true,
   signs = true,
@@ -94,7 +155,6 @@ vim.diagnostic.config({
   },
   virtual_box = true,
 })
-
 fn.sign_define(
   "DiagnosticSignError",
   {
@@ -104,7 +164,6 @@ fn.sign_define(
     linehl = "",
   }
 )
-
 fn.sign_define(
   "DiagnosticSignWarn",
   {
@@ -114,7 +173,6 @@ fn.sign_define(
     linehl = "",
   }
 )
-
 fn.sign_define(
   "DiagnosticSignInfo",
   {
@@ -124,7 +182,6 @@ fn.sign_define(
     linehl = "",
   }
 )
-
 fn.sign_define(
   "DiagnosticSignHint",
   {
@@ -134,9 +191,8 @@ fn.sign_define(
     linehl = "",
   }
 )
--- }}}
 
--- Default Plugins {{{
+-- Default Plugins
 local disabled_built_ins = {
   "netrw",
   "netrwPlugin",
@@ -161,4 +217,3 @@ local disabled_built_ins = {
 for _, plugin in pairs(disabled_built_ins) do
   g["loaded_" .. plugin] = 1
 end
--- }}}

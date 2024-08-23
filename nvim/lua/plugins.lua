@@ -9,17 +9,31 @@ require("globals")
 
 return {
 
+  -- Lua functions library
+	{
+    "nvim-lua/plenary.nvim",
+    lazy = false,
+  },
+
   -- LSP
   {
     "williamboman/mason.nvim",
+    lazy = false,
     dependencies = {
       "williamboman/mason-lspconfig.nvim",
       "neovim/nvim-lspconfig",
       "hrsh7th/cmp-nvim-lsp",
     },
-    config = function ()
+    config = function()
       require("extensions.lsp")
     end,
+  },
+
+  -- Suspend/Resume LSP clients
+  {
+    "zeioth/garbage-day.nvim",
+    lazy = true,
+    dependencies = "neovim/nvim-lspconfig",
   },
 
   -- Completions
@@ -39,42 +53,19 @@ return {
       "petertriho/cmp-git",
       "lukas-reineke/cmp-under-comparator",
       "ray-x/cmp-treesitter",
-			"onsails/lspkind-nvim",
+      "onsails/lspkind-nvim",
     },
     config = function()
       require("extensions.cmp")
     end,
   },
 
-  -- Suspend/Resume LSP clients
-  {
-    "zeioth/garbage-day.nvim",
-    dependencies = "neovim/nvim-lspconfig",
-    event = "VeryLazy",
-  },
-
-  -- LSP Code action
-  {
-    "luckasRanarison/clear-action.nvim",
-    config = function ()
-      require("clear-action").setup({
-        signs = {
-          icons = {
-            quickfix = "󰁨 ",
-            refactor = "󰖷 ",
-            source = "󰌹 ",
-            combined = " ", -- used when combine is set to true or as a fallback when there is no action kind
-          },
-        },
-      })
-    end,
-  },
-
   -- TreeSitter
   {
     "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
+    event = "BufReadPre",
+    dependencies = { "haringsrob/nvim_context_vt" },
+    build = ":TSUpdateSync",
     config = function()
       require("extensions.treesitter")
     end,
@@ -83,40 +74,19 @@ return {
   -- Trouble
   {
     "folke/trouble.nvim",
+    lazy = true,
     dependencies = { "nvim-tree/nvim-web-devicons" },
-    keys = {
-      {
-        "<leader>xx",
-        "<cmd>Trouble diagnostics toggle<cr>",
-        desc = "Diagnostics (Trouble)",
-      },
-      {
-        "<leader>xX",
-        "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
-        desc = "Buffer Diagnostics (Trouble)",
-      },
-      {
-        "<leader>cs",
-        "<cmd>Trouble symbols toggle focus=false<cr>",
-        desc = "Symbols (Trouble)",
-      },
-      {
-        "<leader>cl",
-        "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
-        desc = "LSP Definitions / references / ... (Trouble)",
-      },
-      {
-        "<leader>xL",
-        "<cmd>Trouble loclist toggle<cr>",
-        desc = "Location List (Trouble)",
-      },
-      {
-        "<leader>xQ",
-        "<cmd>Trouble qflist toggle<cr>",
-        desc = "Quickfix List (Trouble)",
-      },
-    },
     opts = {},
+    cmd = "Trouble",
+  },
+
+  -- Formatter
+  {
+    "stevearc/conform.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("extensions.conform_")
+    end
   },
 
   -- Statusbar
@@ -125,35 +95,25 @@ return {
     event = "VeryLazy",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
-      require("extensions.lualine")
+      require("extensions.lualine_")
     end,
   },
 
-  -- Notifications
+  -- UI
   {
-    "j-hui/fidget.nvim",
-    config = function ()
-      require("extensions.fidget")
-    end,
+    "stevearc/dressing.nvim",
+    lazy = false,
+    opts = {},
   },
-
   {
-		"folke/noice.nvim",
-		event = "VeryLazy",
-		dependencies = {
-			"MunifTanjim/nui.nvim",
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
       "rcarriga/nvim-notify",
-		},
-		config = function()
-			require("extensions.noice")
-		end,
-  },
-
-  -- Git Signs
-  {
-    "lewis6991/gitsigns.nvim",
+    },
     config = function()
-      require("extensions.gitsigns")
+      require("extensions.noice_")
     end,
   },
 
@@ -166,22 +126,23 @@ return {
       "nvim-tree/nvim-web-devicons",
     },
     config = function()
-      require("extensions.barbecue")
+      require("extensions.barbecue_")
     end,
   },
 
-  -- Buffer line
+  -- Git Signs
   {
-    "akinsho/bufferline.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    "lewis6991/gitsigns.nvim",
+    event = "VeryLazy",
     config = function()
-      require("extensions.bufferline")
+      require("extensions.gitsigns_")
     end,
   },
 
   -- Refactoring
   {
     "ThePrimeagen/refactoring.nvim",
+    event = "VeryLazy",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
@@ -191,13 +152,33 @@ return {
     end,
   },
 
+  -- Close buffers if too old
+  {
+    "chrisgrieser/nvim-early-retirement",
+    event = "VeryLazy",
+    config = true,
+  },
+
+  -- Better movements
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {
+      modes = {
+        search = {
+          enabled = true
+        }
+      }
+    },
+  },
+
   -- Code folding
   {
     "kevinhwang91/nvim-ufo",
     event = { "BufReadPost", "BufNewFile", "BufNew" },
     dependencies = { "kevinhwang91/promise-async" },
     config = function()
-      require("extensions.nvim-ufo")
+      require("extensions.ufo_")
     end,
   },
 
@@ -220,7 +201,7 @@ return {
   -- Words highlighting
   {
     "RRethy/vim-illuminate",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
+    lazy = true,
     config = function()
       require("illuminate").configure({
         filetypes_denylist = {
@@ -236,7 +217,7 @@ return {
   -- Highlight arguments
   {
     "m-demare/hlargs.nvim",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
+    event = "VeryLazy",
     dependencies = { "nvim-treesitter" },
     config = function()
       require("hlargs").setup()
@@ -246,6 +227,7 @@ return {
   -- Jump to outer node smartly
   {
     "Mr-LLLLL/treesitter-outer",
+    event = { "BufReadPost", "BufNewFile", "BufNew" },
     dependencies = "nvim-treesitter/nvim-treesitter",
   },
 
@@ -262,6 +244,7 @@ return {
   -- Peek lines
   {
     "nacro90/numb.nvim",
+    event = { "BufReadPost", "BufNewFile", "BufNew" },
     config = function()
       require("numb").setup()
     end,
@@ -270,6 +253,7 @@ return {
   -- Split/join code blocks
   {
     "Wansmer/treesj",
+    event = { "BufReadPost", "BufNewFile", "BufNew" },
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
       require("treesj").setup({
@@ -281,7 +265,7 @@ return {
   -- Comments
   {
     "numToStr/Comment.nvim",
-    lazy = false,
+    event = { "BufReadPost", "BufNewFile", "BufNew" },
     init = function()
       require("Comment").setup()
     end,
@@ -290,17 +274,10 @@ return {
   -- Docstrings
   {
     "danymat/neogen",
+    event = { "BufReadPost", "BufNewFile", "BufNew" },
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
-      require("extensions.neogen")
-    end,
-  },
-
-  -- Smooth scroll
-  {
-    "karb94/neoscroll.nvim",
-    config = function ()
-      require("neoscroll").setup({})
+      require("extensions.neogen_")
     end,
   },
 
@@ -310,22 +287,14 @@ return {
     event = { "VimEnter" },
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
-      require("extensions.alpha")
-    end,
-  },
-
-  -- Session Manager
-  {
-    "Shatur/neovim-session-manager",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    config = function()
-      require("extensions.session-manager")
+      require("extensions.alpha_")
     end,
   },
 
   -- File explorer
   {
     "nvim-neo-tree/neo-tree.nvim",
+    lazy = false,
     branch = "v3.x",
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -340,25 +309,38 @@ return {
   -- Fuzzy finder and more
   {
     "nvim-telescope/telescope.nvim",
-    tag = "0.1.5",
+    event = "VeryLazy",
+    tag = "0.1.8",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      "ahmedkhalf/project.nvim",
-      "nvim-telescope/telescope-ui-select.nvim",
       "nvim-telescope/telescope-media-files.nvim",
       "debugloop/telescope-undo.nvim",
+      "ThePrimeagen/refactoring.nvim",
     },
     config = function()
-      require("extensions.telescope")
+      require("extensions.telescope_")
     end,
+  },
+
+  -- Diff tools
+  {
+    "akinsho/git-conflict.nvim",
+    lazy = true,
+    version = "*",
+    config = true,
+  },
+  {
+    "sindrets/diffview.nvim",
+    lazy = true,
   },
 
   -- Note management
   {
     "renerocksai/telekasten.nvim",
+    event = "VeryLazy",
     dependencies = { "nvim-telescope/telescope.nvim", "renerocksai/calendar-vim" },
     config = function()
-      require("extensions.telekasten")
+      require("extensions.telekasten_")
     end,
   },
 
@@ -371,46 +353,55 @@ return {
   -- Markdown
   {
     "MeanderingProgrammer/markdown.nvim",
-    name = "render-markdown", -- Only needed if you have another plugin named markdown.nvim
-    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+    name = "render-markdown",
+    event = "VeryLazy",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-tree/nvim-web-devicons",
+    },
     config = function()
       require("render-markdown").setup({
         file_types = { "markdown", "telekasten" },
         latex = { enabled = false },
         heading = {
-          icons = {"󰉫 ", "󰉬 ", "󰉭 ", "󰉮 ", "󰉯 ", "󰉰 "},
+          icons = { " 󰉫 ", " 󰉬 ", " 󰉭 ", " 󰉮 ", " 󰉯 ", " 󰉰 " },
           position = "inline",
         },
         checkbox = {
-          unchecked = { icon = "󰄱 " },
-          checked = { icon = " " },
-        },
-        bullet = {
-          icons = { "▶", "▷", "●", "○" },
+          unchecked = { icon = "  " },
+          checked = { icon = "  " },
         },
       })
+    end,
+  },
+
+  -- Utils
+  {
+    "max397574/better-escape.nvim",
+    lazy = false,
+    config = function()
+      require("better_escape").setup()
     end,
   },
 
   -- Colorschemes
   {
     "rachartier/tiny-devicons-auto-colors.nvim",
+    event = "VeryLazy",
     dependencies = {
       "nvim-tree/nvim-web-devicons"
     },
-    event = "VeryLazy",
-    config = function ()
+    config = function()
       require("tiny-devicons-auto-colors").setup()
     end
   },
 
   {
     "catppuccin/nvim",
-    lazy = false,
-    config = function ()
+    lazy = true,
+    config = function()
       require("colorschemes.catppuccin")
     end,
-    priority = 1000,
   },
 
 }
