@@ -18,7 +18,6 @@ local is_not_filetype = function()
   local ft = vim.bo.filetype
   local exclude_ft = {
     "neorepl",
-    "neoai-input",
   }
   for _, v in pairs(exclude_ft) do
     if ft == v then
@@ -129,32 +128,75 @@ cmp.setup({
     end, { "i", "s", "c" }),
   },
 
-  sources = cmp.config.sources({
-    { name = "nvim_lsp" },
-    { name = "nvim_lsp_signature_help" },
-    {
-      name = "treesitter",
-      max_item_count = 3,
-    },
+  sources = {
     {
       name = "luasnip",
-      max_item_count = 1,
+      group_index = 1,
+      option = { show_autosnippets = true, use_show_condition = false },
     },
     {
       name = "nvim_lua",
-      max_item_count = 1,
+      group_index = 1,
+      entry_filter = function()
+        if vim.bo.filetype ~= "lua" then
+          return false
+        end
+        return true
+      end,
     },
     {
-      name = "async_path",
-      max_item_count = 1,
+      name = "nvim_lsp",
+      group_index = 2,
+    },
+    {
+      name = "nvim_lsp_signature_help",
+      group_index = 2,
+    },
+    {
+      name = "treesitter",
+      group_index = 3,
+      max_item_count = 3,
+      entry_filter = function(entry, vim_item)
+        if entry.kind == 15 then
+          local cursor_pos = vim.api.nvim_win_get_cursor(0)
+          local line = vim.api.nvim_get_current_line()
+          local next_char = line:sub(cursor_pos[2] + 1, cursor_pos[2] + 1)
+          if next_char == '"' or next_char == "'" then
+              vim_item.abbr = vim_item.abbr:sub(1, -2)
+          end
+        end
+        return vim_item
+      end,
     },
     {
       name = "buffer",
-      max_item_count = 1,
-      keyword_length = 500,
-      priority = 1,
+      group_index = 4,
+      max_item_count = 5,
+      keyword_length = 2,
+      entry_filter = function(entry)
+        return not entry.exact
+      end,
+      option = {
+        get_bufnrs = function()
+          return vim.api.nvim_list_bufs()
+        end,
+      },
     },
-  }),
+    {
+      name = "git",
+      group_index = 5,
+      entry_filter = function()
+        if vim.bo.filetype ~= "gitcommit" then
+          return false
+        end
+        return true
+      end,
+    },
+    {
+      name = "async_path",
+      group_index = 5,
+    },
+  },
 
   sorting = {
     priority_weight = 2,
@@ -171,6 +213,20 @@ cmp.setup({
       cmp.config.compare.order,
     },
   },
+
+  matching = {
+    disallow_fuzzy_matching = true,
+    disallow_fullfuzzy_matching = true,
+    disallow_partial_fuzzy_matching = true,
+    disallow_partial_matching = false,
+    disallow_prefix_unmatching = true,
+    disallow_symbol_nonprefix_matching = true,
+  },
+
+  performance = {
+    debounce = 0,
+    throttle = 0,
+  },
 })
 
 -- Set configuration for specific filetype
@@ -181,22 +237,27 @@ cmp.setup.filetype("gitcommit", {
 -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
 cmp.setup.cmdline({ "/", "?" }, {
   mapping = cmp.mapping.preset.cmdline(),
-  sources = cmp.config.sources({
-    { name = "nvim_lsp_document_symbol" }
-  }, {
-    { name = "buffer" }
-  }),
+  sources = cmp.config.sources(
+    {
+      { name = "nvim_lsp_document_symbol" }
+    },
+    {
+      { name = "buffer" }
+    }
+  ),
 })
 
 -- Use cmdline & path source for ":" (if you enabled `native_menu`, this won't work anymore).
 cmp.setup.cmdline(":", {
   mapping = cmp.mapping.preset.cmdline(),
-  sources = cmp.config.sources({
+  sources = cmp.config.sources(
+    {
       { name = "async_path" }
     },
     {
       { name = "cmdline" }
-    })
+    }
+  )
 })
 
 local cmp_autopairs = require("nvim-autopairs.completion.cmp")
