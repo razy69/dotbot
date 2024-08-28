@@ -156,19 +156,6 @@ return {
     config = true,
   },
 
-  -- Better movements
-  {
-    "folke/flash.nvim",
-    event = "VeryLazy",
-    opts = {
-      modes = {
-        search = {
-          enabled = true
-        }
-      }
-    },
-  },
-
   -- Code folding
   {
     "kevinhwang91/nvim-ufo",
@@ -370,6 +357,20 @@ return {
     config = function()
       require("better_escape").setup()
     end,
+  },
+
+  -- Smooth scroll
+  {
+    "karb94/neoscroll.nvim",
+    config = function ()
+      require("neoscroll").setup({})
+    end,
+  },
+
+  -- Readline Bindings
+  {
+    "assistcontrol/readline.nvim",
+    lazy = true,
   },
 
   -- Colorschemes
