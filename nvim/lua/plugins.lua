@@ -63,7 +63,6 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     event = "BufReadPre",
-    dependencies = { "haringsrob/nvim_context_vt" },
     build = ":TSUpdateSync",
     config = function()
       require("extensions.treesitter")
@@ -166,14 +165,13 @@ return {
     end,
   },
 
-  -- Indentation highlighting
+  -- Hlchunk
   {
-    "lukas-reineke/indent-blankline.nvim",
-    event = { "BufReadPost", "BufNewFile" },
+    "shellRaining/hlchunk.nvim",
+    event = { "BufReadPre", "BufNewFile" },
     config = function()
-      require("extensions.indent-blankline")
-    end,
-    main = "ibl",
+      require("extensions.hlchunk_")
+    end
   },
 
   -- Rainbow delimiters
@@ -335,18 +333,7 @@ return {
       "nvim-tree/nvim-web-devicons",
     },
     config = function()
-      require("render-markdown").setup({
-        file_types = { "markdown", "telekasten" },
-        latex = { enabled = false },
-        heading = {
-          icons = { " 󰉫 ", " 󰉬 ", " 󰉭 ", " 󰉮 ", " 󰉯 ", " 󰉰 " },
-          position = "inline",
-        },
-        checkbox = {
-          unchecked = { icon = "  " },
-          checked = { icon = "  " },
-        },
-      })
+      require("extensions.markdown_")
     end,
   },
 
@@ -362,7 +349,7 @@ return {
   -- Smooth scroll
   {
     "karb94/neoscroll.nvim",
-    config = function ()
+    config = function()
       require("neoscroll").setup({})
     end,
   },
