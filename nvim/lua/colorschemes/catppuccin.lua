@@ -82,6 +82,10 @@ require("catppuccin").setup({
     which_key = true,
     -- For more plugins integrations please scroll down (https://github.com/catppuccin/nvim#integrations)
   },
+  highlight = {
+    enable = true,
+    additional_vim_regex_highlighting = false,
+  },
   highlight_overrides = {
     all = {
       NoiceCmdlinePopup = { bg = noice_mini_bg },
@@ -99,10 +103,6 @@ require("catppuccin").setup({
       TelescopeSelectionCaret = { fg = colors.blue },
     },
   },
-})
-
-require("tiny-devicons-auto-colors").setup({
-  colors = require("catppuccin.palettes").get_palette("frappe")
 })
 
 vim.cmd("colorscheme catppuccin")

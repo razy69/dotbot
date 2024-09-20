@@ -368,7 +368,15 @@ return {
       "nvim-tree/nvim-web-devicons"
     },
     config = function()
-      require("tiny-devicons-auto-colors").setup()
+      local theme_colors = require("catppuccin.palettes").get_palette("frappe")
+      require("tiny-devicons-auto-colors").setup({
+        autoreload = true,
+        colors = theme_colors,
+        cache = {
+          enabled = true,
+          path = vim.fn.stdpath("cache") .. "/tiny-devicons-auto-colors-cache.json",
+        },
+      })
     end
   },
   {
