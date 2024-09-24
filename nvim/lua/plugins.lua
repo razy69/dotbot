@@ -360,6 +360,15 @@ return {
     lazy = true,
   },
 
+  -- Help view
+  {
+    "OXY2DEV/helpview.nvim",
+    lazy = false,
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter"
+    },
+  },
+
   -- Colorschemes
   {
     "rachartier/tiny-devicons-auto-colors.nvim",
