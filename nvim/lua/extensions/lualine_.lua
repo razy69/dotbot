@@ -74,11 +74,16 @@ lualine.setup({
       { "fileformat" },
       {
         function()
+          local mini_icons = require("mini.icons")
           local lsps = vim.lsp.get_active_clients({ bufnr = vim.fn.bufnr() })
           local filetype = vim.bo.filetype
-          local icon = require("nvim-web-devicons").get_icon_by_filetype(
+          local icon = mini_icons.get(
+            "filetype",
             vim.api.nvim_buf_get_option(0, "filetype")
           ) .. " " or ""
+          -- local icon = require("nvim-web-devicons").get_icon_by_filetype(
+          --   vim.api.nvim_buf_get_option(0, "filetype")
+          -- ) .. " " or ""
           local text = icon .. filetype
 
           if lsps and #lsps > 0 then
@@ -91,7 +96,7 @@ lualine.setup({
               names = string.sub(names, 0, 18)
               names = names .. ".."
             end
-            return string.format("%s (LSP: %s)", text, names)
+            return string.format("%s (%s)", text, names)
           else
             return text
           end
@@ -99,12 +104,12 @@ lualine.setup({
         on_click = function()
           vim.api.nvim_command("LspInfo")
         end,
-        color = function()
-          local _, color = require("nvim-web-devicons").get_icon_cterm_color_by_filetype(
-            vim.api.nvim_buf_get_option(0, "filetype")
-          )
-          return { fg = color }
-        end,
+        -- color = function()
+        --   local _, color = require("nvim-web-devicons").get_icon_cterm_color_by_filetype(
+        --     vim.api.nvim_buf_get_option(0, "filetype")
+        --   )
+        --   return { fg = color }
+        -- end,
       },
     },
     lualine_y = {

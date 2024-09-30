@@ -7,6 +7,10 @@ fi
 export ZSH="${HOME}/.zsh"
 export NVIM="${HOME}/.local/share/nvim"
 
+# ASDF
+export ASDF="${HOME}/.asdf"
+source "${ASDF}/asdf.sh"
+
 # Path
 path=(
   ${NVIM}/mason/bin
@@ -15,9 +19,6 @@ path=(
   $path
 )
 export PATH
-
-# Rust
-[[ ! -f "${HOME}/.cargo/env" ]] || source "${HOME}/.cargo/env"
 
 # Settings
 source "${ZSH}/config/settings.zsh"
@@ -39,10 +40,6 @@ source "${ZSH}/config/aliases.zsh"
 
 # Work
 [[ ! -f "${ZSH}/config/work.zsh" ]] || source "${ZSH}/config/work.zsh"
-
-# ASDF
-export ASDF="${HOME}/.asdf"
-source "${ASDF}/asdf.sh"
 
 # Completion
 source "${ZSH}/config/completions.zsh"
