@@ -111,4 +111,8 @@ wk.add({
   -- Telekasten
   { "<leader>n",    "<cmd>Telekasten panel<cr>",                                                           desc = "Open Telekasten panel",             mode = "n" },
 
+  -- ToggleTerm
+  { "<leader>th",   "<cmd>ToggleTerm size=10 direction=horizontal<cr>",                                    desc = "Open Terminal Horizontally",        mode = "n" },
+  { "<leader>tv",   "<cmd>ToggleTerm size=60 direction=vertical<cr>",                                      desc = "Open Terminal Vertically",          mode = "n" },
+
 })
