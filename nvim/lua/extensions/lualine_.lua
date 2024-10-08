@@ -37,7 +37,7 @@ lualine.setup({
       {
         "diff",
         on_click = function()
-          vim.api.nvim_command("DiffviewOpen")
+          vim.api.nvim_command("Telescope git_status")
         end
       },
       {
@@ -75,17 +75,21 @@ lualine.setup({
       {
         function()
           local mini_icons = require("mini.icons")
-          local lsps = vim.lsp.get_active_clients({ bufnr = vim.fn.bufnr() })
           local filetype = vim.bo.filetype
           local icon = mini_icons.get(
             "filetype",
             vim.api.nvim_buf_get_option(0, "filetype")
           ) .. " " or ""
-          -- local icon = require("nvim-web-devicons").get_icon_by_filetype(
-          --   vim.api.nvim_buf_get_option(0, "filetype")
-          -- ) .. " " or ""
           local text = icon .. filetype
-
+          return string.format("%s", text)
+        end,
+        on_click = function()
+          vim.api.nvim_command("Telescope filetypes")
+        end,
+      },
+      {
+        function()
+          local lsps = vim.lsp.get_active_clients({ bufnr = vim.fn.bufnr() })
           if lsps and #lsps > 0 then
             local lsp_names = {}
             for _, lsp in ipairs(lsps) do
@@ -96,20 +100,12 @@ lualine.setup({
               names = string.sub(names, 0, 18)
               names = names .. ".."
             end
-            return string.format("%s (%s)", text, names)
-          else
-            return text
+            return string.format("LSP: %s", names)
           end
         end,
         on_click = function()
           vim.api.nvim_command("LspInfo")
         end,
-        -- color = function()
-        --   local _, color = require("nvim-web-devicons").get_icon_cterm_color_by_filetype(
-        --     vim.api.nvim_buf_get_option(0, "filetype")
-        --   )
-        --   return { fg = color }
-        -- end,
       },
     },
     lualine_y = {

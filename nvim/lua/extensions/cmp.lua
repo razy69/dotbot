@@ -162,7 +162,7 @@ cmp.setup({
           local line = vim.api.nvim_get_current_line()
           local next_char = line:sub(cursor_pos[2] + 1, cursor_pos[2] + 1)
           if next_char == '"' or next_char == "'" then
-              vim_item.abbr = vim_item.abbr:sub(1, -2)
+            vim_item.abbr = vim_item.abbr:sub(1, -2)
           end
         end
         return vim_item
@@ -259,9 +259,3 @@ cmp.setup.cmdline(":", {
     }
   )
 })
-
-local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-cmp.event:on(
-  "confirm_done",
-  cmp_autopairs.on_confirm_done()
-)
