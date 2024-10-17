@@ -10,7 +10,7 @@ require("globals")
 opt.ttimeout = true
 opt.ttimeoutlen = 10 -- Key code timeout
 opt.timeout = true
-opt.timeoutlen = 500 -- Mapping timeout
+opt.timeoutlen = 300 -- Mapping timeout
 
 -- Code Folding
 opt.foldcolumn = "0"
@@ -39,11 +39,13 @@ opt.mouse = "a"
 vim.cmd("set guioptions-=T")
 
 -- Clipboard
-opt.clipboard:append("unnamedplus") -- Use system clipboard
-opt.fixeol = true                   -- Turn off appending new line in the end of a file
+vim.schedule(function()
+  vim.opt.clipboard = 'unnamedplus'
+end)
 
 -- Other
 vim.cmd("match EoLSpace /\\s\\+$/")
+opt.fixeol = true -- Turn off appending new line in the end of a file
 opt.fillchars:append("eob: ")
 opt.laststatus = 0
 opt.path:remove("/usr/include")
@@ -72,10 +74,11 @@ opt.titlestring = "%<%F%=%l/%L - nvim"
 opt.termguicolors = true
 opt.confirm = true
 opt.spelloptions:append "camel"
-opt.scrolloff = 2
+opt.scrolloff = 10
 opt.backspace = "indent,eol,start"
 opt.conceallevel = 0
 opt.concealcursor = "n"
+opt.breakindent = true
 g.no_gitrebase_maps = 1 -- See share/nvim/runtime/ftplugin/gitrebase.vim
 g.no_man_maps = 1       -- See share/nvim/runtime/ftplugin/man.vim
 g.editorconfig = false
