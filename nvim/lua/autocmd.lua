@@ -175,14 +175,35 @@ api.nvim_create_autocmd("FileType", {
   pattern = "bigfile",
   callback = function(ev)
     notify("bigfile detected, applying minimal mode..", "warning", { title = notify_title })
+
+    opt.syntax = "off"
     opt.cursorline = false
     opt.cursorcolumn = false
     opt.list = false
     opt.wrap = false
+    opt.swapfile = false
+    opt.foldmethoe = "manual"
+    opt.undolevels = -1
+    opt.undoreload = 0
     vim.b.minianimate_disable = true
+
     vim.schedule(function()
       vim.bo[ev.buf].syntax = vim.filetype.match({ buf = ev.buf }) or ""
     end)
+
+    vim.cmd("syntax clear")
+    vim.cmd("LspStop")
+    vim.cmd("IlluminatePause")
+    vim.cmd("NoMatchParen")
+    vim.cmd("IBLDisable")
+    vim.cmd("Barbecue disable")
+
+    local _, ts_config = pcall(require, "nvim-treesitter.configs")
+    for _, mod_name in ipairs(ts_config.available_modules()) do
+      vim.cmd("TSDisable " .. mod_name)
+    end
+
+    require("lualine").hide()
   end,
 })
 

@@ -44,6 +44,7 @@ vim.schedule(function()
 end)
 
 -- Other
+opt.completeopt = { "menu", "menuone", "noselect" }
 vim.cmd("match EoLSpace /\\s\\+$/")
 opt.fixeol = true -- Turn off appending new line in the end of a file
 opt.fillchars:append("eob: ")

@@ -38,19 +38,19 @@ neotree.setup {
       highlight = "NeoTreeFileName",
     },
     file_size = {
-      enabled = true,
+      enabled = false,
       required_width = 50, -- min width of window required to show this column
     },
     type = {
-      enabled = true,
+      enabled = false,
       required_width = 70, -- min width of window required to show this column
     },
     last_modified = {
-      enabled = true,
+      enabled = false,
       required_width = 90, -- min width of window required to show this column
     },
     created = {
-      enabled = true,
+      enabled = false,
       required_width = 110, -- min width of window required to show this column
     },
     symlink_target = {
