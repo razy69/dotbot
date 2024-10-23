@@ -274,7 +274,10 @@ return {
   {
     "renerocksai/telekasten.nvim",
     cmd = "Telekasten",
-    dependencies = { "nvim-telescope/telescope.nvim", "renerocksai/calendar-vim" },
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+      "renerocksai/calendar-vim",
+    },
     config = function()
       require("extensions.telekasten_")
     end,
@@ -299,20 +302,6 @@ return {
     end,
   },
 
-  -- Flash (Navigation)
-	{
-		"folke/flash.nvim",
-		event = "VeryLazy",
-		opts = {},
-		keys = {
-			{ "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
-			{ "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
-			{ "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
-			{ "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
-			{ "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
-		},
-	},
-
   -- Diff tools
   {
     "sindrets/diffview.nvim",
@@ -321,7 +310,7 @@ return {
       "akinsho/git-conflict.nvim",
     },
     cmd = "DiffviewOpen",
-    config = function ()
+    config = function()
       require("git-conflict").setup({})
       require("diffview").setup({})
     end,
@@ -336,20 +325,20 @@ return {
     },
   },
 
-  -- Drop down terminal
-  {
-    "akinsho/toggleterm.nvim",
-    version = "*",
-    config = function()
-      require("toggleterm").setup({})
-    end
-  },
-
   -- Todo comments
   {
     "folke/todo-comments.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
-    opts = {},
+    opts = {
+      highlight = {
+        -- vimgrep regex, supporting the pattern TODO(name):
+        pattern = [[.*<((KEYWORDS)%(\(.{-1,}\))?):]],
+      },
+      search = {
+        -- ripgrep regex, supporting the pattern TODO(name):
+        pattern = [[\b(KEYWORDS)(\(\w*\))*:]],
+      },
+    },
   },
 
   -- Icons & Colorscheme
