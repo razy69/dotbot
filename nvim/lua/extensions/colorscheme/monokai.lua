@@ -9,7 +9,7 @@ local monokai = require("monokai-pro")
 monokai.setup({
   transparent_background = false,
   terminal_colors = true,
-	devicons = true,
+  devicons = true,
   styles = {
     comment = { italic = false },
     keyword = { italic = false }, -- any other keyword
@@ -32,6 +32,7 @@ monokai.setup({
       context_start_underline = false,
     },
   },
+  override = function(c) end,
 })
 
-cmd.colorscheme("monokai-pro")
+vim.cmd([[colorscheme monokai-pro]])

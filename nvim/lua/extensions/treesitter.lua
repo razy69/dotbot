@@ -4,14 +4,8 @@
   See: https://github.com/tree-sitter/tree-sitter
 ]]
 
-opt.foldmethod = "expr"
-opt.foldexpr = "nvim_treesitter#foldexpr()"
-opt.foldlevelstart = -1
-opt.foldenable = false
-opt.foldlevel = 99
 
 require("nvim-treesitter.configs").setup{
-
   -- Needed parsers
   ensure_installed = {
     "bash",
@@ -48,31 +42,23 @@ require("nvim-treesitter.configs").setup{
     "vim",
     "yaml",
   },
-
   -- Install all parsers synchronously
   sync_install = false,
-
-  -- Подсветка
+  auto_install = true,
   highlight = {
     -- Enabling highlight for all files
     enable = true,
     disable = {},
-    additional_vim_regex_highlighting = true,
+    additional_vim_regex_highlighting = false,
   },
-
   indent = {
-    -- Disabling indentation for all files
     enable = true,
-    disable = {"yaml"},
   },
-
-  rainbow = {
-    enable = true,
-    -- list of languages you want to disable the plugin for
-    -- disable = { "jsx", "cpp" },
-    -- Which query to use for finding delimiters
-    query = "rainbow-parens",
-    -- Do not enable for files with more than n lines
-    max_file_lines = 3000
-  }
 }
+
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldenable = false
+vim.opt.foldcolumn = "0"
+vim.opt.foldlevel = 99
+vim.opt.foldlevelstart = 99
