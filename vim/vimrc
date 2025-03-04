@@ -3,6 +3,7 @@ scriptencoding UTF-8
 set encoding=UTF-8
 
 " General options
+syntax on
 set number                      "Show line numbers
 set ruler
 set showmatch
@@ -20,10 +21,21 @@ set showcmd                     "Show incomplete cmds down the bottom
 set showmode                    "Show current mode down the bottom
 set autoread                    "Reload files changed outside vim
 set hidden
-set shortmess+=F                " Disabled "filename" XXXL, XXXC
-set noshowcmd                   " Disable display of last command
-set noshowmode                  " Disable -- INSERT --
+set ttimeout
+set ttimeoutlen=0
+set ttyfast
 filetype on
+
+" Cursor
+"  1 -> blinking block
+"  2 -> solid block
+"  3 -> blinking underscore
+"  4 -> solid underscore
+"  5 -> blinking vertical bar
+"  6 -> solid vertical bar
+let &t_SI.="\e[6 q"  " INSERT mode
+let &t_SR.="\e[4 q"  " REPLACE mode
+let &t_EI.="\e[2 q"  " NORMAL mode
 
 " Search highlight
 set hlsearch
@@ -66,30 +78,24 @@ set list
 set showbreak=↪\
 set listchars=trail:•,tab:❯-,precedes:◀,extends:▶,nbsp:␣
 
-" Copy/Paste OSX
-set clipboard=unnamed
+" Copy/Paste
+set clipboard^=unnamed,unnamedplus
 
 " Python settings
 au BufNewFile,BufRead *.{py}
-      \ set tabstop=4 |
-      \ set softtabstop=4 |
-      \ set shiftwidth=4 |
-      \ set filetype=python |
-      \ set autoindent |
-      \ set expandtab |
-      \ set textwidth=120
+  \ set tabstop=4 |
+  \ set softtabstop=4 |
+  \ set shiftwidth=4 |
+  \ set filetype=python |
+  \ set autoindent |
+  \ set expandtab |
+  \ set textwidth=120
 
-" Other Languages settings
-au BufNewFile,BufRead *.js, *.html, *.css, *.yaml, *.json
-      \ set tabstop=2 |
-      \ set softtabstop=2 |
-      \ set shiftwidth=2
 
 " Set theme
-syntax on
-set termguicolors
-if !has('gui_running') && &term =~ '\%(screen\|tmux\)'
+if exists("+termguicolors") && ($TERM =~ ".*256color" || $TERM == "xterm-ghostty")
   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  set termguicolors
 endif
 silent! colorscheme catpuccin_frappe

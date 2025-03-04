@@ -35,9 +35,7 @@ vim.opt.mousemoveevent = true
 vim.opt.mouse = "a"
 
 -- Clipboard
-vim.schedule(function()
-  vim.opt.clipboard = "unnamedplus"
-end)
+vim.opt.clipboard:append {"unnamed", "unnamedplus"}
 
 -- Other
 vim.cmd("match EoLSpace /\\s\\+$/")
