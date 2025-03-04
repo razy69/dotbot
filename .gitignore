@@ -1,58 +1,6 @@
-# Compiled source
-*.class
-*.dll
-*.exe
-*.o
-*.so
-
-# Archives
-*.7z
-*.dmg
-*.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.zip
-
-# Logs #
-*.log
-
-# OS generated files
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.Trashes
-ehthumbs.db
-Thumbs.db
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
-.DS_Store
-.DS_Store?
-.AppleDouble
-.LSOverride
-
-# Python
-*.pyc
-
-# Vim
-*~
-*.swp
-*.swo
-
-# Intellij
-.idea
-
 # ZSH Private Config
 zsh/config/work.zsh
 zsh/config/secrets.zsh
 
 # Tmux
 tmux/tmux/resurrect
-

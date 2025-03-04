@@ -48,7 +48,3 @@ Temporary Items
 
 # Intellij
 .idea
-
-# ZSH Private Config
-zsh/config/work.zsh
-zsh/config/secrets.zsh
