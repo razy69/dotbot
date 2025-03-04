@@ -12,15 +12,42 @@ require("lazy-bootstrap")
 
 -- Settings
 require("settings")
-require("autocmd")
-require("commands")
+require("filetypes")
 
 -- Plugin management
 local lazy = require("lazy")
-lazy.setup("plugins")
+-- Make sure to setup `mapleader` and `maplocalleader` before
+-- loading lazy.nvim so that mappings are correct.
+-- This is also a good place to setup other settings (vim.opt)
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
 
--- Keymap
-require("keybindings")
+-- Setup lazy.nvim
+lazy.setup({
+  spec = {
+    -- import your plugins
+    { import = "plugins" },
+  },
+  -- automatically check for plugin updates
+  checker = { enabled = true },
+  ui = {
+    border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+    size = {
+      width = 0.8,
+      height = 0.8,
+    },
+  },
+  rocks = {
+    enabled = false,
+  },
+})
 
 -- Colorscheme
 vim.cmd("colorscheme catppuccin")
+
+-- Commands and AutoCommands
+require("autocmd")
+require("commands")
+
+-- Keymap
+require("keybindings")

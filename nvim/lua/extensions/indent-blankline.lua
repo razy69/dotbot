@@ -7,16 +7,16 @@
 local ibl = require("ibl")
 
 ibl.setup({
-	indent = { char = "▏" },
-	scope = { enabled = false },
-	exclude = {
-		filetypes = {
-			"help",
-			"alpha",
-			"neo-tree",
-			"lazy",
-			"mason",
-			"notify",
-		},
-	},
+  indent = { char = "▏" },
+  scope = { enabled = false },
+  exclude = {
+    filetypes = {
+      "help",
+      "alpha",
+      "neo-tree",
+      "lazy",
+      "mason",
+      "notify",
+    },
+  },
 })

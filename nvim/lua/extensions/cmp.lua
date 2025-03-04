@@ -10,36 +10,36 @@ local luasnip = require("luasnip")
 local lspkind = require("lspkind")
 
 local has_words_before = function()
-  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  local line, col = table.unpack(vim.api.nvim_win_get_cursor(0))
   return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
 end
 
 local is_not_filetype = function()
-	local ft = vim.bo.filetype
-	local exclude_ft = {
-		"neorepl",
-		"neoai-input",
-	}
-	for _, v in pairs(exclude_ft) do
-		if ft == v then
-			return false
-		end
-	end
-	return true
+  local ft = vim.bo.filetype
+  local exclude_ft = {
+    "neorepl",
+    "neoai-input",
+  }
+  for _, v in pairs(exclude_ft) do
+    if ft == v then
+      return false
+    end
+  end
+  return true
 end
 
 local is_not_buftype = function()
-	local bt = vim.bo.buftype
-	local exclude_bt = {
-		"prompt",
-		"nofile",
-	}
-	for _, v in pairs(exclude_bt) do
-		if bt == v then
-			return false
-		end
-	end
-	return true
+  local bt = vim.bo.buftype
+  local exclude_bt = {
+    "prompt",
+    "nofile",
+  }
+  for _, v in pairs(exclude_bt) do
+    if bt == v then
+      return false
+    end
+  end
+  return true
 end
 
 require("luasnip.loaders.from_vscode").lazy_load()
@@ -52,24 +52,24 @@ lspkind.init({
 cmp.setup({
 
   -- Disabling completion in certain contexts
-  enabled = function ()
+  enabled = function()
     return is_not_buftype() and is_not_filetype()
-	end,
+  end,
 
   formatting = {
     format = lspkind.cmp_format({
       maxwidth = 50,
       ellipsis_char = "...",
-			mode = "symbol_text",
-				menu = ({
-				buffer = "[Buffer]",
-				nvim_lsp = "[LSP]",
-				luasnip = "[LuaSnip]",
-				treesitter = "[TreeSitter]",
+      mode = "symbol_text",
+      menu = ({
+        buffer = "[Buffer]",
+        nvim_lsp = "[LSP]",
+        luasnip = "[LuaSnip]",
+        treesitter = "[TreeSitter]",
         async_path = "[Path]",
         git = "[Git]",
-				nvim_lua = "[Lua]",
-			})
+        nvim_lua = "[Lua]",
+      })
     }),
   },
 
@@ -77,12 +77,10 @@ cmp.setup({
     completion = cmp.config.window.bordered {
       -- border = "single",
       border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
-      winhighlight = "Normal:CmpPmenu,CursorLine:PmenuSel,Search:None",
     },
     documentation = cmp.config.window.bordered {
       documentation = {
         border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
-        winhighlight = "Normal:CmpPmenu,CursorLine:PmenuSel,Search:None",
       },
     },
   },
@@ -102,7 +100,7 @@ cmp.setup({
     ["<C-e>"] = cmp.mapping.abort(),
     ["<C-n>"] = cmp.mapping.select_next_item(),
     ["<C-p>"] = cmp.mapping.select_prev_item(),
-    ["<Tab>"] = cmp.mapping(function(fallback)
+    ["<C-Tab>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
         if #cmp.get_entries() == 1 then
           cmp.confirm({ select = true })
@@ -150,7 +148,7 @@ cmp.setup({
       name = "async_path",
       max_item_count = 1,
     },
-		{
+    {
       name = "buffer",
       max_item_count = 1,
       keyword_length = 500,
@@ -177,7 +175,7 @@ cmp.setup({
 
 -- Set configuration for specific filetype
 cmp.setup.filetype("gitcommit", {
-  sources = cmp.config.sources({{ name = "git" }}, {{ name = "buffer" }})
+  sources = cmp.config.sources({ { name = "git" } }, { { name = "buffer" } })
 })
 
 -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
@@ -200,3 +198,9 @@ cmp.setup.cmdline(":", {
       { name = "cmdline" }
     })
 })
+
+local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+cmp.event:on(
+  "confirm_done",
+  cmp_autopairs.on_confirm_done()
+)
