@@ -9,11 +9,7 @@ local conform = require("conform")
 vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 
 conform.setup({
-  format_on_save = {
-    timeout_ms = 500,
-    async = false,
-    lsp_fallback = true,
-  },
+  format_on_save = false,
   formatters_by_ft = {
     bash = { "shfmt" },
     golang = { "gofmt" },
