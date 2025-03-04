@@ -6,8 +6,53 @@
 
 local mason = require("mason")
 local mason_lspconfig = require("mason-lspconfig")
-local mason_null_ls = require("mason-null-ls")
 local lspconfig = require("lspconfig")
+local lint = require("lint")
+local formatter = require("formatter")
+local formatter_ft_any = require("formatter.filetypes.any")
+
+local augroup = vim.api.nvim_create_augroup   -- Create/get autocommand group
+local autocmd = vim.api.nvim_create_autocmd   -- Create autocommand
+
+lint.linters_by_ft = {
+  python = {"ruff", "mypy",},
+  markdown = {"markdownlint",},
+}
+
+
+-- Lint on Leave Insert Mode
+autocmd("InsertLeave" , {
+  callback = function()
+    lint.try_lint()
+  end
+})
+
+-- Provides the Format, FormatWrite, FormatLock, and FormatWriteLock commands
+formatter.setup {
+  -- Enable or disable logging
+  logging = true,
+  -- Set the log level
+  log_level = vim.log.levels.WARN,
+  -- All formatter configurations are opt-in
+  filetype = {
+    python = {
+      require("formatter.filetypes.python").black,
+    },
+    -- Use the special "*" filetype for defining formatter configurations on
+   ["*"] = {
+      -- "formatter.filetypes.any" defines default configurations for any
+      -- filetype
+      formatter_ft_any.remove_trailing_whitespace
+    }
+  }
+}
+
+-- Format on Save
+augroup("FormatAutogroup", { clear = true })
+autocmd("BufWritePost", {
+  group = "FormatAutogroup",
+  command = "FormatWriteLock",
+})
 
 mason.setup({
   ui = {
@@ -25,22 +70,11 @@ mason_lspconfig.setup{
     "dockerls",             -- LSP for Docker
     "lua_ls",               -- LSP for Lua
     "emmet_ls",             -- LSP for Emmet (Vue, HTML, CSS)
-    "jedi_language_server", -- LSP for Python
     "gopls",                -- LSP for Go
     "yamlls",               -- LSP for YAML
     "jsonls",               -- LSP for JSON
-    "ruff_lsp",             -- LSP for Python Ruff
+    "pyright",              -- LSP for Python
     "terraformls",          -- LSP for Terraform
-  }
-}
-
-mason_null_ls.setup{
-  ensure_installed = {
-    "mypy",
-    "rstcheck",
-    "ruff",
-    "shellcheck",
-    "yamllint",
   }
 }
 

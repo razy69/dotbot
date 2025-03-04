@@ -37,6 +37,7 @@ nm("<leader>i", "<cmd>Telescope jumplist<CR>")                                  
 nm("<leader>f", "<cmd>Telescope live_grep<CR>")                                            -- Find a string in project
 nm("<leader>b", "<cmd>Telescope buffers<CR>")                                              -- Show all buffers
 nm("<leader>a", "<cmd>Telescope<CR>")                                                      -- Show all commands
+nm("<leader>d", "<cmd>Telescope diagnostics<CR>")                                          -- Show diagnostics
 -- }}}
 
 -- Trouble {{{

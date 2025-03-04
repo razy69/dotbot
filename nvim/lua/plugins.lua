@@ -32,10 +32,12 @@ return {
     "williamboman/mason.nvim",
     build = ":MasonUpdate",
     dependencies = {
+      "mfussenegger/nvim-dap",
+      "rcarriga/nvim-dap-ui",
       "williamboman/mason-lspconfig.nvim",
       "neovim/nvim-lspconfig",
-      "jay-babu/mason-null-ls.nvim",
-      "jose-elias-alvarez/null-ls.nvim",
+      "mhartington/formatter.nvim",
+      "mfussenegger/nvim-lint",
     },
     config = function()
       require("extensions.mason")
