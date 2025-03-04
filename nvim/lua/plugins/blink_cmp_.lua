@@ -57,14 +57,14 @@ require("blink.cmp").setup({
       },
     },
     documentation = {
-      window = { border = "single" },
+      window = { border = "rounded" },
       auto_show = true,
       auto_show_delay_ms = 200,
       treesitter_highlighting = true,
     },
     menu = {
       auto_show = true,
-      border = "single",
+      border = "rounded",
       min_width = 15,
       max_height = 10,
       scrolloff = 2,
@@ -87,7 +87,7 @@ require("blink.cmp").setup({
       show_on_insert_on_trigger_character = true,
     },
     window = {
-      border = "single",
+      border = "rounded",
       treesitter_highlighting = true,
     },
   },

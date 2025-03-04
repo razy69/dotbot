@@ -8,6 +8,21 @@ local lspconfig = require("lspconfig")
 local mason_lspconfig = require("mason-lspconfig")
 local utils = require("config.utils")
 local blink = utils.prequire("blink.cmp")
+local default_capabilities = vim.tbl_deep_extend(
+  "force",
+  {},
+  vim.lsp.protocol.make_client_capabilities(),
+  blink and blink.get_lsp_capabilities() or {},
+  {
+    workspace = {
+      fileOperations = {
+        didRename = true,
+        willRename = true,
+      },
+    },
+  }
+)
+
 local servers = {
   -- IAC
   "puppet",
@@ -30,35 +45,22 @@ local servers = {
   "html",
 }
 
--- LSP log can generate huge files
-vim.lsp.set_log_level("OFF")
+local navic = utils.prequire("nvim-navic")
+if navic then
+  navic.setup({
+    lsp = {
+      auto_attach = true,
+      preference = servers,
+    },
+    highlight = true,
+    depth_limit = 5,
+    lazy_update_context = true,
+  })
+end
 
--- Add border to document hover (see: https://github.com/neovim/neovim/pull/13998)
-vim.lsp.handlers["textDocument/foldingRange"] = {
-  dynamicRegistration = false,
-  lineFoldingOnly = true,
-}
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-  vim.lsp.handlers.hover,
-  { border = "rounded" }
-)
-vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-  vim.lsp.handlers.signature_help,
-  { border = "rounded" }
-)
-vim.lsp.handlers["textDocument/completion/completionItem/snippetSupport"] = true
-vim.lsp.handlers["textDocument/completion/completionItem/resolveSupport"] = {
-  properties = {
-    "documentation",
-    "detail",
-    "additionalTextEdits",
-  },
-}
-
-require("lspconfig.ui.windows").default_options.border = "rounded"
 require("mason").setup({
   ui = {
-    border = "single",
+    border = "rounded",
     icons = {
       package_installed = "",
       package_pending = "󰄾",
@@ -72,41 +74,20 @@ mason_lspconfig.setup({
   automatic_installation = true,
 })
 
-local navic = utils.prequire("nvim-navic")
-if navic then
-  navic.setup({
-    lsp = {
-      auto_attach = true,
-      preference = servers,
-    },
-    highlight = true,
-    depth_limit = 10,
-    lazy_update_context = true,
-  })
-end
-
-local capabilities = vim.tbl_deep_extend(
-  "force",
-  {},
-  vim.lsp.protocol.make_client_capabilities(),
-  blink and blink.get_lsp_capabilities() or {},
-  {
-    workspace = {
-      fileOperations = {
-        didRename = true,
-        willRename = true,
-      },
-      didChangeWatchedFiles = {
-        dynamicRegistration = true,
-      },
-    },
-  }
-)
-
 mason_lspconfig.setup_handlers({
   function(server_name)
     lspconfig[server_name].setup({
-      capabilities = capabilities,
+      capabilities = default_capabilities,
+      inlay_hints = {
+        enabled = false,
+      },
+      codelens = {
+        enabled = false,
+      },
+      format = {
+        formatting_options = nil,
+        timeout_ms = nil,
+      },
       on_attach = function(client, bufnr)
         if navic and client.server_capabilities["documentSymbolProvider"] then
           navic.attach(client, bufnr)

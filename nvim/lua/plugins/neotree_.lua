@@ -85,8 +85,8 @@ require("neo-tree").setup {
   },
   filesystem = {
     bind_to_cwd = true,
-    follow_current_file = { enabled = true },
-    use_libuv_file_watcher = false,
+    follow_current_file = { enabled = false },
+    use_libuv_file_watcher = true,
     filtered_items = {
       hide_dotfiles = false,
       hide_gitignored = false,
