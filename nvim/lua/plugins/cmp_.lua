@@ -22,7 +22,12 @@ require("blink.cmp").setup({
       prefetch_on_insert = true,
       show_on_insert_on_trigger_character = false,
     },
-    list = { selection = "auto_insert" },
+    list = {
+      selection = {
+        preselect = false,
+        auto_insert = true,
+      },
+    },
     ghost_text = { enabled = true },
     documentation = {
       window = { border = "single" },
