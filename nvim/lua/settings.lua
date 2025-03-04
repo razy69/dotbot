@@ -42,7 +42,7 @@ opt.showmode = false                   -- Disable -- INSERT --
 opt.guicursor = "i-v-n:ver25-iCursor"  -- Set vertical cursor in insert mode
 opt.termguicolors = true               -- Enable 24-bit colour
 opt.hidden = true                      -- Enable modified buffers in background
-opt.completeopt = {"menu", "menuone", "noselect"}
+opt.completeopt = {}
 -- }}}
 
 -- Search {{{

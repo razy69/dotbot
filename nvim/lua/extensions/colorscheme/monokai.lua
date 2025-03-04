@@ -7,8 +7,6 @@
 local monokai = require("monokai-pro")
 
 monokai.setup({
-  transparent_background = false,
-  terminal_colors = true,
   devicons = true,
   styles = {
     comment = { italic = false },
@@ -20,19 +18,9 @@ monokai.setup({
     annotation = { italic = false },
     tag_attribute = { italic = false }, -- attribute of tag in reactjs
   },
-  filter = "spectrum",
+  filter = "ristretto",
   background_clear = {},
-  plugins = {
-    bufferline = {
-      underline_selected = false,
-      underline_visible = false,
-    },
-    indent_blankline = {
-      context_highlight = "pro", -- default | pro
-      context_start_underline = false,
-    },
-  },
-  override = function(c) end,
+  inc_search = "underline", -- underline | background
 })
 
 vim.cmd([[colorscheme monokai-pro]])
