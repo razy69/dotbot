@@ -22,7 +22,9 @@ wk.add({
   { "<leader>t", "<cmd>tabnew<cr>", desc = "Open new tab", mode = "n" },
   { "<leader>n", "<cmd>tabnext<cr>", desc = "Go to next tab", mode = "n" },
   { "<leader>p", "<cmd>tabprev<cr>", desc = "Go to previous tab", mode = "n" },
-  { "<leader>q", "<cmd>quitall!<cr>", desc = "Force quit nvim", mode = "n" },
+  { "<leader>w", "<cmd>w<cr>", desc = "Save buffer", mode = "n" },
+  { "<leader>q", "<cmd>q<cr>", desc = "Quit buffer", mode = "n" },
+  { "<leader>qa", "<cmd>quitall!<cr>", desc = "Force quit nvim", mode = "n" },
   { "<leader><bs>", "za<cr>", desc = "Fold/Unfold code", mode = "n" },
   { "<leader>bg", "<cmd>BackgroundToggle<cr>", desc = "Toggle background light/dark", mode = "n" },
 
