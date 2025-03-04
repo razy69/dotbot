@@ -76,7 +76,7 @@ vim.opt.titlestring = "%<%F%=%l/%L - nvim"
 vim.opt.termguicolors = true
 vim.opt.confirm = true
 vim.opt.spelloptions:append "camel"
-vim.opt.scrolloff = 10
+vim.opt.scrolloff = 0
 vim.opt.backspace = "indent,eol,start"
 vim.opt.conceallevel = 0
 vim.opt.concealcursor = "n"

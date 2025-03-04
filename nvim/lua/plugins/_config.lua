@@ -179,6 +179,30 @@ return {
     end,
   },
 
+  -- Git diffview
+  {
+    "sindrets/diffview.nvim",
+    cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewToggleFiles", "DiffviewFocusFiles" },
+  },
+
+  -- Git tool
+  {
+    "TimUntersberger/neogit",
+    cmd = "Neogit",
+    config = function()
+      require("neogit").setup({
+        kind = "split", -- opens neogit in a split
+        signs = {
+          -- { CLOSED, OPENED }
+          section = { "", "", },
+          item = { "", "", },
+          hunk = { "", "" },
+        },
+        integrations = { diffview = true }, -- adds integration with diffview.nvim
+      })
+    end,
+  },
+
   -- Indent Guide
   {
     "shellRaining/hlchunk.nvim",
@@ -216,10 +240,39 @@ return {
   -- Peek lines
   {
     "nacro90/numb.nvim",
-    lazy = true,
-    config = function()
-      require("numb").setup()
-    end
+    opts = {},
+  },
+
+  -- Scroll animation
+  {
+    "karb94/neoscroll.nvim",
+    opts = {},
+  },
+
+  -- Scroll bar
+  {
+    "lewis6991/satellite.nvim",
+    opts = {
+      handlers = {
+        cursor = {
+          enable = false,
+        },
+        gitsigns = {
+          enable = false,
+        },
+      },
+    },
+  },
+
+  -- Animated cursor
+  {
+    "sphamba/smear-cursor.nvim",
+    opts = {
+      stiffness = 0.8,               -- 0.6      [0, 1]
+      trailing_stiffness = 0.5,      -- 0.3      [0, 1]
+      distance_stop_animating = 0.5, -- 0.1      > 0
+      hide_target_hack = false,      -- true     boolean
+    },
   },
 
   -- Markdown
@@ -338,7 +391,13 @@ return {
   {
     "folke/flash.nvim",
     event = "VeryLazy",
-    opts = {},
+    opts = {
+      modes = {
+        char = {
+          jump_labels = true
+        }
+      }
+    },
   },
 
   -- Surround selections

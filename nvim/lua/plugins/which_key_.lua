@@ -121,3 +121,18 @@ if neotree then
     { "<leader>e", function() neotree.execute({ toggle = true }) end, desc = "Toggle NeoTree", mode = { "n" } },
   })
 end
+
+local neogit = utils.prequire("neogit")
+if neogit then
+  wk.add({
+    { "<leader>git", function() neogit.open({ kind = "split" }) end, desc = "Open Neogit", mode = { "n" } },
+  })
+end
+
+local diffview = utils.prequire("diffview")
+if diffview then
+  wk.add({
+    { "<leader>gdiff", "<cmd>DiffviewOpen<cr>", desc = "Open Diffview", mode = { "n" } },
+    { "<leader>gdifh", "<cmd>DiffviewFileHistory<cr>", desc = "Diffview file history", mode = { "n" } },
+  })
+end
