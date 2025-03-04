@@ -8,7 +8,6 @@ require "helpers/keyboard"
 -- im(key, command)   Input mode
 -- vm(key, command)   Visual mode
 -- tm(key, command)   Terminal mode
---
 
 
 g.mapleader = " "                                                                                 -- Use Space, like key for alternative hotkeys
@@ -22,7 +21,6 @@ nm("<leader><BS>", "za<CR>")                                                    
 -- }}}
 
 -- LSP {{{
-nm("K", "<cmd>lua vim.lsp.buf.hover()<CR>")                                                       -- Hover object
 nm("ga", "<cmd>lua vim.lsp.buf.code_action()<CR>")                                                -- Code actions
 nm("gR", "<cmd>lua vim.lsp.buf.rename()<CR>")                                                     -- Rename an object
 nm("gD", "<cmd>lua vim.lsp.buf.declaration()<CR>")                                                -- Go to declaration
