@@ -6,50 +6,11 @@
 
 local mason = require("mason")
 local mason_lspconfig = require("mason-lspconfig")
+local get_servers = mason_lspconfig.get_installed_servers
 local lspconfig = require("lspconfig")
-local lint = require("lint")
-local formatter = require("formatter")
-
-local augroup = vim.api.nvim_create_augroup   -- Create/get autocommand group
-local autocmd = vim.api.nvim_create_autocmd   -- Create autocommand
+local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
 
 
--- Linters {{{
-lint.linters_by_ft = {
-  python = { "mypy" },
-  markdown = { "markdownlint" },
-}
-
--- Lint on Leave Insert Mode
-autocmd("BufWritePost" , {
-  callback = function()
-    lint.try_lint()
-  end
-})
--- }}}
-
-
--- Formatters {{{
-formatter.setup {
-  logging = true,
-  log_level = vim.log.levels.WARN,
-  filetype = {
-    python = {
-      require("formatter.filetypes.python").isort,
-      require("formatter.filetypes.python").black,
-    },
-  }
-}
-
--- fmt on save
---augroup("FormatAutogroup", { clear = true })
---autocmd("BufWritePost", {
---  group = "FormatAutogroup",
---  command = "FormatWriteLock",
---})
--- }}}
-
--- Mason Setup + LSP {{{
 mason.setup({
   ui = {
     icons = {
@@ -75,62 +36,19 @@ mason_lspconfig.setup{
   }
 }
 
+for _, server_name in ipairs(get_servers()) do
+  local opts = {}
+  opts["capabilities"] = lsp_capabilities
 
--- Setup LSP config
-local lsp_defaults = lspconfig.util.default_config
-lsp_defaults.capabilities = vim.tbl_deep_extend(
-  "force",
-  lsp_defaults.capabilities,
-  require("cmp_nvim_lsp").default_capabilities()
-)
-
-
-mason_lspconfig.setup_handlers({
-  function(server_name)
-    local opts = {}
-
-    if server_name == "lua_ls" then
-      opts["settings"] = {
-        Lua = {
-          diagnostics = {
-            globals = { "vim" },
-          },
+  if server_name == "lua_ls" then
+    opts["settings"] = {
+      Lua = {
+        diagnostics = {
+          globals = { "vim" },
         },
-      }
-    end
+      },
+    }
+  end
 
-    lspconfig[server_name].setup(opts)
-  end,
-})
--- }}}
-
-
--- Default diagnostics config {{{
-local diagnostics_opts = {
-  severity_sort = true,
-  signs = true,
-  virtual_text = {
-    spacing = 4,
-    prefix = "▎",
-    format = function(diagnostic)
-      return string.format(
-        "%s (%s)",
-        diagnostic.message,
-        diagnostic.source
-      )
-    end,
-  },
-  float = {
-    border = "none",
-    format = function(diagnostic)
-      return string.format(
-        "%s (%s)",
-        diagnostic.message,
-        diagnostic.source
-      )
-    end,
-  },
-}
-
-vim.diagnostic.config(diagnostics_opts)
--- }}}
+  lspconfig[server_name].setup(opts)
+end

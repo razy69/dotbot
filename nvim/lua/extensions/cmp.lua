@@ -4,6 +4,7 @@
 	See: https://github.com/hrsh7th/nvim-cmp
 ]]
 
+
 local cmp = require("cmp")
 local lspkind = require("lspkind")
 
