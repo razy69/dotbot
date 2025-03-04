@@ -16,15 +16,18 @@ setopt INTERACTIVE_COMMENTS
 unsetopt BEEP
 unsetopt MULTIBYTE
 
-export HISTFILE="${ZSH}/.history"
-export HISTSIZE=10000
-export SAVEHIST=10000
+HISTFILE="${ZSH}/.history"
+HISTORY_IGNORE="(cd(| *)|ls(| *)|pwd|exit)"
+HISTSIZE=10000
+SAVEHIST=10000
+COMPLETION_WAITING_DOTS="false"
+
 export LC_ALL="en_US.UTF-8"
 export LANG="en_US.UTF-8"
 export EDITOR="nvim"
 export MANPATH="/usr/local/man:${MANPATH}"
-export COMPLETION_WAITING_DOTS="false"
 export BAT_CONFIG_PATH="${HOME}/.config/bat/config"
+export GPG_TTY=$(tty)
 
 autoload -U colors && colors
 typeset -U path

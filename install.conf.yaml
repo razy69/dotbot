@@ -22,6 +22,8 @@
       path: git/gitignore
     ~/.zshrc:
       path: zsh/zshrc
+    ~/.zshenv:
+      path: zsh/zshenv
     ~/.zsh/config:
       path: zsh/config
     ~/.zsh/plugins:
@@ -65,7 +67,7 @@
       stdout: true
     -
       command: '
-        if ! command -v asdff &> /dev/null; then
+        if ! command -v asdf &> /dev/null; then
           asdf_release="v0.16.4"
           asdf_tar="asdf.tar.gz"
           case $(uname -a) in
@@ -80,7 +82,7 @@
           esac
           curl -L "https://github.com/asdf-vm/asdf/releases/download/${asdf_release}/asdf-${asdf_release}-${osname}-${archname}.tar.gz" -o "${HOME}/bin/${asdf_tar}"
           tar -xvf "${HOME}/bin/${asdf_tar}" -C "${HOME}/bin/"
-          rm "${HOME}/bin/${asdf_tar}"
+          rm -f "${HOME}/bin/${asdf_tar}"
         else
           echo -e "\033[1;32masdf is installed\033[0m";
         fi'
