@@ -1,0 +1,123 @@
+" Theming and colors
+syntax on
+
+" General options
+set number
+set showmatch
+set hlsearch
+set novisualbell
+set noerrorbells
+set smartcase
+set ignorecase
+set incsearch
+set nocompatible
+set undolevels=1000
+set backspace=indent,eol,start
+set wrap
+
+" Vim tabs
+nnoremap <C-n> :tabnew<CR>
+
+" More natural split opening
+set splitbelow
+set splitright
+
+" Easier split nav
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
+" Tab configuration
+set autoindent
+set smartindent
+set smarttab
+set tabstop=4
+set expandtab
+set softtabstop=4
+set shiftwidth=4
+
+" Enable folding
+set foldmethod=indent
+set foldnestmax=20
+set nofoldenable
+set foldlevel=99
+
+" Enable folding with the spacebar
+nnoremap <space> za<CR>
+
+" File format and encoding
+set fileformat=unix
+set encoding=UTF-8
+
+" Show Invisible
+set list
+set showbreak=↪\
+set listchars=trail:•,precedes:❮,extends:❯,nbsp:␣,tab:⇥\
+"set listchars=trail:•,precedes:❮,extends:❯,nbsp:␣,eol:↵,tab:⇥\
+
+" Copy/Paste OSX
+set clipboard=unnamed
+
+" Vim dirs
+set backupdir=~/.vim/backup//
+set directory=~/.vim/swp//
+set undodir=~/.vim/undo//
+
+" Enable all Python syntax highlighting features
+let python_highlight_all = 1
+
+" --------
+" Plugins
+" --------
+call plug#begin('~/.vim/plugged')
+    " Vim theme (https://github.com/patstockwell/vim-monokai-tasty)
+    Plug 'patstockwell/vim-monokai-tasty'
+    " ALE (https://github.com/dense-analysis/ale)
+    Plug 'dense-analysis/ale'
+    " Vim flake8 (https://github.com/nvie/vim-flake8)
+    Plug 'nvie/vim-flake8'
+    " Gitgutter (https://github.com/airblade/vim-gitgutter)
+    Plug 'airblade/vim-gitgutter'
+    " Lightline (https://github.com/itchyny/lightline.vim)
+    Plug 'itchyny/lightline.vim'
+    " Vim gitbranch (https://github.com/itchyny/vim-gitbranch)
+    Plug 'itchyny/vim-gitbranch'
+    " NERD Tree (https://github.com/preservim/nerdtree)
+    Plug 'preservim/nerdtree'
+    " Vim rainbow (https://github.com/frazrepo/vim-rainbow)
+    Plug 'frazrepo/vim-rainbow'
+call plug#end()
+
+" Set theme
+silent! colorscheme vim-monokai-tasty
+if !has('gui_running')
+    set t_Co=256
+endif
+set background=dark
+highlight Normal ctermbg=NONE
+highlight nonText ctermbg=NONE
+
+" Vim rainbow settings
+let g:rainbow_active = 1
+
+" NERDTree settings
+nnoremap <silent> <expr> <C-o> g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
+let NERDTreeQuitOnOpen=1
+let NERDTreeShowHidden=1
+
+" Lightline settings
+set shortmess+=F " Disabled "filename" XXXL, XXXC
+set noshowcmd " Disable display of last command
+set noshowmode " Disable -- INSERT --
+set laststatus=2
+let g:lightline = {
+    \ 'colorscheme': 'wombat',
+    \ 'active': {
+    \   'left': [ [ 'mode', 'paste' ],
+    \             [ 'gitbranch', 'readonly', 'absolutepath', 'modified' ] ]
+    \ },
+    \ 'component_function': {
+    \   'gitbranch': 'gitbranch#name',
+    \ },
+    \ }
