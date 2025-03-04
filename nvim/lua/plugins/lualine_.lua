@@ -4,6 +4,8 @@
   See: https://github.com/nvim-lualine/lualine.nvim
 ]]
 
+local noice = require("noice")
+
 require("lualine").setup({
   theme = "catppuccin",
   icons_enabled = true,
@@ -104,6 +106,11 @@ require("lualine").setup({
         on_click = function()
           vim.api.nvim_command("LspInfo")
         end,
+      },
+      {
+        noice.api.status.mode.get,
+        cond = noice.api.status.mode.has,
+        color = { fg = "red" },
       },
     },
     lualine_y = {

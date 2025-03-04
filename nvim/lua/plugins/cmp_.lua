@@ -23,15 +23,14 @@ require("luasnip.loaders.from_vscode").lazy_load()
 
 cmp.setup({
   enabled = function ()
-    -- disable completion in comments
     local context = require("cmp.config.context")
-    -- keep command mode completion enabled when cursor is in a comment
-    if vim.api.nvim_get_mode().mode == "c" then
-      return true
-    else
-      return not context.in_treesitter_capture("comment")
-        and not context.in_syntax_group("Comment")
-    end
+    local disabled
+    disabled = disabled or (vim.api.nvim_get_option_value("buftype", { buf = 0 }) == "prompt")
+    disabled = disabled or (vim.fn.reg_recording() ~= "")
+    disabled = disabled or (vim.fn.reg_executing() ~= "")
+    disabled = disabled or (vim.api.nvim_get_mode().mode == "c")
+    disabled = disabled or (context.in_treesitter_capture("comment") and context.in_syntax_group("Comment"))
+    return not disabled
   end,
   formatting = {
     format = lspkind.cmp_format({
