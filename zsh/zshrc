@@ -8,12 +8,6 @@ source "${ZSH}/config/settings.zsh"
 # Keybindings
 source "${ZSH}/config/bindings.zsh"
 
-# Functions
-source "${ZSH}/config/functions.zsh"
-
-# Aliases
-source "${ZSH}/config/aliases.zsh"
-
 # Prompt
 export SPACESHIP_CONFIG="${ZSH}/config/spaceship.zsh"
 source "${ZSH}/plugins/spaceship/spaceship.zsh"
@@ -23,9 +17,6 @@ source "${ZSH}/config/plugins.zsh"
 
 # Secrets
 [[ ! -f "${ZSH}/config/secrets.zsh" ]] || source "${ZSH}/config/secrets.zsh"
-
-# Work
-[[ ! -f "${ZSH}/config/work.zsh" ]] || source "${ZSH}/config/work.zsh"
 
 # Completion
 source "${ZSH}/config/completions.zsh"
@@ -43,3 +34,12 @@ path=(
   $path
 )
 export PATH
+
+# Aliases
+source "${ZSH}/config/aliases.zsh"
+
+# Functions
+source "${ZSH}/config/functions.zsh"
+
+# Work
+[[ ! -f "${ZSH}/config/work.zsh" ]] || source "${ZSH}/config/work.zsh"
