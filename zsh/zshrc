@@ -3,14 +3,18 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Zsh home
+# Zsh Home
 export ZSH="${HOME}/.zsh"
+
+# ASDF Home
+export ASDF="${HOME}/.asdf"
 
 # Path
 path=(
-  $HOME/.local/bin
-  $HOME/bin
-  $path
+  ${HOME}/.local/bin
+  ${HOME}/bin
+  ${ASDF}/shims
+  ${path}
 )
 export PATH
 
@@ -33,7 +37,7 @@ source "${ZSH}/config/functions.zsh"
 source "${ZSH}/config/aliases.zsh"
 
 # ASDF
-source "${HOME}/.asdf/asdf.sh"
+source "${ASDF}/asdf.sh"
 
 # Completion
 source "${ZSH}/config/completions.zsh"
