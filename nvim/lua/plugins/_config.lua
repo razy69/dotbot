@@ -8,8 +8,8 @@ return {
   -- Completions
   {
     "saghen/blink.cmp",
-    build = "cargo build --release",
     event = { "InsertEnter" },
+    version = "*",
     dependencies = {
       "L3MON4D3/LuaSnip",
       "rafamadriz/friendly-snippets",
@@ -26,7 +26,7 @@ return {
     dependencies = {
       "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
-      "neovim/nvim-lspconfig",
+      "saghen/blink.cmp",
     },
     config = function()
       require("plugins.lsp_")
@@ -75,9 +75,7 @@ return {
     ft = "qf",
     config = function()
       require("bqf").setup({
-        func_map = {
-          vsplit = "s",
-        },
+        func_map = { vsplit = "s" },
       })
     end
   },
@@ -107,9 +105,6 @@ return {
     dependencies = {
       "nvim-lua/plenary.nvim",
       "MunifTanjim/nui.nvim",
-    },
-    keys = {
-      { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Open/Close Neotree", mode = "n" },
     },
     config = function()
       require("plugins.neotree_")
@@ -170,6 +165,35 @@ return {
     end,
   },
 
+  -- Dap & Tests
+  {
+    "nvim-neotest/neotest",
+    event = "VeryLazy",
+    dependencies = {
+      "nvim-neotest/nvim-nio",
+      "mfussenegger/nvim-dap",
+      "rcarriga/nvim-dap-ui",
+      "theHamsta/nvim-dap-virtual-text",
+      "nvim-neotest/nvim-nio",
+      "nvim-lua/plenary.nvim",
+      "antoinemadec/FixCursorHold.nvim",
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-neotest/neotest-plenary",
+      "nvim-neotest/neotest-vim-test",
+      {
+        "fredrikaverpil/neotest-golang",
+        dependencies = {
+          "uga-rosa/utf8.nvim",
+          "leoluz/nvim-dap-go",
+        },
+        version = "*",
+      },
+    },
+    config = function()
+      require("plugins.neotest_")
+    end,
+  },
+
   -- Git Signs
   {
     "lewis6991/gitsigns.nvim",
@@ -205,16 +229,8 @@ return {
 
   {
     "isakbm/gitgraph.nvim",
+    event = "VeryLazy",
     dependencies = { "sindrets/diffview.nvim" },
-    keys = {
-      {
-        "<leader>draw",
-        function()
-          require("gitgraph").draw({}, { all = true, max_count = 5000 })
-        end,
-        desc = "GitGraph - Draw",
-      },
-    },
     opts = {
       hooks = {
         -- Check diff of a commit
@@ -261,10 +277,24 @@ return {
 
   -- Indent Guide
   {
-    "shellRaining/hlchunk.nvim",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    opts = {},
     config = function()
-      require("plugins.hlchunk_")
+      require("ibl").setup({
+        indent = { char = "│" },
+        scope = { enabled = false },
+        exclude = {
+          filetypes = {
+            "help",
+            "alpha",
+            "neo-tree",
+            "lazy",
+            "mason",
+            "notify",
+          },
+        },
+      })
     end
   },
 
@@ -296,12 +326,14 @@ return {
   -- Peek lines
   {
     "nacro90/numb.nvim",
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     opts = {},
   },
 
   -- Scroll bar
   {
     "lewis6991/satellite.nvim",
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     opts = {
       handlers = {
         cursor = {
@@ -422,7 +454,9 @@ return {
     "norcalli/nvim-colorizer.lua",
     event = { "BufReadPost", "BufNewFile", "BufNew" },
     init = function()
-      require("colorizer").setup()
+      require("colorizer").setup {
+        "css", "javascript", "html", "tmux",
+      }
     end
   },
 

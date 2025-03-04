@@ -15,16 +15,22 @@ conform.setup({
     quiet = false,           -- not recommended to change
     lsp_format = "fallback", -- not recommended to change
   },
+  notify_on_error = true,
+  notify_no_formatters = true,
+  format_on_save = {
+    lsp_format = "fallback",
+    timeout_ms = 500,
+  },
   formatters = {
     injected = { options = { ignore_errors = true } },
   },
   formatter_by_ft = {
-    ["*"] = { "trim_newlines", "trim_whitespace" },
+    ["_"] = { "trim_newlines", "trim_whitespace" },
     lua = { "stylua" },
     python = { "isort", "ruff_format" },
     rust = { "rustfmt", lsp_format = "fallback" },
     json = { "fixjson" },
-    go = { "goimports", "gofumpt" },
+    go = { "goimports", "gofmt" },
     sh = { "shfmt" },
     terraform = { "terraform_fmt" },
     yaml = { "yamlfix" },

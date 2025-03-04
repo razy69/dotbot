@@ -4,8 +4,8 @@
   See: https://github.com/williamboman/mason.nvim
 ]]
 
-local lsp_config = require("lspconfig")
-local mason_lsp_config = require("mason-lspconfig")
+local lspconfig = require("lspconfig")
+local mason_lspconfig = require("mason-lspconfig")
 local utils = require("config.utils")
 local blink = utils.prequire("blink.cmp")
 local blink_capabilities = blink and blink.get_lsp_capabilities() or {}
@@ -13,7 +13,7 @@ local capabilities = vim.tbl_deep_extend(
   "force",
   {},
   vim.lsp.protocol.make_client_capabilities(),
-  lsp_config.util.default_config.capabilities,
+  lspconfig.util.default_config.capabilities,
   blink_capabilities,
   {
     workspace = {
@@ -35,7 +35,6 @@ local servers = {
   "docker_compose_language_service",
   -- Golang
   "gopls",
-  "golangci_lint_ls",
   -- Python
   "ruff",
   "jedi_language_server",
@@ -47,6 +46,8 @@ local servers = {
   "jsonls",
   "html",
 }
+
+vim.lsp.set_log_level("OFF")
 
 -- Add border to document hover (see: https://github.com/neovim/neovim/pull/13998)
 vim.lsp.handlers["textDocument/foldingRange"] = {
@@ -94,25 +95,20 @@ if navic then
       preference = servers,
     },
     highlight = true,
-    depth_limit = 5,
+    depth_limit = 10,
     lazy_update_context = true,
   })
 end
 
-mason_lsp_config.setup({
+mason_lspconfig.setup({
   ensure_installed = servers,
   automatic_installation = true,
-  handlers = nil,
 })
 
-mason_lsp_config.setup_handlers({
-  function(server)
-    lsp_config[server].setup({
+mason_lspconfig.setup_handlers({
+  function(server_name)
+    lspconfig[server_name].setup{
       capabilities = capabilities,
-      flags = {
-        debounce_text_changes = 100,
-        allow_incremental_sync = true,
-      },
       on_attach = function(client, bufnr)
         if navic and client.server_capabilities["documentSymbolProvider"] then
           navic.attach(client, bufnr)
@@ -121,6 +117,6 @@ mason_lsp_config.setup_handlers({
           vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
         end
       end,
-    })
+    }
   end,
 })
