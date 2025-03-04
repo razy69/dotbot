@@ -6,7 +6,7 @@
 
 local monokai = require("monokai-pro")
 
-monokai.setup{
+monokai.setup({
   transparent_background = false,
   terminal_colors = true,
 	devicons = true,
@@ -32,6 +32,6 @@ monokai.setup{
       context_start_underline = false,
     },
   },
-}
+})
 
 cmd.colorscheme("monokai-pro")
