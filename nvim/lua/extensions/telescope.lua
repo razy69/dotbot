@@ -20,3 +20,4 @@ telescope.setup{
 }
 
 telescope.load_extension("noice")
+telescope.load_extension("projects")

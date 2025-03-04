@@ -27,6 +27,9 @@ nvim
   - noice
   - treesitter
   - lualine
+  - which-key
+  - nvim-navic
+  - lsp-lines
   - monokai-pro
 
 tmux

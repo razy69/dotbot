@@ -46,10 +46,10 @@ return {
   -- Neo Tree {{{
   {
     "nvim-neo-tree/neo-tree.nvim",
-    branch = "v2.x",
+    branch = "v3.x",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
+      "nvim-tree/nvim-web-devicons",
       "MunifTanjim/nui.nvim",
     },
     config = function ()
@@ -98,7 +98,7 @@ return {
     "onsails/lspkind-nvim",
     lazy = true,
     config = function()
-      require("extensions.lspkind")
+      require("extensions.lspkind-conf")
     end
   },
   -- }}}
@@ -129,11 +129,7 @@ return {
     "folke/noice.nvim",
     event = "VeryLazy",
     dependencies = {
-      -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
       "MunifTanjim/nui.nvim",
-      -- OPTIONAL:
-      --   `nvim-notify` is only needed, if you want to use the notification view.
-      --   If not available, we use `mini` as the fallback
       "rcarriga/nvim-notify",
     },
     config = function()
@@ -170,12 +166,31 @@ return {
     "folke/which-key.nvim",
     event = "VeryLazy",
     init = function()
-      vim.o.timeout = true
-      vim.o.timeoutlen = 500
+      opt.timeout = true
+      opt.timeoutlen = 500
     end,
     config = function()
       require("extensions.which-key")
     end
+  },
+  -- }}
+
+  -- Nvim-Navic {{
+  {
+    "SmiteshP/nvim-navic",
+    dependencies = "neovim/nvim-lspconfig",
+    config = function()
+      require("extensions.nvim-navic-conf")
+    end
+  },
+  -- }}
+
+  -- LSP Lines {{
+  {
+    "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+    config = function()
+      require("extensions.lsp-lines")
+    end,
   },
   -- }}
 
