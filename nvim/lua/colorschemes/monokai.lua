@@ -5,10 +5,12 @@
 ]]
 
 local monokai = require("monokai-pro")
-
+vim.cmd("highlight EoLSpace ctermbg=238 guibg=#cb214e")
 
 monokai.setup({
-  devicons = false,
+  transparent_background = false,
+  terminal_colors = true,
+  devicons = true,
   styles = {
     comment = { italic = false },
     keyword = { italic = false },       -- any other keyword
@@ -22,4 +24,14 @@ monokai.setup({
   filter = "pro",
   background_clear = {},
   inc_search = "underline", -- underline | background
+  plugins = {
+    bufferline = {
+      underline_selected = false,
+      underline_visible = false,
+    },
+    indent_blankline = {
+      context_highlight = "pro", -- default | pro
+      context_start_underline = false,
+    },
+  },
 })
