@@ -31,12 +31,17 @@
       path: vim/vimrc
     ~/.vim/autoload/plug.vim:
       path: vim/vim-plug/plug.vim
+    ~/.ycm_global_extra_conf.py:
+      path: scripts/ycm_global_extra_conf.py
 - shell:
     -
       command: git submodule update --init --recursive
       description: Installing submodules
     -
-      command: git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+      command: '
+        test -f ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+        || git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+        '
       description: Install zsh-syntax-highlighting
     -
       command: '
