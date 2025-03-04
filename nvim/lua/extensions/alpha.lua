@@ -8,32 +8,6 @@
 local alpha = require("alpha")
 local dashboard = require("alpha.themes.dashboard")
 
--- Hide/Show tabline
-vim.api.nvim_create_autocmd("User", {
-	pattern = "AlphaReady",
-	desc = "disable tabline for alpha",
-	callback = function()
-		vim.opt.showtabline = 0
-		local hl = vim.api.nvim_get_hl_by_name("Cursor", true)
-		hl.blend = 100
-		vim.api.nvim_set_hl(0, "Cursor", hl)
-		vim.opt.guicursor:append("a:Cursor/lCursor")
-		require("illuminate").invisible_buf()
-	end,
-})
-
-vim.api.nvim_create_autocmd("BufUnload", {
-	buffer = 0,
-	desc = "enable tabline after alpha",
-	callback = function()
-		vim.opt.showtabline = 2
-		local hl = vim.api.nvim_get_hl_by_name("Cursor", true)
-		hl.blend = 0
-		vim.api.nvim_set_hl(0, "Cursor", hl)
-		vim.opt.guicursor:remove("a:Cursor/lCursor")
-	end,
-})
-
 -- Set header
 dashboard.section.header.val = {
 	"                                                     ",
@@ -63,11 +37,3 @@ dashboard.section.buttons.val = {
 
 -- Send config to alpha
 alpha.setup(dashboard.opts)
-
--- Disable folding on alpha buffer
-api.nvim_create_autocmd("FileType", {
-  pattern = "alpha",
-  callback = function ()
-    opt.foldenable = false
-  end
-})
