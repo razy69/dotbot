@@ -16,8 +16,12 @@
       path: git/gitignore
     ~/.zshrc:
       path: zsh/zshrc
-    ~/.oh-my-zsh:
-      path: zsh/ohmyzsh
+    ~/.zsh/p10k.zsh:
+      path: zsh/p10k.zsh
+    ~/.zsh/plugins:
+      path: zsh/plugins
+    ~/.zsh/themes:
+      path: zsh/themes
     ~/.tmux.conf:
       path: tmux/tmux.conf
     ~/.tmux:
