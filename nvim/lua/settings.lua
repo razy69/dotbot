@@ -6,11 +6,18 @@
 
 require "helpers/globals"
 
--- Disable comments on pressing Enter
-cmd[[autocmd FileType * setlocal formatoptions-=cro]]
-
 -- Tabs {{{
-cmd[[autocmd FileType python setlocal tabstop=4 softtabstop=4 shiftwidth=4]]
+
+-- Python autocmd to setup tab
+api.nvim_create_autocmd("FileType", {
+  pattern = "python",
+  callback = function ()
+    opt.tabstop = 4
+    opt.softtabstop = 4
+    opt.shiftwidth = 4
+  end
+})
+
 opt.expandtab = true                   -- Use spaces by default
 opt.shiftround = true                  -- Round indent
 opt.shiftwidth = 2                     -- the number of spaces inserted for each indentation
@@ -40,9 +47,9 @@ opt.number = true                      -- Enable line number
 opt.wrap = true                        -- Enable line wrap
 opt.showcmd = false                    -- Disable display of last command
 opt.showmode = false                   -- Disable -- INSERT --
-opt.guicursor = "i-v-n:ver25-iCursor"  -- Set vertical cursor in insert mode
 opt.termguicolors = true               -- Enable 24-bit colour
 opt.hidden = true                      -- Enable modified buffers in background
+opt.guicursor = "i-ci:ver30-iCursor-blinkwait300-blinkon200-blinkoff150,n-v-c-sm:ver30"
 opt.completeopt = {}
 -- }}}
 
