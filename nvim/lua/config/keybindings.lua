@@ -50,8 +50,8 @@ wk.add({
   { "<C-tn>",       "<cmd>tabN<cr>",                                              desc = "Go to previous tab",                           mode = "n" },
   { "<C-tp>",       "<cmd>tabp<cr>",                                              desc = "Go to next tab",                               mode = "n" },
   { "<leader>w",    "<cmd>w<cr>",                                                 desc = "Save buffer",                                  mode = "n" },
-  { "<leader>q",    "<cmd>confirm q<cr>",                                         desc = "Quit buffer",                                  mode = "n" },
-  { "<leader>Q",    "<cmd>confirm qall<cr>",                                      desc = "Quit all buffers",                             mode = "n" },
+  { "<leader>qq",   "<cmd>confirm q<cr>",                                         desc = "Quit buffer",                                  mode = "n" },
+  { "<leader>QQ",   "<cmd>confirm qall<cr>",                                      desc = "Quit all buffers",                             mode = "n" },
   { "<leader><bs>", "za<cr>",                                                     desc = "Fold/Unfold code",                             mode = "n" },
   { "<leader>bg",   "<cmd>BackgroundToggle<cr>",                                  desc = "Toggle background light/dark",                 mode = "n" },
   { "<leader>qf",   "<cmd>copen<cr>",                                             desc = "Open quickfix",                                mode = "n" },
@@ -67,6 +67,11 @@ wk.add({
 
   -- Neotree
   { "<leader>e",    "<cmd>Neotree toggle<cr>",                                    desc = "Open/Close Neotree",                           mode = "n" },
+
+  -- Persistence
+  { "<leader>qs",   function() require("persistence").select() end,               desc = "Select session to load",                       mode = "n" },
+  { "<leader>qS",   function() require("persistence").load() end,                 desc = "Load session for current directory",           mode = "n" },
+  { "<leader>ql",   function() require("persistence").load({ last = true }) end,  desc = "Load last session",                            mode = "n" },
 
   -- FzfLua
   { "<leader>O",    function() fzf_lua.oldfiles() end,                            desc = "Show recent files",                            mode = "n" },
