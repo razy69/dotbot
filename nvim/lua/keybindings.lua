@@ -63,3 +63,8 @@ nm("<leader>`", "<cmd>WhichKey<CR>")                                            
 -- Telekasten {{{
 nm("<leader>n", "<cmd>Telekasten panel<CR>")                                                      -- Open Telekasten Menu
 -- }}}
+
+-- Disable Exising Bindings {{{
+im("<C-n>", "<Nop>")
+im("<C-p>", "<Nop>")
+-- }}}
