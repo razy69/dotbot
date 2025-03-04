@@ -83,7 +83,7 @@ require("blink.cmp").setup({
   keymap = {
     ["<C-q>"] = { "hide", "fallback" },
     ["<CR>"] = { "select_and_accept", "fallback" },
-    ["<Tab>"] = {
+    ["<C-Tab>"] = {
       function(cmp)
         if cmp.snippet_active() then
           return cmp.accept()
@@ -92,7 +92,7 @@ require("blink.cmp").setup({
       "snippet_forward",
       "fallback",
     },
-    ["<S-Tab>"] = { "snippet_backward", "fallback" },
+    ["<C-S-Tab>"] = { "snippet_backward", "fallback" },
     ["<C-p>"] = { "select_prev", "fallback" },
     ["<C-n>"] = { "select_next", "fallback" },
 
