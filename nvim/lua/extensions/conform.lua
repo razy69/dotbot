@@ -15,13 +15,13 @@ conform.setup({
   },
   formatters_by_ft = {
     bash = { "shfmt" },
-		golang = { "gofmt" },
-		json = { "fixjson" },
+    golang = { "gofmt" },
+    json = { "fixjson" },
     lua = { "stylua" },
     python = { "isort", "black" },
     sh = { "shfmt" },
-		terraform = { "terraform_fmt" },
-		yaml = { "yamlfix" },
+    terraform = { "terraform_fmt" },
+    yaml = { "yamlfix" },
     ["_"] = { "trim_whitespace", "trim_newlines" },
   },
 })

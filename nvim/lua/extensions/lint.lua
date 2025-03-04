@@ -12,10 +12,10 @@ lint.linters_by_ft = {
   bash = { "shellcheck" },
   golang = { "revive" },
   json = { "jsonlint" },
-	lua = { "luacheck" },
+  lua = { "luacheck" },
   markdown = { "markdownlint" },
   python = { "mypy", "bandit" },
-	rst = { "rstlint" },
+  rst = { "rstlint" },
   sh = { "shellcheck" },
   yaml = { "yamllint" },
 }
