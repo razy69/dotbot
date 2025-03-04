@@ -5,18 +5,14 @@
 ]]
 
 
-local lspkind = require("lspkind")
+local lsp_zero = require("lsp-zero")
 local cmp = require("cmp")
 local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-local cmp_action = require("lsp-zero").cmp_action()
+local cmp_action = lsp_zero.cmp_action()
 local luasnip = require("luasnip")
 
 require("luasnip.loaders.from_vscode").lazy_load()
 
-lspkind.init({
-  mode = "symbol_text",
-  preset = "codicons",
-})
 
 -- Add parentheses after selecting function or method item
 cmp.event:on(
@@ -25,6 +21,8 @@ cmp.event:on(
 )
 
 cmp.setup({
+
+  formatting = lsp_zero.cmp_format({details = true}),
 
   snippet = {
     expand = function(args)
@@ -79,14 +77,6 @@ cmp.setup({
       cmp.config.compare.order,
     },
   },
-
-  formatting = {
-    format = lspkind.cmp_format({
-      maxwidth = 50,
-      ellipsis_char = "...",
-    })
-  },
-
 })
 
 -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won"t work anymore).

@@ -1,5 +1,5 @@
 --[[
-  File: mason.lua
+  File: lsp.lua
   Description: Mason plugin configuration (with lspconfig)
   See: https://github.com/williamboman/mason.nvim
 ]]
@@ -21,9 +21,7 @@ local servers = {
 }
 
 lsp_zero.on_attach(function(client, bufnr)
-  lsp_zero.default_keymaps({
-    buffer = bufnr,
-  })
+  lsp_zero.default_keymaps({buffer = bufnr})
 end)
 
 mason.setup({

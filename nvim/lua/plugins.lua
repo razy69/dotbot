@@ -13,30 +13,20 @@ return {
   {
     "VonHeikemen/lsp-zero.nvim",
     branch = "v3.x",
+    lazy = true,
+    config = false,
+    init = function()
+      -- Disable automatic setup, we are doing it manually
+      vim.g.lsp_zero_extend_cmp = 0
+      vim.g.lsp_zero_extend_lspconfig = 0
+    end,
   },
 
   -- Mason
   {
     "williamboman/mason.nvim",
-    build = ":MasonUpdate",
     lazy = false,
-    dependencies = {
-      "williamboman/mason-lspconfig.nvim",
-      "neovim/nvim-lspconfig",
-    },
-    config = function()
-      require("extensions.mason")
-    end
-  },
-
-  -- TreeSitter
-  {
-    "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
-    config = function()
-      require("extensions.treesitter")
-    end
+    config = true,
   },
 
   -- Completions
@@ -55,18 +45,41 @@ return {
       "petertriho/cmp-git",
       "lukas-reineke/cmp-under-comparator",
       "ray-x/cmp-treesitter",
-      "onsails/lspkind-nvim",
     },
     config = function()
       require("extensions.cmp")
     end
   },
 
+  -- LSP
+  {
+    "neovim/nvim-lspconfig",
+    cmd = {"LspInfo", "LspInstall", "LspStart"},
+    event = {"BufReadPre", "BufNewFile"},
+    dependencies = {
+      {"hrsh7th/cmp-nvim-lsp"},
+      {"williamboman/mason-lspconfig.nvim"},
+    },
+    config = function ()
+      require("extensions.lsp")
+    end
+  },
+
+  -- TreeSitter
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    event = {"BufReadPost", "BufNewFile"},
+    config = function()
+      require("extensions.treesitter")
+    end
+  },
+
   -- Formatters
   {
     "stevearc/conform.nvim",
-    event = { "BufWritePre" },
-    cmd = { "ConformInfo" },
+    event = {"BufWritePre"},
+    cmd = {"ConformInfo"},
     config = function()
       require("extensions.formatter")
     end
@@ -75,10 +88,8 @@ return {
   -- Linters
   {
     "mfussenegger/nvim-lint",
-    dependencies = {
-      "williamboman/mason.nvim",
-      "rshkarin/mason-nvim-lint",
-    },
+    event = {"BufReadPre", "BufNewFile"},
+    dependencies = {"williamboman/mason.nvim", "rshkarin/mason-nvim-lint"},
     config = function()
       require("extensions.lint")
     end
@@ -87,7 +98,7 @@ return {
   -- Indentation highlighting
   {
     "lukas-reineke/indent-blankline.nvim",
-    event = { "BufReadPost", "BufNewFile" },
+    event = {"BufReadPost", "BufNewFile"},
     config = function()
       require("extensions.indent-blankline")
     end,
@@ -97,12 +108,13 @@ return {
   -- Rainbow delimiters
   {
     "HiPhish/rainbow-delimiters.nvim",
+    event = {"BufReadPre", "BufNewFile", "BufNew"},
   },
 
   -- Statusbar
   {
     "nvim-lualine/lualine.nvim",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
+    event = {"BufReadPost", "BufNewFile", "BufNew"},
     dependencies = "nvim-tree/nvim-web-devicons",
     config = function()
       require("extensions.lualine")
@@ -113,10 +125,7 @@ return {
   {
     "folke/noice.nvim",
     event = "VeryLazy",
-    dependencies = {
-      "MunifTanjim/nui.nvim",
-      "rcarriga/nvim-notify",
-    },
+    dependencies = {"MunifTanjim/nui.nvim", "rcarriga/nvim-notify"},
     config = function()
       require("extensions.noice")
     end
@@ -125,7 +134,8 @@ return {
   -- Code folding
   {
     "kevinhwang91/nvim-ufo",
-    dependencies = { "kevinhwang91/promise-async" },
+    event = {"BufReadPost", "BufNewFile", "BufNew"},
+    dependencies = {"kevinhwang91/promise-async"},
     config = function()
       require("extensions.nvim-ufo")
     end
@@ -142,10 +152,8 @@ return {
   -- VSCode like winbar
   {
     "utilyre/barbecue.nvim",
-    dependencies = {
-      "SmiteshP/nvim-navic",
-      "nvim-tree/nvim-web-devicons",
-    },
+    event = {"BufReadPost", "BufNewFile", "BufNew"},
+    dependencies = {"SmiteshP/nvim-navic", "nvim-tree/nvim-web-devicons"},
     config = function()
       require("extensions.barbecue")
     end,
@@ -154,9 +162,7 @@ return {
   -- Buffer line
   {
     "akinsho/bufferline.nvim",
-    dependencies = {
-      "nvim-tree/nvim-web-devicons"
-    },
+    dependencies = {"nvim-tree/nvim-web-devicons"},
     config = function()
       require("extensions.bufferline")
     end,
@@ -165,6 +171,7 @@ return {
   -- Words highlighting
   {
     "RRethy/vim-illuminate",
+    event = {"BufReadPost", "BufNewFile", "BufNew"},
     config = function()
       require("illuminate").configure({
         filetypes_denylist = {
@@ -180,7 +187,8 @@ return {
   -- Highlight arguments
   {
     "m-demare/hlargs.nvim",
-    dependencies = { "nvim-treesitter" },
+    event = {"BufReadPost", "BufNewFile", "BufNew"},
+    dependencies = {"nvim-treesitter"},
     config = function()
       require("hlargs").setup()
     end
@@ -219,10 +227,7 @@ return {
   -- Note management
   {
     "renerocksai/telekasten.nvim",
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-      "renerocksai/calendar-vim",
-    },
+    dependencies = {"nvim-telescope/telescope.nvim", "renerocksai/calendar-vim"},
     config = function()
       require("extensions.telekasten")
     end
@@ -244,8 +249,8 @@ return {
   -- Startup menu
   {
     "goolord/alpha-nvim",
-    event = "VimEnter",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    event = {"VimEnter"},
+    dependencies = {"nvim-tree/nvim-web-devicons"},
     config = function()
       require("extensions.alpha")
     end,
@@ -254,7 +259,7 @@ return {
   -- Session Manager
   {
     "Shatur/neovim-session-manager",
-    dependencies = { "nvim-lua/plenary.nvim" },
+    dependencies = {"nvim-lua/plenary.nvim"},
     config = function()
       require("extensions.session-manager")
     end,
@@ -265,8 +270,6 @@ return {
     "utilyre/sentiment.nvim",
     version = "*",
     event = "VeryLazy",
-    opts = {
-    },
     init = function()
       vim.g.loaded_matchparen = 1
     end,
@@ -275,7 +278,7 @@ return {
   -- Autopairs
   {
     "windwp/nvim-autopairs",
-    event = "InsertEnter",
+    event = {"InsertEnter"},
     opts = {
       enable_check_bracket_line = false,
       check_ts = true,
@@ -293,7 +296,7 @@ return {
   -- Split/join code blocks
   {
     "Wansmer/treesj",
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    dependencies = {"nvim-treesitter/nvim-treesitter"},
     config = function()
       require("treesj").setup({
         max_join_length = 1000,
@@ -305,13 +308,12 @@ return {
   {
     "numToStr/Comment.nvim",
     lazy = false,
-    opts = {},
   },
 
   -- Docstrings
   {
     "danymat/neogen",
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    dependencies = {"nvim-treesitter/nvim-treesitter"},
     config = function()
       require("extensions.neogen")
     end
@@ -320,15 +322,10 @@ return {
   -- Colorschemes
   {
     "loctvl842/monokai-pro.nvim",
+    lazy = false,
     config = function()
       require("colorschemes.monokai")
     end,
     priority = 1000,
   },
-  {
-    "sainnhe/sonokai",
-    name = "sonokai",
-    priority = 1000,
-  },
-
 }
