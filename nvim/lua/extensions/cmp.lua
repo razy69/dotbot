@@ -38,13 +38,19 @@ cmp.setup({
 		end,
 	},
 
+  preselect = "item",
+  completion = {
+    completeopt = "menu,menuone,noinsert",
+  },
+
 	-- Mappings for cmp
 	mapping = cmp.mapping.preset.insert({
 
 		-- Autocompletion menu
 		["<C-Space>"] = cmp.mapping.complete(),
 		["<C-e>"] = cmp.mapping.abort(),
-		["<CR>"] = cmp.mapping(function(fallback)
+    ["<CR>"] = cmp.mapping.confirm({select = false}),
+		--[[["<CR>"] = cmp.mapping(function(fallback)
       if luasnip.expand_or_jumpable() then
         luasnip.expand_or_jump()
         fallback()
@@ -53,7 +59,7 @@ cmp.setup({
       else
         fallback()
       end
-    end, { "i", "s" }),
+    end, { "i", "s" }),--]]
 
 		-- Use <C-p> and <C-n> to navigate through completion variants
 		["<C-n>"] = cmp.mapping(function(fallback)
