@@ -16,9 +16,20 @@ local servers = {
   "lua_ls",
   "emmet_ls",
   "gopls",
-  "jedi_language_server",
   "ruff_lsp",
   "terraformls",
+  "marksman",
+  "bashls",
+  "ansiblels",
+  "dockerls",
+  "docker_compose_language_service",
+  "yamlls",
+  "puppet",
+  "jsonls",
+  "jinja_lsp",
+  "htmx",
+  "html",
+  "golangci_lint_ls",
 }
 
 local capabilities = vim.tbl_deep_extend(
