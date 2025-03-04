@@ -371,7 +371,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       function()
         fzf.lsp_references({
           ignore_current_line = true,
-          includeDeclaration = false,  -- Combined with ignore_current_line = true, it achieves "show other usages" behavior.
+          includeDeclaration = false, -- Combined with ignore_current_line = true, it achieves "show other usages" behavior.
         })
       end,
       {

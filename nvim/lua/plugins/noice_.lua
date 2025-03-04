@@ -35,7 +35,7 @@ require("noice").setup({
 
   lsp = {
     progress = {
-      enabled = true,
+      enabled = false,
       view = "mini",
     },
     override = {
@@ -70,14 +70,14 @@ require("noice").setup({
       filter = { event = "notify", find = "No information available", }, -- Suppress 'No information available' popup message
       opts = { skip = true },
     },
-    -- { -- hide `written` message
-    --   filter = {
-    --     event = "msg_show",
-    --     kind = "",
-    --     find = "written",
-    --   },
-    --   opts = { skip = true },
-    -- },
+    { -- hide `written` message
+      filter = {
+        event = "msg_show",
+        kind = "",
+        find = "written",
+      },
+      opts = { skip = true },
+    },
     { -- send annoying msgs to mini
       filter = {
         event = "msg_show",
@@ -165,5 +165,5 @@ require("noice").setup({
     view_search = false,
   },
 
-  health = { checker = false },
+  health = { checker = true },
 })

@@ -14,12 +14,12 @@ fzf_lua.setup({
   },
   fzf_opts = { ["--cycle"] = true },
   grep = {
-    resume         = true, -- resume last search
+    resume         = true,                                         -- resume last search
     rg_opts        = "--sort-files --hidden --column --line-number --no-heading " ..
-        "--color=always --smart-case -g '!{.git,node_modules}/*'",  -- sort results (to be always in the same order, may impact perf)
-    rg_glob        = true,      -- enable glob parsing by default to all
-    glob_flag      = "--iglob", -- for case sensitive globs use '--glob'
-    glob_separator = "%s%-%-"   -- query separator pattern (lua): ' --'
+        "--color=always --smart-case -g '!{.git,node_modules}/*'", -- sort results (to be always in the same order, may impact perf)
+    rg_glob        = true,                                         -- enable glob parsing by default to all
+    glob_flag      = "--iglob",                                    -- for case sensitive globs use '--glob'
+    glob_separator = "%s%-%-"                                      -- query separator pattern (lua): ' --'
   },
 })
 

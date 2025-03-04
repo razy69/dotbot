@@ -11,6 +11,7 @@ return {
     build = "cargo build --release",
     event = { "BufReadPost", "BufWritePost", "BufNewFile", "CmdlineEnter" },
     dependencies = {
+      "L3MON4D3/LuaSnip",
       "rafamadriz/friendly-snippets",
     },
     config = function()
@@ -29,13 +30,6 @@ return {
     config = function()
       require("plugins.lsp_")
     end,
-  },
-
-  -- Suspend/Resume LSP clients
-  {
-    "zeioth/garbage-day.nvim",
-    lazy = true,
-    dependencies = "neovim/nvim-lspconfig",
   },
 
   -- TreeSitter
@@ -173,23 +167,15 @@ return {
     end
   },
 
-  -- Code folding
-  {
-    "kevinhwang91/nvim-ufo",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
-    dependencies = { "kevinhwang91/promise-async" },
-    config = function()
-      require("plugins.ufo_")
-    end,
-  },
-
   -- Split/join code blocks
   {
     "Wansmer/treesj",
     event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
-      require("plugins.treesj_")
+      require("treesj").setup({
+        max_join_length = 1000,
+      })
     end,
   },
 
@@ -206,7 +192,9 @@ return {
   -- Peek lines
   {
     "nacro90/numb.nvim",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    config = function()
+      require("numb").setup()
+    end
   },
 
   -- Keybindings Helper
@@ -276,14 +264,13 @@ return {
   -- Mark utility
   {
     "otavioschwanck/arrow.nvim",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
     dependencies = {
       { "echasnovski/mini.icons" },
     },
     opts = {
       show_icons = true,
-      leader_key = ";",
-      buffer_leader_key = "m",
+      leader_key = "m",
+      buffer_leader_key = "M",
     }
   },
 
@@ -301,6 +288,44 @@ return {
         return package.loaded["nvim-web-devicons"]
       end
     end,
+  },
+
+  -- UI for Nvim notification
+  {
+    "j-hui/fidget.nvim",
+    opts = {},
+    config = function()
+      require("fidget").setup {
+        notification = {
+          window = {
+            winblend = 0,
+          },
+        }
+      }
+    end
+  },
+
+  -- Highlight color
+  {
+    "norcalli/nvim-colorizer.lua",
+    event = { "BufReadPost", "BufNewFile", "BufNew" },
+    init = function()
+      require("colorizer").setup()
+    end
+  },
+
+  -- Vim motion helper
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+    keys = {
+      { "s",     mode = { "n", "x", "o" }, function() require("flash").jump() end,              desc = "Flash" },
+      { "S",     mode = { "n", "x", "o" }, function() require("flash").treesitter() end,        desc = "Flash Treesitter" },
+      { "r",     mode = "o",               function() require("flash").remote() end,            desc = "Remote Flash" },
+      { "R",     mode = { "o", "x" },      function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+      { "<c-s>", mode = { "c" },           function() require("flash").toggle() end,            desc = "Toggle Flash Search" },
+    },
   },
 
   -- Colorscheme

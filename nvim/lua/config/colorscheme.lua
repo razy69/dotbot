@@ -28,10 +28,11 @@ require("catppuccin").setup({
     enabled = true,
     path = vim.fn.stdpath("cache") .. "/catppuccin",
   },
-  no_italic = true,     -- Force no italic
-  no_bold = false,      -- Force no bold
+  no_italic = true,    -- Force no italic
+  no_bold = false,     -- Force no bold
   no_underline = true, -- Force no underline
   integrations = {
+    alpha = true,
     barbecue = {
       dim_dirname = true, -- directory name is dimmed by default
       bold_basename = true,
@@ -39,21 +40,22 @@ require("catppuccin").setup({
       alt_background = true,
     },
     blink_cmp = true,
-    cmp = true,
-    noice = true,
-    notify = true,
-    gitsigns = true,
-    treesitter = true,
+    fidget = true,
+    flash = true,
     fzf = true,
-    render_markdown = true,
-    lsp_trouble = true,
-    rainbow_delimiters = true,
-    neotree = true,
-    ufo = true,
+    gitsigns = true,
     illuminate = {
       enabled = true,
       lsp = true,
     },
+    lsp_trouble = true,
+    mason = true,
+    neotree = true,
+    noice = true,
+    notify = true,
+    rainbow_delimiters = true,
+    render_markdown = true,
+    treesitter = true,
     which_key = true,
   },
   highlight = {

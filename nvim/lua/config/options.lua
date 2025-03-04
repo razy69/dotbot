@@ -10,13 +10,20 @@ vim.opt.timeout = true
 vim.opt.timeoutlen = 300 -- Mapping timeout
 
 -- Code Folding
+vim.opt.fillchars:append({ fold = " " })
+
+function myfoldtext()
+  return vim.fn.getline(vim.v.foldstart) .. ' ... ' .. vim.fn.getline(vim.v.foldend):gsub("^%s*", "")
+end
+
+vim.opt.foldtext = "v:lua.myfoldtext()"
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldcolumn = "0"
-vim.opt.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+vim.opt.foldlevel = 99
 vim.opt.foldlevelstart = 99
+vim.opt.foldnestmax = 4
 vim.opt.foldenable = true
-vim.opt.foldtext = ""
-vim.opt.foldexpr = ""
-vim.g.foldmethod = ""
 
 -- Tabs
 vim.opt.autoindent = true
@@ -35,7 +42,7 @@ vim.opt.mousemoveevent = true
 vim.opt.mouse = "a"
 
 -- Clipboard
-vim.opt.clipboard:append {"unnamed", "unnamedplus"}
+vim.opt.clipboard:append { "unnamed", "unnamedplus" }
 
 -- Other
 vim.cmd("match EoLSpace /\\s\\+$/")

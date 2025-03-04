@@ -4,6 +4,9 @@
   See: https://github.com/Saghen/blink.cmp
 ]]
 
+-- Load friendly snippets
+require("luasnip.loaders.from_vscode").lazy_load()
+
 require("blink.cmp").setup({
   -- Disable for some filetypes
   enabled = function()
@@ -42,8 +45,8 @@ require("blink.cmp").setup({
       draw = {
         treesitter = { enabled = true },
         columns = {
-          { "label", "label_description", gap = 2 },
-          { "kind_icon", "kind", "source_name", gap = 1 },
+          { "label",     "label_description", gap = 2 },
+          { "kind_icon", "kind",              "source_name", gap = 1 },
         },
       },
     },
@@ -64,7 +67,7 @@ require("blink.cmp").setup({
   },
 
   sources = {
-    default = function (ctx)
+    default = function(ctx)
       local success, node = pcall(vim.treesitter.get_node)
       if success and node and vim.tbl_contains({ "comment", "line_comment", "block_comment" }, node:type()) then
         return { "buffer", "path" }
@@ -74,6 +77,10 @@ require("blink.cmp").setup({
     end
   },
 
+  snippets = {
+    preset = "luasnip",
+  },
+
   keymap = {
     ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
     ["<C-e>"] = { "hide", "fallback" },
@@ -81,8 +88,11 @@ require("blink.cmp").setup({
 
     ["<Tab>"] = {
       function(cmp)
-        if cmp.snippet_active() then return cmp.accept()
-        else return cmp.select_and_accept() end
+        if cmp.snippet_active() then
+          return cmp.accept()
+        else
+          return cmp.select_and_accept()
+        end
       end,
       "snippet_forward",
       "fallback",

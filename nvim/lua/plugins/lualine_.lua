@@ -5,6 +5,7 @@
 ]]
 
 local noice = require("noice")
+local arrow_status = require("arrow.statusline")
 
 require("lualine").setup({
   theme = "catppuccin",
@@ -49,6 +50,11 @@ require("lualine").setup({
         always_visible = false,
         on_click = function()
           vim.api.nvim_command("Trouble diagnostics")
+        end
+      },
+      {
+        function()
+          return arrow_status.text_for_statusline_with_icons()
         end
       },
     },
