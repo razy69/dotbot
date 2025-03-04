@@ -40,7 +40,8 @@ opt.showcmd = false      -- Disable display of last command
 opt.showmode = false     -- Disable -- INSERT --
 opt.hidden = true        -- Enable modified buffers in background
 opt.guicursor = "i-ci:ver30-iCursor-blinkwait300-blinkon200-blinkoff150,n-v-c-sm:ver30"
-opt.completeopt = {}
+--opt.completeopt = {}
+opt.completeopt = { "menu", "menuone", "noselect" }
 opt.termguicolors = true
 vim.cmd("match EoLSpace /\\s\\+$/")
 --vim.cmd("let &t_8f = '\\<Esc>[38;2;%lu;%lu;%lum'")
