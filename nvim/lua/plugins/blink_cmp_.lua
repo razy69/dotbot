@@ -1,11 +1,8 @@
 --[[
-	File: cmp_.lua
+	File: blink_cmp_.lua
 	Description: CMP plugin configuration (with lspconfig)
   See: https://github.com/Saghen/blink.cmp
 ]]
-
--- Load friendly snippets
-require("luasnip.loaders.from_vscode").lazy_load()
 
 require("blink.cmp").setup({
   -- Disable for some filetypes
@@ -31,7 +28,6 @@ require("blink.cmp").setup({
         auto_insert = true,
       },
     },
-    ghost_text = { enabled = true },
     documentation = {
       window = { border = "single" },
       auto_show = true,
@@ -108,3 +104,6 @@ require("blink.cmp").setup({
     ["<C-f>"] = { "scroll_documentation_down", "fallback" },
   },
 })
+
+-- Load friendly snippets
+require("luasnip.loaders.from_vscode").lazy_load()

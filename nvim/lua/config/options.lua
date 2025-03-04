@@ -1,6 +1,6 @@
 --[[
-  File: settings.lua
-  Description: Base settings for neovim
+  File: options.lua
+  Description: Nvim options configuration
 ]]
 
 -- Configure timeout for which-key panel
@@ -10,12 +10,11 @@ vim.opt.timeout = true
 vim.opt.timeoutlen = 300 -- Mapping timeout
 
 -- Code Folding
-vim.opt.fillchars:append({ fold = " " })
-
 function myfoldtext()
   return vim.fn.getline(vim.v.foldstart) .. ' ... ' .. vim.fn.getline(vim.v.foldend):gsub("^%s*", "")
 end
 
+vim.opt.fillchars:append({ fold = " " })
 vim.opt.foldtext = "v:lua.myfoldtext()"
 vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
@@ -109,7 +108,7 @@ vim.opt.autowrite = false
 vim.opt.autoread = false
 vim.opt.undolevels = 1000
 vim.opt.updatetime = 100
-vim.g.bigfile_size = 1024 * 1024 * 5 -- 5 MB
+vim.g.bigfile_size = 1024 * 1024 * 10 -- 10 MB
 
 -- Wildmenu
 vim.opt.wildmenu = true

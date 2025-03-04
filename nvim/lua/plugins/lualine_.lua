@@ -1,11 +1,10 @@
 --[[
-  File: lualine.lua
+  File: lualine_.lua
   Description: Neovim statusline configuration
   See: https://github.com/nvim-lualine/lualine.nvim
 ]]
 
-local noice = require("noice")
-local arrow_status = require("arrow.statusline")
+local utils = require("config.utils")
 
 require("lualine").setup({
   theme = "catppuccin",
@@ -32,13 +31,21 @@ require("lualine").setup({
       {
         "branch",
         on_click = function()
-          vim.api.nvim_command("FzfLua git_branches")
+          local fzf = utils.prequire("fzf-lua")
+          if not fzf then
+            return
+          end
+          fzf.git_branches()
         end
       },
       {
         "diff",
         on_click = function()
-          vim.api.nvim_command("FzfLua git_status")
+          local fzf = utils.prequire("fzf-lua")
+          if not fzf then
+            return
+          end
+          fzf.git_status()
         end
       },
       {
@@ -49,12 +56,17 @@ require("lualine").setup({
         update_in_insert = false,
         always_visible = false,
         on_click = function()
+          local trouble = require("trouble")
+          if not trouble then
+            return
+          end
           vim.api.nvim_command("Trouble diagnostics")
         end
       },
       {
         function()
-          return arrow_status.text_for_statusline_with_icons()
+          local arrow_status = utils.prequire("arrow.statusline")
+          return arrow_status and arrow_status.text_for_statusline_with_icons() or ""
         end
       },
     },
@@ -70,9 +82,6 @@ require("lualine").setup({
           unnamed = "[No Name]", -- Text to show for unnamed buffers.
           newfile = "[+]",
         },
-        on_click = function()
-          -- vim.api.nvim_command("Neotree toggle")
-        end
       },
     },
     lualine_x = {
@@ -90,7 +99,11 @@ require("lualine").setup({
           return string.format("%s", text)
         end,
         on_click = function()
-          vim.api.nvim_command("FzfLua filetypes")
+          local fzf = utils.prequire("fzf-lua")
+          if not fzf then
+            return
+          end
+          fzf.filetypes()
         end,
       },
       {
@@ -112,11 +125,6 @@ require("lualine").setup({
         on_click = function()
           vim.api.nvim_command("LspInfo")
         end,
-      },
-      {
-        noice.api.status.mode.get,
-        cond = noice.api.status.mode.has,
-        color = { fg = "red" },
       },
     },
     lualine_y = {

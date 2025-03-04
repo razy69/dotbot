@@ -7,6 +7,8 @@
 
 local alpha = require("alpha")
 local dashboard = require("alpha.themes.dashboard")
+local autocmd = require("config.autocmd")
+local utils = require("config.utils")
 local logo = [[
   ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗
   ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║
@@ -59,5 +61,80 @@ vim.api.nvim_create_autocmd("User", {
         .. ms
         .. "ms"
     pcall(vim.cmd.AlphaRedraw)
+  end,
+})
+
+-- Alpha Enter
+local alpha_group = autocmd.augroup("alpha")
+vim.api.nvim_create_autocmd({ "BufEnter", "VimEnter" }, {
+  desc = "Alpha Enter",
+  group = alpha_group,
+  callback = function()
+    if (vim.bo.filetype ~= "alpha") then
+      return
+    end
+
+    vim.cmd("highlight clear EoLSpace")
+
+    -- Cursor hide
+    local hl = vim.api.nvim_get_hl_by_name("Cursor", true)
+    hl.blend = 100
+    vim.api.nvim_set_hl(0, "Cursor", hl)
+    vim.opt.guicursor:append("a:Cursor/lCursor")
+
+    local lualine = utils.prequire("lualine")
+    if lualine then
+      lualine.hide()
+    end
+
+    local illuminate = utils.prequire("illuminate")
+    if illuminate then
+      illuminate.toggle()
+    end
+
+    local barbecue = utils.prequire("barbecue.ui")
+    if barbecue then
+      barbecue.toggle(false)
+    end
+  end,
+})
+
+vim.api.nvim_create_autocmd("BufLeave", {
+  desc = "Alpha Enter",
+  group = alpha_group,
+  callback = function()
+    if (vim.bo.filetype ~= "alpha") then
+      return
+    end
+
+    -- Cursor show
+    local hl = vim.api.nvim_get_hl_by_name("Cursor", true)
+    hl.blend = 0
+    vim.api.nvim_set_hl(0, "Cursor", hl)
+    vim.opt.guicursor:remove("a:Cursor/lCursor")
+
+    vim.opt.foldenable = false
+    local lualine = utils.prequire("lualine")
+    if lualine then
+      lualine.hide({ unhide = true })
+    end
+
+    local illuminate = utils.prequire("illuminate")
+    if illuminate then
+      illuminate.toggle()
+    end
+
+    local barbecue = utils.prequire("barbecue.ui")
+    if barbecue then
+      barbecue.toggle(true)
+    end
+  end,
+})
+
+vim.api.nvim_create_autocmd("TabNewEntered", {
+  desc = "Open Alpha on new tab",
+  group = alpha_group,
+  callback = function()
+    alpha.start()
   end,
 })

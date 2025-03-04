@@ -1,17 +1,20 @@
 --[[
-  File: lsp.lua
+  File: lsp_.lua
   Description: Mason plugin configuration (with lspconfig)
   See: https://github.com/williamboman/mason.nvim
 ]]
 
 local lsp_config = require("lspconfig")
 local mason_lsp_config = require("mason-lspconfig")
+local utils = require("config.utils")
+local blink = utils.prequire("blink.cmp")
+local blink_capabilities = blink and blink.get_lsp_capabilities() or {}
 local capabilities = vim.tbl_deep_extend(
   "force",
   {},
   vim.lsp.protocol.make_client_capabilities(),
   lsp_config.util.default_config.capabilities,
-  require("blink.cmp").get_lsp_capabilities(),
+  blink_capabilities,
   {
     workspace = {
       fileOperations = {
@@ -83,15 +86,18 @@ require("mason").setup({
   }
 })
 
-require("nvim-navic").setup({
-  lsp = {
-    auto_attach = true,
-    preference = servers,
-  },
-  highlight = true,
-  depth_limit = 5,
-  lazy_update_context = true,
-})
+local navic = utils.prequire("nvim-navic")
+if navic then
+  navic.setup({
+    lsp = {
+      auto_attach = true,
+      preference = servers,
+    },
+    highlight = true,
+    depth_limit = 5,
+    lazy_update_context = true,
+  })
+end
 
 mason_lsp_config.setup({
   ensure_installed = servers,
@@ -108,8 +114,8 @@ mason_lsp_config.setup_handlers({
         allow_incremental_sync = true,
       },
       on_attach = function(client, bufnr)
-        if client.server_capabilities["documentSymbolProvider"] then
-          require("nvim-navic").attach(client, bufnr)
+        if navic and client.server_capabilities["documentSymbolProvider"] then
+          navic.attach(client, bufnr)
         end
         if client.server_capabilities.inlayHintProvider then
           vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })

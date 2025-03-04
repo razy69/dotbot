@@ -1,13 +1,12 @@
 --[[
-  File: neotree.lua
+  File: neotree_.lua
   Description: Configuration NeoTree
   See: https://github.com/nvim-neo-tree/neo-tree.nvim
 ]]
 
-local neotree = require("neo-tree")
 local events = require("neo-tree.events")
 
-neotree.setup {
+require("neo-tree").setup {
   close_if_last_window = true,
   enable_git_status = true,
   enable_diagnostics = false,

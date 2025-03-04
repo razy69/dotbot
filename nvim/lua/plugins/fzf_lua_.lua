@@ -5,6 +5,8 @@
 ]]
 
 local fzf_lua = require("fzf-lua")
+local fzf_lua_actions = require("fzf-lua.actions")
+local autocmd = require("config.autocmd")
 
 fzf_lua.setup({
   "fzf-native",
@@ -33,3 +35,136 @@ fzf_lua.register_ui_select(function(_, items)
   end
   return { winopts = { height = h, width = 0.60, row = 0.40 } }
 end)
+
+-- Add keybindings for lspconfig
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = autocmd.augroup("UserLspConfig"),
+  callback = function(ev)
+    -- Jumps to the declaration of the symbol under the cursor.
+    vim.keymap.set(
+      "n",
+      "gD",
+      function()
+        fzf_lua.lsp_declarations({
+          sync = true,
+          jump_to_single_result = true,
+          jump_to_single_result_action = fzf_lua_actions.file_vsplit,
+        })
+      end,
+      {
+        desc = "LSP Go to declaration",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Jumps to the definition of the symbol under the cursor.
+    vim.keymap.set(
+      "n",
+      "gd",
+      function()
+        fzf_lua.lsp_definitions({
+          sync = true,
+          ignore_current_line = true,
+          jump_to_single_result = true,
+          jump_to_single_result_action = fzf_lua_actions.file_vsplit,
+        })
+      end,
+      {
+        desc = "LSP Go to definition",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Lists all the references to the symbol under the cursor in the quickfix window.
+    vim.keymap.set(
+      "n",
+      "gr",
+      function()
+        fzf_lua.lsp_references({
+          ignore_current_line = true,
+          includeDeclaration = false, -- Combined with ignore_current_line = true, it achieves "show other usages" behavior.
+        })
+      end,
+      {
+        desc = "LSP References",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Lists all the implementations for the symbol under the cursor in the quickfix window.
+    vim.keymap.set(
+      "n",
+      "gi",
+      function()
+        fzf_lua.lsp_implementations({
+          ignore_current_line = true,
+          jump_to_single_result = true,
+        })
+      end,
+      {
+        desc = "LSP Implementations",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Selects a code action available at the current cursor position.
+    vim.keymap.set(
+      { "n", "v" },
+      "<leader>ca",
+      function()
+        fzf_lua.lsp_code_actions()
+      end,
+      {
+        desc = "LSP Code action",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Live workspace symbols query
+    vim.keymap.set(
+      { "n", "v" },
+      "<leader>ls",
+      function()
+        fzf_lua.lsp_live_workspace_symbols()
+      end,
+      {
+        desc = "LSP Live Symbols",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Displays hover information about the symbol under the cursor in a floating
+    -- window. Calling the function twice will jump into the floating window.
+    vim.keymap.set(
+      "n",
+      "K",
+      vim.lsp.buf.hover,
+      {
+        desc = "LSP Hover",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Displays signature information about the symbol under the cursor in a floating window.
+    vim.keymap.set(
+      "n",
+      "<C-k>",
+      vim.lsp.buf.signature_help,
+      {
+        desc = "LSP Signature help",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Renames all references to the symbol under the cursor.
+    vim.keymap.set(
+      "n",
+      "<leader>rn",
+      vim.lsp.buf.rename,
+      {
+        desc = "LSP Rename references",
+        buffer = ev.buf,
+      }
+    )
+  end
+})

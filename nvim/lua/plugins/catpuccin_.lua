@@ -1,14 +1,10 @@
 --[[
-  File: catppuccin.lua
+  File: catppuccin_.lua
   Description: Configuration  of catppuccin
   See: https://github.com/catppuccin/nvim
 ]]
 
 local colors = require("catppuccin.palettes").get_palette("frappe")
-local ucolors = require("catppuccin.utils.colors")
-local lualine_bg = colors.mantle
-local noice_mini_bg = ucolors.lighten(colors.flamingo, 0.1, "#FFFFFF")
-local mini_modified_bg = ucolors.lighten(colors.flamingo, 0.3, "#FFFFFF")
 
 require("catppuccin").setup({
   flavour = "frappe", -- latte, frappe, macchiato, mocha
@@ -64,17 +60,6 @@ require("catppuccin").setup({
   },
   highlight_overrides = {
     all = {
-      NoiceCmdlinePopup = { bg = noice_mini_bg },
-      NoiceMini = { bg = colors.mantle },
-      MiniFilesBorder = { bg = noice_mini_bg, fg = noice_mini_bg },
-      MiniFilesBorderModified = { bg = mini_modified_bg, fg = mini_modified_bg },
-      MiniFilesNormal = { bg = noice_mini_bg },
-      MiniFilesModified = { bg = mini_modified_bg },
-      MiniFilesCursorLine = { bg = ucolors.lighten(colors.mantle, 0.1, "#FFFFFF") },
-      DapSign = { fg = colors.flamingo },
-      DapLineStopped = { bg = noice_mini_bg },
-      WinBar = { bg = lualine_bg },
-      NavicIconsFile = { fg = colors.blue, bg = lualine_bg },
       BlinkCmpKind = { fg = colors.blue },
       BlinkCmpMenu = { fg = colors.text },
       BlinkCmpMenuBorder = { fg = colors.blue },

@@ -1,9 +1,8 @@
 --[[
-  File: neogen.lua
+  File: neogen_.lua
   Description: Annotation Toolkit
   Link: https://github.com/danymat/neogen
 ]]
-
 
 require("neogen").setup({
   snippet_engine = "luasnip",

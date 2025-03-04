@@ -1,5 +1,5 @@
 --[[
-  File: treesitter.lua
+  File: treesitter_.lua
   Description: Configuration of tree-sitter
   See: https://github.com/tree-sitter/tree-sitter
 ]]

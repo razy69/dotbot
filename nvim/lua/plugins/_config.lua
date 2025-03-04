@@ -15,7 +15,7 @@ return {
       "rafamadriz/friendly-snippets",
     },
     config = function()
-      require("plugins.cmp_")
+      require("plugins.blink_cmp_")
     end,
   },
 
@@ -54,7 +54,6 @@ return {
   -- UI
   {
     "folke/noice.nvim",
-    lazy = false,
     dependencies = {
       "MunifTanjim/nui.nvim",
       "rcarriga/nvim-notify",
@@ -97,7 +96,6 @@ return {
   -- File explorer
   {
     "nvim-neo-tree/neo-tree.nvim",
-    lazy = false,
     branch = "v3.x",
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -186,28 +184,23 @@ return {
     opts = {
       enable_check_bracket_line = true,
       check_ts = true,
-    }
+    },
   },
 
   -- Peek lines
   {
     "nacro90/numb.nvim",
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     config = function()
       require("numb").setup()
     end
-  },
-
-  -- Keybindings Helper
-  {
-    "folke/which-key.nvim",
-    event = "VeryLazy",
   },
 
   -- Markdown
   {
     "MeanderingProgrammer/markdown.nvim",
     name = "render-markdown",
-    ft = { "markdown", "telekasten" },
+    ft = "markdown",
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
     },
@@ -264,6 +257,7 @@ return {
   -- Mark utility
   {
     "otavioschwanck/arrow.nvim",
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     dependencies = {
       { "echasnovski/mini.icons" },
     },
@@ -271,7 +265,7 @@ return {
       show_icons = true,
       leader_key = "m",
       buffer_leader_key = "M",
-    }
+    },
   },
 
   -- Icons
@@ -319,31 +313,30 @@ return {
     "folke/flash.nvim",
     event = "VeryLazy",
     opts = {},
-    keys = {
-      { "s",     mode = { "n", "x", "o" }, function() require("flash").jump() end,              desc = "Flash" },
-      { "S",     mode = { "n", "x", "o" }, function() require("flash").treesitter() end,        desc = "Flash Treesitter" },
-      { "r",     mode = "o",               function() require("flash").remote() end,            desc = "Remote Flash" },
-      { "R",     mode = { "o", "x" },      function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
-      { "<c-s>", mode = { "c" },           function() require("flash").toggle() end,            desc = "Toggle Flash Search" },
-    },
   },
 
   -- Session
   {
     "folke/persistence.nvim",
-    event = "BufReadPre", -- this will only start session saving when an actual file was opened
-    opts = {
-      -- add any custom options here
-    }
+    event = { "BufReadPre" }, -- this will only start session saving when an actual file was opened
+    opts = {},
+  },
+
+  -- Keybindings Helper
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("plugins.which_key_")
+    end
   },
 
   -- Colorscheme
   {
     "catppuccin/nvim",
-    lazy = false,
     priority = 1000,
     config = function()
-      require("config.colorscheme")
+      require("plugins.catpuccin_")
     end,
   },
 

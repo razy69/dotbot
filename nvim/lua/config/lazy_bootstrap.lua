@@ -1,10 +1,10 @@
 --[[
-  File: _bootstrap.lua
+  File: lazy_bootstrap.lua
   Description: Bootstrap and setup lazy.nvim.
   See: https://github.com/folke/lazy.nvim
 ]]
 
--- loading lazy.nvim so that mappings are correct.
+-- Loading lazy.nvim so that mappings are correct.
 -- This is also a good place to setup other settings (vim.opt)
 -- Make sure to setup `mapleader` and `maplocalleader` before
 vim.g.mapleader = " "

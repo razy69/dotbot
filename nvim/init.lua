@@ -11,12 +11,9 @@
 require("config.options")
 require("config.filetypes")
 
--- Plugins
-require("plugins._bootstrap")
-
 -- Commands
 require("config.autocmd")
 require("config.commands")
 
--- keybindings
-require("config.keybindings")
+-- Plugins
+require("config.lazy_bootstrap")

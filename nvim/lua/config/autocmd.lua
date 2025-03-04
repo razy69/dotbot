@@ -3,16 +3,16 @@
   Description: Setup autocmd
 ]]
 
-local notify = require("notify")
-local notify_title = "RazyVim AutoCmd"
+local M = {}
+local utils = require("config.utils")
 
--- Copied from LazyVim
-local function augroup(name)
+-- Helper to ceate augroup (from LazyVim)
+function M.augroup(name)
   return vim.api.nvim_create_augroup("razyvim_" .. name, { clear = true })
 end
 
 -- Check if we need to reload the file when it changed
-local checktime_group = augroup("checktime")
+local checktime_group = M.augroup("checktime")
 vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
   group = checktime_group,
   callback = function()
@@ -23,7 +23,7 @@ vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
 })
 
 -- Highlight on yank
-local highlight_group = augroup("highlight")
+local highlight_group = M.augroup("highlight")
 vim.api.nvim_create_autocmd("TextYankPost", {
   group = highlight_group,
   callback = function()
@@ -39,7 +39,6 @@ vim.api.nvim_create_autocmd("InsertEnter", {
     vim.cmd("highlight clear EoLSpace")
   end,
 })
-
 vim.api.nvim_create_autocmd("InsertLeave", {
   desc = "Enable EoLSpace highlight and match rule",
   group = highlight_group,
@@ -52,14 +51,18 @@ vim.api.nvim_create_autocmd("InsertLeave", {
 })
 
 -- Resize splits if window got resized
-local window_group = augroup("window")
+local window_group = M.augroup("window")
 vim.api.nvim_create_autocmd("VimResized", {
   group = window_group,
   callback = function()
     local current_tab = vim.fn.tabpagenr()
     vim.cmd("tabdo wincmd =")
     vim.cmd("tabnext " .. current_tab)
-    require("fzf-lua").redraw()
+
+    local fzf_lua = utils.prequire("fzf-lua")
+    if fzf_lua then
+      fzf_lua.redraw()
+    end
   end,
 })
 
@@ -73,53 +76,36 @@ vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
   end,
 })
 vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
-  group = augroup("auto_cursorline_hide"),
+  group = M.augroup("auto_cursorline_hide"),
   callback = function()
     vim.opt_local.cursorline = false
   end,
 })
 
 -- Go to last loc when opening a buffer, see ":h last-position-jump"
-local buffer_group = augroup("buffer")
+local buffer_group = M.augroup("buffer")
 vim.api.nvim_create_autocmd({ "BufWinEnter", "FileType" }, {
   group = buffer_group,
+  pattern = { "*" },
   callback = function()
     local ignore_buftype = { "quickfix", "nofile", "help" }
-    local ignore_filetype = { "gitcommit", "gitrebase", "svn", "hgcommit" }
+    local ft = vim.opt_local.filetype:get()
 
-    if vim.tbl_contains(ignore_buftype, vim.bo.buftype) then
+    -- don't apply on specific file type
+    if vim.tbl_contains(ignore_buftype, ft) then
       return
     end
-
-    if vim.tbl_contains(ignore_filetype, vim.bo.filetype) then
-      -- reset cursor to first line
-      vim.cmd [[normal! gg]]
-      return
+    -- don't apply to git messages
+    if (ft:match("commit") or ft:match("rebase")) then
+        return
     end
-
-    -- If a line has already been specified on the command line, we are done
-    --   nvim file +num
-    if vim.fn.line(".") > 1 then
-      return
-    end
-
-    local last_line = vim.fn.line([['"]])
-    local buff_last_line = vim.fn.line("$")
-
-    -- If the last line is set and the less than the last line in the buffer
-    if last_line > 0 and last_line <= buff_last_line then
-      local win_last_line = vim.fn.line("w$")
-      local win_first_line = vim.fn.line("w0")
-      -- Check if the last line of the buffer is the same as the win
-      if win_last_line == buff_last_line then
-        -- Set line to last line edited
-        vim.cmd [[normal! g`"]]
-        -- Try to center
-      elseif buff_last_line - last_line > ((win_last_line - win_first_line) / 2) - 1 then
-        vim.cmd [[normal! g`"zz]]
-      else
-        vim.cmd [[normal! G'"<c-e>]]
-      end
+    -- get position of last saved edit
+    local markpos = vim.api.nvim_buf_get_mark(0,'"')
+    local line = markpos[1]
+    local col = markpos[2]
+    -- if in range, go there
+    if (line > 1) and (line <= vim.api.nvim_buf_line_count(0)) then
+        vim.api.nvim_win_set_cursor(0,{line,col})
     end
   end
 })
@@ -138,7 +124,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 })
 
 -- Wrap and check for spell in text filetypes
-local filetype_group = augroup("filetype")
+local filetype_group = M.augroup("filetype")
 vim.api.nvim_create_autocmd("FileType", {
   group = filetype_group,
   pattern = { "text", "plaintex", "typst", "gitcommit", "markdown" },
@@ -154,7 +140,6 @@ vim.api.nvim_create_autocmd("FileType", {
   group = filetype_group,
   pattern = { "*.py" },
   callback = function()
-    notify("Applying Python Settings..", "info", { title = notify_title })
     vim.opt.tabstop = 4
     vim.opt.softtabstop = 4
     vim.opt.shiftwidth = 4
@@ -169,8 +154,6 @@ vim.api.nvim_create_autocmd("FileType", {
   group = filetype_group,
   pattern = "bigfile",
   callback = function(ev)
-    notify("bigfile detected, applying minimal mode..", "warning", { title = notify_title })
-
     vim.opt.syntax = "off"
     vim.opt.cursorline = false
     vim.opt.cursorcolumn = false
@@ -184,17 +167,34 @@ vim.api.nvim_create_autocmd("FileType", {
 
     vim.cmd("syntax clear")
     vim.cmd("LspStop")
-    vim.cmd("IlluminatePause")
     vim.cmd("NoMatchParen")
-    vim.cmd("IBLDisable")
-    vim.cmd("Barbecue disable")
 
-    local _, ts_config = pcall(require, "nvim-treesitter.configs")
-    for _, mod_name in ipairs(ts_config.available_modules()) do
-      vim.cmd("TSDisable " .. mod_name)
+    local illuminate = utils.prequire("illuminate")
+    if illuminate then
+      illuminate.toggle()
     end
 
-    require("lualine").hide()
+    local hlchunk = utils.prequire("hlchunk")
+    if hlchunk then
+      vim.cmd("DisableHLchunk")
+    end
+
+    local barbecue = utils.prequire("barbecue.ui")
+    if barbecue then
+      barbecue.toggle(false)
+    end
+
+    local ts_config = utils.prequire("nvim-treesitter.configs")
+    if ts_config then
+      for _, mod_name in ipairs(ts_config.available_modules()) do
+        vim.cmd("TSDisable " .. mod_name)
+      end
+    end
+
+    local lualine = utils.prequire("lualine")
+    if lualine then
+      lualine.hide()
+    end
 
     vim.schedule(function()
       vim.bo[ev.buf].syntax = vim.filetype.match({ buf = ev.buf }) or ""
@@ -202,74 +202,9 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- Alpha Enter
-local alpha_group = augroup("alpha")
-vim.api.nvim_create_autocmd({ "BufEnter", "VimEnter" }, {
-  desc = "Alpha Enter",
-  group = alpha_group,
-  callback = function()
-    if (vim.bo.filetype ~= "alpha") then
-      return
-    end
-
-    vim.cmd("highlight clear EoLSpace")
-
-    -- Cursor hide
-    local hl = vim.api.nvim_get_hl_by_name("Cursor", true)
-    hl.blend = 100
-    vim.api.nvim_set_hl(0, "Cursor", hl)
-    vim.opt.guicursor:append("a:Cursor/lCursor")
-
-    require("lualine").hide()
-    require("illuminate").invisible_buf()
-  end,
-})
-
-vim.api.nvim_create_autocmd("BufLeave", {
-  desc = "Alpha Enter",
-  group = alpha_group,
-  callback = function()
-    if (vim.bo.filetype ~= "alpha") then
-      return
-    end
-
-    -- Cursor show
-    local hl = vim.api.nvim_get_hl_by_name("Cursor", true)
-    hl.blend = 0
-    vim.api.nvim_set_hl(0, "Cursor", hl)
-    vim.opt.guicursor:remove("a:Cursor/lCursor")
-
-    vim.opt.foldenable = false
-    require("lualine").hide({ unhide = true })
-  end,
-})
-
-vim.api.nvim_create_autocmd("TabNewEntered", {
-  desc = "Open Alpha on new tab",
-  group = alpha_group,
-  callback = function()
-    require("alpha").start()
-  end,
-})
-
--- Barbecue/Navic
-local barbecue_group = augroup("barbecue")
-vim.api.nvim_create_autocmd({
-  "WinResized",
-  "BufWinEnter",
-  "CursorHold",
-  "InsertLeave",
-}, {
-  desc = "Update Barbecue",
-  group = barbecue_group,
-  callback = function()
-    require("barbecue.ui").update()
-  end,
-})
-
--- close some filetypes with <q>
+-- Close some filetypes with <q>
 vim.api.nvim_create_autocmd("FileType", {
-  group = augroup("close_with_q"),
+  group = M.augroup("close_with_q"),
   pattern = {
     "PlenaryTestPopup",
     "grug-far",
@@ -302,9 +237,9 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- make it easier to close man-files when opened inline
+-- Make it easier to close man-files when opened inline
 vim.api.nvim_create_autocmd("FileType", {
-  group = augroup("man_unlisted"),
+  group = M.augroup("man_unlisted"),
   pattern = { "man" },
   callback = function(event)
     vim.bo[event.buf].buflisted = false
@@ -313,7 +248,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- Auto create dir when saving a file, in case some intermediate directory does not exist
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
-  group = augroup("auto_create_dir"),
+  group = M.augroup("auto_create_dir"),
   callback = function(event)
     if event.match:match("^%w%w+:[\\/][\\/]") then
       return
@@ -323,137 +258,4 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   end,
 })
 
--- Add keybindings for lspconfig
-local fzf = require("fzf-lua")
-
-vim.api.nvim_create_autocmd("LspAttach", {
-  group = augroup("UserLspConfig"),
-  callback = function(ev)
-    -- Jumps to the declaration of the symbol under the cursor.
-    vim.keymap.set(
-      "n",
-      "gD",
-      function()
-        fzf.lsp_declarations({
-          sync = true,
-          jump_to_single_result = true,
-          jump_to_single_result_action = require("fzf-lua.actions").file_vsplit,
-        })
-      end,
-      {
-        desc = "LSP Go to declaration",
-        buffer = ev.buf,
-      }
-    )
-
-    -- Jumps to the definition of the symbol under the cursor.
-    vim.keymap.set(
-      "n",
-      "gd",
-      function()
-        fzf.lsp_definitions({
-          sync = true,
-          ignore_current_line = true,
-          jump_to_single_result = true,
-          jump_to_single_result_action = require("fzf-lua.actions").file_vsplit,
-        })
-      end,
-      {
-        desc = "LSP Go to definition",
-        buffer = ev.buf,
-      }
-    )
-
-    -- Lists all the references to the symbol under the cursor in the quickfix window.
-    vim.keymap.set(
-      "n",
-      "gr",
-      function()
-        fzf.lsp_references({
-          ignore_current_line = true,
-          includeDeclaration = false, -- Combined with ignore_current_line = true, it achieves "show other usages" behavior.
-        })
-      end,
-      {
-        desc = "LSP References",
-        buffer = ev.buf,
-      }
-    )
-
-    -- Lists all the implementations for the symbol under the cursor in the quickfix window.
-    vim.keymap.set(
-      "n",
-      "gi",
-      function()
-        fzf.lsp_implementations({
-          ignore_current_line = true,
-          jump_to_single_result = true,
-        })
-      end,
-      {
-        desc = "LSP Implementations",
-        buffer = ev.buf,
-      }
-    )
-
-    -- Selects a code action available at the current cursor position.
-    vim.keymap.set(
-      { "n", "v" },
-      "<leader>ca",
-      function()
-        fzf.lsp_code_actions()
-      end,
-      {
-        desc = "LSP Code action",
-        buffer = ev.buf,
-      }
-    )
-
-    -- Live workspace symbols query
-    vim.keymap.set(
-      { "n", "v" },
-      "<leader>ls",
-      function()
-        fzf.lsp_live_workspace_symbols()
-      end,
-      {
-        desc = "LSP Live Symbols",
-        buffer = ev.buf,
-      }
-    )
-
-    -- Displays hover information about the symbol under the cursor in a floating
-    -- window. Calling the function twice will jump into the floating window.
-    vim.keymap.set(
-      "n",
-      "K",
-      vim.lsp.buf.hover,
-      {
-        desc = "LSP Hover",
-        buffer = ev.buf,
-      }
-    )
-
-    -- Displays signature information about the symbol under the cursor in a floating window.
-    vim.keymap.set(
-      "n",
-      "<C-k>",
-      vim.lsp.buf.signature_help,
-      {
-        desc = "LSP Signature help",
-        buffer = ev.buf,
-      }
-    )
-
-    -- Renames all references to the symbol under the cursor.
-    vim.keymap.set(
-      "n",
-      "<leader>rn",
-      vim.lsp.buf.rename,
-      {
-        desc = "LSP Rename references",
-        buffer = ev.buf,
-      }
-    )
-  end
-})
+return M
