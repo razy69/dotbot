@@ -1,5 +1,5 @@
 --[[
-  File: noice_.lua
+  File: noice.lua
   Description: Plugin that completely replaces the UI for messages, cmdline and the popupmenu
   See: https://github.com/folke/noice.nvim
 ]]
@@ -13,6 +13,12 @@ require("notify").setup({
   level = vim.log.levels.INFO,
   fps = 5,
   background_colour = "#000000",
+  max_height = function()
+    return math.floor(vim.o.lines * 0.75)
+  end,
+  max_width = function()
+    return math.floor(vim.o.columns * 0.75)
+  end,
   on_open = function(win)
     vim.api.nvim_win_set_config(win, { zindex = 100 })
   end,
@@ -64,29 +70,6 @@ require("noice").setup({
       filter = { event = "notify", find = "No information available", }, -- Suppress 'No information available' popup message
       opts = { skip = true },
     },
-    { -- route long messages to split
-      filter = {
-        event = "msg_show",
-        any = { { min_height = 5 }, { min_width = 200 } },
-        ["not"] = {
-          kind = { "confirm", "confirm_sub", "return_prompt", "quickfix", "search_count" },
-        },
-        blocking = false,
-      },
-      view = "messages",
-      opts = { stop = true },
-    },
-    { -- route long messages to split
-      filter = {
-        event = "msg_show",
-        any = { { min_height = 5 }, { min_width = 200 } },
-        ["not"] = {
-          kind = { "confirm", "confirm_sub", "return_prompt", "quickfix", "search_count" },
-        },
-        blocking = true,
-      },
-      view = "mini",
-    },
     { -- hide `written` message
       filter = {
         event = "msg_show",
@@ -99,10 +82,21 @@ require("noice").setup({
       filter = {
         event = "msg_show",
         any = {
+          { find = "%d+L, %d+B" },
           { find = "; after #%d+" },
           { find = "; before #%d+" },
           { find = "fewer lines" },
         },
+      },
+      view = "mini",
+    },
+    { -- route long messages to split
+      filter = {
+        event = "msg_show",
+        ["not"] = {
+          kind = { "confirm", "confirm_sub", "return_prompt", "quickfix", "search_count" },
+        },
+        blocking = true,
       },
       view = "mini",
     },

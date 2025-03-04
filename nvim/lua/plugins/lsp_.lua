@@ -4,11 +4,22 @@
   See: https://github.com/williamboman/mason.nvim
 ]]
 
-local mason = require("mason")
-local mason_lsp_config = require("mason-lspconfig")
 local lsp_config = require("lspconfig")
-local cmp_lsp = require("cmp_nvim_lsp")
-local navic = require("nvim-navic")
+local mason_lsp_config = require("mason-lspconfig")
+local capabilities = vim.tbl_deep_extend(
+  "force",
+  {
+    workspace = {
+      fileOperations = {
+        didRename = true,
+        willRename = true,
+      },
+    },
+  },
+  vim.lsp.protocol.make_client_capabilities(),
+  lsp_config.util.default_config.capabilities,
+  require("cmp_nvim_lsp").default_capabilities()
+)
 
 local servers = {
   -- IAC
@@ -33,23 +44,7 @@ local servers = {
   "html",
 }
 
-local capabilities = vim.tbl_deep_extend(
-  "force",
-  {},
-  cmp_lsp.default_capabilities(
-    vim.lsp.protocol.make_client_capabilities()
-  )
-)
-
-navic.setup({
-  lsp = {
-    auto_attach = true,
-    preference = servers,
-  },
-  highlight = true,
-})
-
-mason.setup({
+require("mason").setup({
   ui = {
     icons = {
       package_installed = "",
@@ -59,10 +54,48 @@ mason.setup({
   }
 })
 
+require("nvim-navic").setup({
+  lsp = {
+    auto_attach = true,
+    preference = servers,
+  },
+  highlight = true,
+  depth_limit = 5,
+  lazy_update_context = true,
+})
+
 mason_lsp_config.setup({
   ensure_installed = servers,
   automatic_installation = true,
   handlers = nil,
+  diagnostics = {
+    underline = false,
+    update_in_insert = false,
+    virtual_text = {
+      spacing = 4,
+      source = "if_many",
+      prefix = "●",
+    },
+    severity_sort = true,
+    signs = {
+      text = {
+        [vim.diagnostic.severity.ERROR] = "",
+        [vim.diagnostic.severity.WARN] = "",
+        [vim.diagnostic.severity.HINT] = "",
+        [vim.diagnostic.severity.INFO] = "",
+      },
+    },
+  },
+  inlay_hints = {
+    enabled = true,
+  },
+  document_highlight = {
+    enabled = true,
+  },
+  format = {
+    formatting_options = nil,
+    timeout_ms = nil,
+  },
 })
 
 mason_lsp_config.setup_handlers({

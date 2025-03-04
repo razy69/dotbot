@@ -1,12 +1,10 @@
 --[[
-  File: barbecue.lua
+  File: barbecue_.lua
   Description: VS Code like winbar that uses nvim-navic in order to get LSP context from your language server.
   See: https://github.com/utilyre/barbecue.nvim
 ]]
 
-local barbecue = require("barbecue")
-
-barbecue.setup({
+require("barbecue").setup({
   attach_navic = false,
   create_autocmd = false,
   show_dirname = true,

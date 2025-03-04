@@ -5,13 +5,21 @@
 ]]
 
 local neotree = require("neo-tree")
+local events = require("neo-tree.events")
 
 neotree.setup {
   close_if_last_window = true,
   enable_git_status = true,
   enable_diagnostics = false,
-  open_files_do_not_replace_types = { "terminal", "trouble", "qf" },
+  sources = { "filesystem", "buffers", "git_status" },
+  open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf" },
   default_component_configs = {
+    indent = {
+      with_expanders = true, -- if nil and file nesting is enabled, will enable expanders
+      expander_collapsed = "",
+      expander_expanded = "",
+      expander_highlight = "NeoTreeExpander",
+    },
     git_status = {
       symbols = {
         -- Change type
@@ -26,11 +34,6 @@ neotree.setup {
         staged    = "󰄳",
         conflict  = "󰅙",
       },
-    },
-    icon = {
-      folder_closed = "",
-      folder_open = "",
-      folder_empty = "",
     },
     name = {
       trailing_slash = false,
@@ -57,7 +60,6 @@ neotree.setup {
       enabled = true,
     },
   },
-
   window = {
     width = 40,
     mapping_options = {
@@ -65,20 +67,19 @@ neotree.setup {
       nowait = true,
     },
     mappings = {
-      ["e"] = function() api.nvim_exec("Neotree focus filesystem left", true) end,
-      ["b"] = function() api.nvim_exec("Neotree focus buffers left", true) end,
-      ["g"] = function() api.nvim_exec("Neotree focus git_status left", true) end,
+      ["e"] = function() vim.api.nvim_exec("Neotree focus filesystem left", true) end,
+      ["b"] = function() vim.api.nvim_exec("Neotree focus buffers left", true) end,
+      ["g"] = function() vim.api.nvim_exec("Neotree focus git_status left", true) end,
     },
   },
   filesystem = {
+    bind_to_cwd = false,
+    follow_current_file = { enabled = true },
+    use_libuv_file_watcher = true,
     filtered_items = {
       hide_dotfiles = false,
       hide_gitignored = false,
     },
-    follow_current_file = {
-      enabled = true,
-    },
-    use_libuv_file_watcher = true,
   },
   buffers = {
     follow_current_file = {
@@ -89,22 +90,42 @@ neotree.setup {
   },
   event_handlers = {
     {
-      event = "file_opened",
-      handler = function(file_path)
+      event = events.FILE_OPENED,
+      handler = function()
         require("neo-tree.command").execute({ action = "close" })
+      end
+    },
+    {
+      event = events.NEO_TREE_BUFFER_ENTER,
+      handler = function()
+        -- Cursor hide
+        local hl = vim.api.nvim_get_hl_by_name("Cursor", true)
+        hl.blend = 100
+        vim.api.nvim_set_hl(0, "Cursor", hl)
+        vim.opt.guicursor:append("a:Cursor/lCursor")
+      end
+    },
+    {
+      event = events.NEO_TREE_BUFFER_LEAVE,
+      handler = function()
+        -- Cursor show
+        local hl = vim.api.nvim_get_hl_by_name("Cursor", true)
+        hl.blend = 0
+        vim.api.nvim_set_hl(0, "Cursor", hl)
+        vim.opt.guicursor:remove("a:Cursor/lCursor")
       end
     },
   },
   events = {
     {
-      event = "file_renamed",
+      event = events.FILE_RENAMED,
       handler = function(args)
         -- fix references to file
         print(args.source, " renamed to ", args.destination)
       end
     },
     {
-      event = "file_moved",
+      event = events.FILE_MOVED,
       handler = function(args)
         -- fix references to file
         print(args.source, " moved to ", args.destination)

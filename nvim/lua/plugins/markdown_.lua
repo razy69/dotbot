@@ -1,5 +1,5 @@
 --[[
-  File: markdown_.lua
+  File: markdown.lua
   Description: Plugin to improve viewing Markdown files in Neovim
   See: https://github.com/MeanderingProgrammer/render-markdown.nvim
 ]]

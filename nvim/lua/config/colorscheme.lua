@@ -30,57 +30,28 @@ require("catppuccin").setup({
   },
   no_italic = true,     -- Force no italic
   no_bold = false,      -- Force no bold
-  no_underline = false, -- Force no underline
+  no_underline = true, -- Force no underline
   integrations = {
-    alpha = true,
-    cmp = true,
-    gitsigns = true,
-    neotree = true,
-    treesitter = true,
-    treesitter_context = true,
-    notify = true,
-    mason = true,
-    ufo = true,
-    window_picker = true,
-    navic = { enabled = true, custom_bg = "lualine" },
-    mini = true,
+    barbecue = {
+      dim_dirname = true, -- directory name is dimmed by default
+      bold_basename = true,
+      dim_context = false,
+      alt_background = true,
+    },
     noice = true,
-    markdown = true,
-    telekasten = true,
-    indent_blankline = {
-      enabled = true,
-      scope_color = "", -- catppuccin color (eg. `lavender`) Default: text
-      colored_indent_levels = false,
-    },
-    lsp_trouble = true,
-    native_lsp = {
-      enabled = true,
-      virtual_text = {
-        errors = { "italic" },
-        hints = { "italic" },
-        warnings = { "italic" },
-        information = { "italic" },
-        ok = { "italic" },
-      },
-      underlines = {
-        errors = { "underline" },
-        hints = { "underline" },
-        warnings = { "underline" },
-        information = { "underline" },
-        ok = { "underline" },
-      },
-      inlay_hints = {
-        background = true,
-      },
-    },
+    notify = true,
+    gitsigns = true,
+    treesitter = true,
     rainbow_delimiters = true,
+    neotree = true,
+    cmp = true,
     telescope = true,
+    ufo = true,
     illuminate = {
       enabled = true,
       lsp = true,
     },
     which_key = true,
-    -- For more plugins integrations please scroll down (https://github.com/catppuccin/nvim#integrations)
   },
   highlight = {
     enable = true,

@@ -1,22 +1,38 @@
 --[[
-	File: cmp.lua
+	File: nvim-cmp.lua
 	Description: CMP plugin configuration (with lspconfig)
 	See: https://github.com/hrsh7th/nvim-cmp
 ]]
 
-require("luasnip.loaders.from_vscode").lazy_load()
-
 local cmp = require("cmp")
 local luasnip = require("luasnip")
 local lspkind = require("lspkind")
+local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+local has_words_before = function()
+  unpack = unpack or table.unpack
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+end
 
 lspkind.init({
   mode = "symbol_text",
   preset = "codicons",
 })
 
-cmp.setup({
+require("luasnip.loaders.from_vscode").lazy_load()
 
+cmp.setup({
+  enabled = function ()
+    -- disable completion in comments
+    local context = require("cmp.config.context")
+    -- keep command mode completion enabled when cursor is in a comment
+    if vim.api.nvim_get_mode().mode == "c" then
+      return true
+    else
+      return not context.in_treesitter_capture("comment")
+        and not context.in_syntax_group("Comment")
+    end
+  end,
   formatting = {
     format = lspkind.cmp_format({
       maxwidth = 50,
@@ -33,60 +49,50 @@ cmp.setup({
       })
     }),
   },
-
   window = {
     completion = cmp.config.window.bordered(),
     documentation = cmp.config.window.bordered(),
   },
-
   snippet = {
     expand = function(args)
       luasnip.lsp_expand(args.body)
     end,
   },
-
-  preselect = cmp.SelectBehavior.Select,
-  completion = { completeopt = "menu,menuone,noselect" },
-
+  preselect = cmp.SelectBehavior.None,
+  completion = { completeopt = "menu,menuone,noinsert,noselect" },
   -- Mappings for cmp
   mapping = {
-    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+    ["<CR>"] = cmp.mapping.confirm({ select = false }),
     ["<C-e>"] = cmp.mapping.abort(),
     ["<C-n>"] = cmp.mapping.select_next_item(),
     ["<C-p>"] = cmp.mapping.select_prev_item(),
-    ["<C-f>"] = cmp.mapping(function(fallback)
-      if luasnip.jumpable(1) then
-        luasnip.jump(1)
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-    ["<C-b>"] = cmp.mapping(function(fallback)
-      if luasnip.jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
+    ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+    ["<C-f>"] = cmp.mapping.scroll_docs(4),
     ["<Tab>"] = cmp.mapping(function(fallback)
-      local col = vim.fn.col(".") - 1
       if cmp.visible() then
         cmp.select_next_item()
-      elseif col == 0 or vim.fn.getline("."):sub(col, col):match("%s") then
-        fallback()
-      else
+      elseif vim.snippet.active({ direction = 1 }) then
+        vim.schedule(function()
+          vim.snippet.jump(1)
+        end)
+      elseif has_words_before() then
         cmp.complete()
+      else
+        fallback()
       end
     end, { "i", "s" }),
     ["<S-Tab>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
+      elseif vim.snippet.active({ direction = -1 }) then
+        vim.schedule(function()
+          vim.snippet.jump(-1)
+        end)
       else
         fallback()
       end
     end, { "i", "s" }),
   },
-
   sources = {
     {
       name = "luasnip",
@@ -142,21 +148,10 @@ cmp.setup({
       },
     },
     {
-      name = "git",
-      group_index = 5,
-      entry_filter = function()
-        if vim.bo.filetype ~= "gitcommit" then
-          return false
-        end
-        return true
-      end,
-    },
-    {
       name = "async_path",
       group_index = 5,
     },
   },
-
   sorting = {
     priority_weight = 2,
     comparators = {
@@ -172,7 +167,6 @@ cmp.setup({
       cmp.config.compare.order,
     },
   },
-
   matching = {
     disallow_fuzzy_matching = true,
     disallow_fullfuzzy_matching = true,
@@ -181,16 +175,10 @@ cmp.setup({
     disallow_prefix_unmatching = true,
     disallow_symbol_nonprefix_matching = true,
   },
-
   performance = {
     debounce = 0,
     throttle = 0,
   },
-})
-
--- Set configuration for specific filetype
-cmp.setup.filetype("gitcommit", {
-  sources = cmp.config.sources({ { name = "git" } }, { { name = "buffer" } })
 })
 
 -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
@@ -218,3 +206,9 @@ cmp.setup.cmdline(":", {
     }
   )
 })
+
+-- nvim-autopairs
+cmp.event:on(
+  "confirm_done",
+  cmp_autopairs.on_confirm_done()
+)

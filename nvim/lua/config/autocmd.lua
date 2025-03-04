@@ -3,19 +3,17 @@
   Description: Setup autocmd
 ]]
 
-require("globals")
-
 local notify = require("notify")
 local notify_title = "RazyVim AutoCmd"
 
 -- Copied from LazyVim
 local function augroup(name)
-  return api.nvim_create_augroup("razyvim_" .. name, { clear = true })
+  return vim.api.nvim_create_augroup("razyvim_" .. name, { clear = true })
 end
 
 -- Check if we need to reload the file when it changed
 local checktime_group = augroup("checktime")
-api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
+vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
   group = checktime_group,
   callback = function()
     if vim.o.buftype ~= "nofile" then
@@ -24,10 +22,9 @@ api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
   end,
 })
 
-
 -- Highlight on yank
 local highlight_group = augroup("highlight")
-api.nvim_create_autocmd("TextYankPost", {
+vim.api.nvim_create_autocmd("TextYankPost", {
   group = highlight_group,
   callback = function()
     vim.highlight.on_yank({ timeout = 50 })
@@ -35,7 +32,7 @@ api.nvim_create_autocmd("TextYankPost", {
 })
 
 -- Color override highlights
-api.nvim_create_autocmd("InsertEnter", {
+vim.api.nvim_create_autocmd("InsertEnter", {
   desc = "Disable EoLSpace highlight and match rule",
   group = highlight_group,
   callback = function()
@@ -43,21 +40,20 @@ api.nvim_create_autocmd("InsertEnter", {
   end,
 })
 
-api.nvim_create_autocmd("InsertLeave", {
+vim.api.nvim_create_autocmd("InsertLeave", {
   desc = "Enable EoLSpace highlight and match rule",
   group = highlight_group,
   callback = function()
-    if (vim.bo.filetype == "neo-tree") or (vim.bo.filetype == "alpha") then
+    if (vim.bo.filetype == "neo-tree") then
       return
     end
     vim.cmd("highlight EoLSpace ctermbg=238 guibg=#cb214e")
   end,
 })
 
-
 -- Resize splits if window got resized
 local window_group = augroup("window")
-api.nvim_create_autocmd("VimResized", {
+vim.api.nvim_create_autocmd("VimResized", {
   group = window_group,
   callback = function()
     local current_tab = vim.fn.tabpagenr()
@@ -67,7 +63,7 @@ api.nvim_create_autocmd("VimResized", {
 })
 
 -- Show cursor line only in active window
-api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
+vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
   group = window_group,
   callback = function(event)
     if vim.bo[event.buf].buftype == "" then
@@ -75,17 +71,16 @@ api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
     end
   end,
 })
-api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
+vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
   group = augroup("auto_cursorline_hide"),
   callback = function()
     vim.opt_local.cursorline = false
   end,
 })
 
-
 -- Go to last loc when opening a buffer, see ":h last-position-jump"
 local buffer_group = augroup("buffer")
-api.nvim_create_autocmd({ "BufWinEnter", "FileType" }, {
+vim.api.nvim_create_autocmd({ "BufWinEnter", "FileType" }, {
   group = buffer_group,
   callback = function()
     local ignore_buftype = { "quickfix", "nofile", "help" }
@@ -129,7 +124,7 @@ api.nvim_create_autocmd({ "BufWinEnter", "FileType" }, {
 })
 
 -- Auto create dir when saving a file, in case some intermediate directory does not exist
-api.nvim_create_autocmd("BufWritePre", {
+vim.api.nvim_create_autocmd("BufWritePre", {
   desc = "Create missing dir when saving file",
   group = buffer_group,
   callback = function(event)
@@ -137,14 +132,13 @@ api.nvim_create_autocmd("BufWritePre", {
       return
     end
     local file = vim.loop.fs_realpath(event.match) or event.match
-    fn.mkdir(fn.fnamemodify(file, ":p:h"), "p")
+    vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
   end,
 })
 
-
 -- Wrap and check for spell in text filetypes
 local filetype_group = augroup("filetype")
-api.nvim_create_autocmd("FileType", {
+vim.api.nvim_create_autocmd("FileType", {
   group = filetype_group,
   pattern = { "text", "plaintex", "typst", "gitcommit", "markdown" },
   callback = function()
@@ -154,42 +148,38 @@ api.nvim_create_autocmd("FileType", {
 })
 
 -- Python setup tabs
-api.nvim_create_autocmd("FileType", {
+vim.api.nvim_create_autocmd("FileType", {
   desc = "Configure Nvim for Python",
   group = filetype_group,
   pattern = { "*.py" },
   callback = function()
     notify("Applying Python Settings..", "info", { title = notify_title })
-    opt.tabstop = 4
-    opt.softtabstop = 4
-    opt.shiftwidth = 4
-    opt.expandtab = true
-    opt.autoindent = true
-    opt.fileformat = "unix"
+    vim.opt.tabstop = 4
+    vim.opt.softtabstop = 4
+    vim.opt.shiftwidth = 4
+    vim.opt.expandtab = true
+    vim.opt.autoindent = true
+    vim.opt.fileformat = "unix"
   end
 })
 
 -- Disable some features for big files.
-api.nvim_create_autocmd("FileType", {
+vim.api.nvim_create_autocmd("FileType", {
   group = filetype_group,
   pattern = "bigfile",
   callback = function(ev)
     notify("bigfile detected, applying minimal mode..", "warning", { title = notify_title })
 
-    opt.syntax = "off"
-    opt.cursorline = false
-    opt.cursorcolumn = false
-    opt.list = false
-    opt.wrap = false
-    opt.swapfile = false
-    opt.foldmethoe = "manual"
-    opt.undolevels = -1
-    opt.undoreload = 0
+    vim.opt.syntax = "off"
+    vim.opt.cursorline = false
+    vim.opt.cursorcolumn = false
+    vim.opt.list = false
+    vim.opt.wrap = false
+    vim.opt.swapfile = false
+    vim.opt.foldmethod = "manual"
+    vim.opt.undolevels = -1
+    vim.opt.undoreload = 0
     vim.b.minianimate_disable = true
-
-    vim.schedule(function()
-      vim.bo[ev.buf].syntax = vim.filetype.match({ buf = ev.buf }) or ""
-    end)
 
     vim.cmd("syntax clear")
     vim.cmd("LspStop")
@@ -204,14 +194,16 @@ api.nvim_create_autocmd("FileType", {
     end
 
     require("lualine").hide()
+
+    vim.schedule(function()
+      vim.bo[ev.buf].syntax = vim.filetype.match({ buf = ev.buf }) or ""
+    end)
   end,
 })
 
-
 -- Alpha Enter
-local cursor_hl = api.nvim_get_hl_by_name("Cursor", true)
 local alpha_group = augroup("alpha")
-api.nvim_create_autocmd({ "BufEnter", "VimEnter" }, {
+vim.api.nvim_create_autocmd({ "BufEnter", "VimEnter" }, {
   desc = "Alpha Enter",
   group = alpha_group,
   callback = function()
@@ -220,15 +212,19 @@ api.nvim_create_autocmd({ "BufEnter", "VimEnter" }, {
     end
 
     vim.cmd("highlight clear EoLSpace")
-    cursor_hl.blend = 100
-    api.nvim_set_hl(0, "Cursor", cursor_hl)
-    opt.guicursor:append("a:Cursor/lCursor")
+
+    -- Cursor hide
+    local hl = vim.api.nvim_get_hl_by_name("Cursor", true)
+    hl.blend = 100
+    vim.api.nvim_set_hl(0, "Cursor", hl)
+    vim.opt.guicursor:append("a:Cursor/lCursor")
+
     require("lualine").hide()
     require("illuminate").invisible_buf()
   end,
 })
 
-api.nvim_create_autocmd("BufLeave", {
+vim.api.nvim_create_autocmd("BufLeave", {
   desc = "Alpha Enter",
   group = alpha_group,
   callback = function()
@@ -236,14 +232,18 @@ api.nvim_create_autocmd("BufLeave", {
       return
     end
 
-    cursor_hl.blend = 0
-    api.nvim_set_hl(0, "Cursor", cursor_hl)
-    opt.foldenable = false
+    -- Cursor show
+    local hl = vim.api.nvim_get_hl_by_name("Cursor", true)
+    hl.blend = 0
+    vim.api.nvim_set_hl(0, "Cursor", hl)
+    vim.opt.guicursor:remove("a:Cursor/lCursor")
+
+    vim.opt.foldenable = false
     require("lualine").hide({ unhide = true })
   end,
 })
 
-api.nvim_create_autocmd("TabNewEntered", {
+vim.api.nvim_create_autocmd("TabNewEntered", {
   desc = "Open Alpha on new tab",
   group = alpha_group,
   callback = function()
@@ -253,7 +253,7 @@ api.nvim_create_autocmd("TabNewEntered", {
 
 -- Barbecue/Navic
 local barbecue_group = augroup("barbecue")
-api.nvim_create_autocmd({
+vim.api.nvim_create_autocmd({
   "WinResized",
   "BufWinEnter",
   "CursorHold",
@@ -263,5 +263,61 @@ api.nvim_create_autocmd({
   group = barbecue_group,
   callback = function()
     require("barbecue.ui").update()
+  end,
+})
+
+-- close some filetypes with <q>
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("close_with_q"),
+  pattern = {
+    "PlenaryTestPopup",
+    "grug-far",
+    "help",
+    "lspinfo",
+    "notify",
+    "qf",
+    "spectre_panel",
+    "startuptime",
+    "tsplayground",
+    "neotest-output",
+    "checkhealth",
+    "neotest-summary",
+    "neotest-output-panel",
+    "dbout",
+    "gitsigns-blame",
+  },
+  callback = function(event)
+    vim.bo[event.buf].buflisted = false
+    vim.schedule(function()
+      vim.keymap.set("n", "q", function()
+        vim.cmd("close")
+        pcall(vim.api.nvim_buf_delete, event.buf, { force = true })
+      end, {
+        buffer = event.buf,
+        silent = true,
+        desc = "Quit buffer",
+      })
+    end)
+  end,
+})
+
+-- make it easier to close man-files when opened inline
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("man_unlisted"),
+  pattern = { "man" },
+  callback = function(event)
+    vim.bo[event.buf].buflisted = false
+  end,
+})
+
+-- Auto create dir when saving a file, in case some intermediate directory does not exist
+vim.api.nvim_create_autocmd({ "BufWritePre" }, {
+  group = augroup("auto_create_dir"),
+  callback = function(event)
+    if event.match:match("^%w%w+:[\\/][\\/]") then
+      return
+    end
+    local file = vim.uv.fs_realpath(event.match) or event.match
+    vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
   end,
 })

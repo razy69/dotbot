@@ -7,16 +7,16 @@
 -- Patched font to set (for icons display)
 -- https://www.nerdfonts.com/font-downloads
 
--- Settings
-require("settings")
-require("filetypes")
+-- Options
+require("config.options")
+require("config.filetypes")
 
--- Bootsraping plugin manager
-require("lazy-bootstrap")
+-- Plugins
+require("plugins._bootstrap")
 
--- Commands and AutoCommands
-require("autocmd")
-require("commands")
+-- Commands
+require("config.autocmd")
+require("config.commands")
 
--- Keymap
-require("keybindings")
+-- keybindings
+require("config.keybindings")

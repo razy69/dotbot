@@ -7,6 +7,15 @@
 local conform = require("conform")
 
 conform.setup({
+  default_format_opts = {
+    timeout_ms = 3000,
+    async = false, -- not recommended to change
+    quiet = false, -- not recommended to change
+    lsp_format = "fallback", -- not recommended to change
+  },
+  formatters = {
+    injected = { options = { ignore_errors = true } },
+  },
   formatter_by_ft = {
     ["*"] = { "trim_newlines", "trim_whitespace" },
     lua = { "stylua" },

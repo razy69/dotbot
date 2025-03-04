@@ -4,9 +4,7 @@
   See: https://github.com/nvim-lualine/lualine.nvim
 ]]
 
-local lualine = require("lualine")
-
-lualine.setup({
+require("lualine").setup({
   theme = "catppuccin",
   icons_enabled = true,
   globalstatus = false,

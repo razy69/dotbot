@@ -1,3 +1,16 @@
+--[[
+  File: _bootstrap.lua
+  Description: Bootstrap and setup lazy.nvim.
+  See: https://github.com/folke/lazy.nvim
+]]
+
+-- loading lazy.nvim so that mappings are correct.
+-- This is also a good place to setup other settings (vim.opt)
+-- Make sure to setup `mapleader` and `maplocalleader` before
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -15,21 +28,12 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- loading lazy.nvim so that mappings are correct.
--- This is also a good place to setup other settings (vim.opt)
--- Make sure to setup `mapleader` and `maplocalleader` before
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
-
-local lazy = require("lazy")
 
 -- Setup lazy.nvim
-lazy.setup({
+require("lazy").setup({
   spec = {
-    -- import your plugins
-    { import = "plugins" },
+    { import = "plugins._config" },  -- Plugins list
   },
-  -- automatically check for plugin updates
   checker = { enabled = true },
   ui = {
     border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
@@ -40,5 +44,27 @@ lazy.setup({
   },
   rocks = {
     enabled = false,
+  },
+  performance = {
+    rtp = {
+      disabled_plugins = {
+        "editorconfig",
+        "netrw",
+        "netrwPlugin",
+        "netrwSettings",
+        "netrwFileHandlers",
+        "getscript",
+        "vimball",
+        "2html_plugin",
+        "logipat",
+        "rrhelper",
+        "spellfile_plugin",
+        "spellfile",
+        "shada",
+        "tutor",
+        "rplugin",
+        "tohtml",
+      },
+    },
   },
 })

@@ -5,9 +5,7 @@
 ]]
 
 
-local neogen = require("neogen")
-
-neogen.setup({
+require("neogen").setup({
   snippet_engine = "luasnip",
   languages = {
     python = {
