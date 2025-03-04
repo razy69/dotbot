@@ -6,7 +6,11 @@
 
 local mason = require("mason")
 local mason_lspconfig = require("mason-lspconfig")
+local lsp_zero = require("lsp-zero")
 
+lsp_zero.on_attach(function(client, bufnr)
+  lsp_zero.default_keymaps({buffer = bufnr})
+end)
 
 mason.setup({
   ui = {
@@ -18,7 +22,10 @@ mason.setup({
   }
 })
 
-mason_lspconfig.setup{
+mason_lspconfig.setup({
+  handlers = {
+    lsp_zero.default_setup,
+  },
   ensure_installed = {
     "bashls",               -- LSP for Bash
     "dockerls",             -- LSP for Docker
@@ -30,5 +37,5 @@ mason_lspconfig.setup{
     "jedi_language_server", -- LSP for Python
     "ruff_lsp",             -- LSP for Python
     "terraformls",          -- LSP for Terraform
-  }
-}
+  },
+})
