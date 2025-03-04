@@ -13,9 +13,8 @@ return {
   {
     "williamboman/mason.nvim",
     dependencies = {
+      "williamboman/mason-lspconfig.nvim",
       "neovim/nvim-lspconfig",
-      "nvimtools/none-ls.nvim",
-      "jay-babu/mason-null-ls.nvim",
       "hrsh7th/cmp-nvim-lsp",
     },
     config = function ()
@@ -372,12 +371,12 @@ return {
 
   -- Markdown TOC
   {
-    "richardbizik/nvim-toc",
-    config = function ()
-      require("nvim-toc").setup({
-        toc_header = "Table of Contents",
-      })
-    end
+    "hedyhli/markdown-toc.nvim",
+    ft = "markdown",  -- Lazy load on markdown filetype
+    cmd = { "Mtoc" }, -- Or, lazy load on "Mtoc" command
+    opts = {
+      -- Your configuration here (optional)
+    },
   },
 
   -- Colorschemes

@@ -5,8 +5,7 @@
 ]]
 
 local mason = require("mason")
-local mason_null_ls = require("mason-null-ls")
-local null_ls = require("null-ls")
+local mason_lsp_config = require("mason-lspconfig")
 local lsp_config = require("lspconfig")
 local cmp_lsp = require("cmp_nvim_lsp")
 
@@ -16,6 +15,7 @@ local servers = {
   "lua_ls",
   "emmet_ls",
   "gopls",
+  "jedi_language_server",
   "ruff_lsp",
   "terraformls",
   "marksman",
@@ -49,23 +49,20 @@ mason.setup({
   }
 })
 
-mason_null_ls.setup({
-  -- Anything supported by mason.
+mason_lsp_config.setup({
   ensure_installed = servers,
   automatic_installation = true,
-  handlers = {},
+  handlers = nil,
 })
 
-null_ls.setup({
-  -- Anything not supported by mason.
-  sources = {}
+mason_lsp_config.setup_handlers({
+  function(server)
+    lsp_config[server].setup({
+      capabilities=capabilities,
+    })
+  end,
 })
 
-for _, lsp in ipairs(servers) do
-  lsp_config[lsp].setup{
-    capabilities = capabilities,
-  }
-end
 
 -- Add border to document hover (see: https://github.com/neovim/neovim/pull/13998)
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
