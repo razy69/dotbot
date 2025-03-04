@@ -21,7 +21,4 @@ local lazy = require("lazy")
 lazy.setup("plugins")
 
 -- Setup colorscheme
-vim.opt.termguicolors = true
-vim.cmd("colorscheme sonokai")
-vim.cmd("highlight! link Directory White")
-vim.cmd("highlight! link NeoTreeDirectoryIcon Grey")
+require("colorschemes/sonokai")
