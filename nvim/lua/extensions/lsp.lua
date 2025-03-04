@@ -11,26 +11,26 @@ local cmp_lsp = require("cmp_nvim_lsp")
 local navic = require("nvim-navic")
 
 local servers = {
-  "bashls",
-  "dockerls",
-  "lua_ls",
-  "emmet_ls",
-  "gopls",
-  "terraformls",
-  "marksman",
-  "bashls",
+  -- IAC
+  "puppet",
   "ansiblels",
+  "terraformls",
+  -- Docker
   "dockerls",
   "docker_compose_language_service",
-  "yamlls",
-  "puppet",
-  "jsonls",
-  "jinja_lsp",
-  "htmx",
-  "html",
+  -- Golang
+  "gopls",
   "golangci_lint_ls",
+  -- Python
   "ruff_lsp",
   "jedi_language_server",
+  -- Other filetype
+  "bashls",
+  "lua_ls",
+  "marksman",
+  "yamlls",
+  "jsonls",
+  "html",
 }
 
 local capabilities = vim.tbl_deep_extend(
@@ -70,7 +70,7 @@ mason_lsp_config.setup_handlers({
     lsp_config[server].setup({
       capabilities = capabilities,
       flags = {
-        debounce_text_changes = 200,
+        debounce_text_changes = 100,
         allow_incremental_sync = true,
       },
       on_attach = function(client, bufnr)
@@ -82,12 +82,21 @@ mason_lsp_config.setup_handlers({
   end,
 })
 
-
 -- Add border to document hover (see: https://github.com/neovim/neovim/pull/13998)
 vim.lsp.handlers["textDocument/foldingRange"] = {
   dynamicRegistration = false,
   lineFoldingOnly = true,
 }
+
+vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+  vim.lsp.handlers.hover,
+  { border = "rounded" }
+)
+
+vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
+  vim.lsp.handlers.signature_help,
+  { border = "rounded" }
+)
 
 vim.lsp.handlers["textDocument/completion/completionItem/snippetSupport"] = true
 vim.lsp.handlers["textDocument/completion/completionItem/resolveSupport"] = {
@@ -98,5 +107,4 @@ vim.lsp.handlers["textDocument/completion/completionItem/resolveSupport"] = {
   },
 }
 
-require("lspconfig.ui.windows").default_options.border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
-require("luasnip.loaders.from_lua").lazy_load()
+require("lspconfig.ui.windows").default_options.border = "rounded"

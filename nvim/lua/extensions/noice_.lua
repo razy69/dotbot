@@ -131,7 +131,7 @@ require("noice").setup({
       width = 60,
       height = 10,
     },
-    border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+    border = "rounded",
     win_options = {
       winhighlight = { Normal = "Normal", FloatBorder = "DiagnosticInfo" },
     },
