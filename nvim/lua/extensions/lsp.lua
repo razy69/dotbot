@@ -41,7 +41,7 @@ mason.setup({
 mason_null_ls.setup({
   -- Anything supported by mason.
   ensure_installed = servers,
-  automatic_installation = false,
+  automatic_installation = true,
   handlers = {},
 })
 

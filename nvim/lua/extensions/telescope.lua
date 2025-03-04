@@ -5,10 +5,16 @@
 ]]
 
 local telescope = require("telescope")
+local trouble = require("trouble.providers.telescope")
+-- local open_with_trouble = require("trouble.sources.telescope").open
 
-telescope.setup {
+telescope.setup({
   defaults = {
-    borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
+    borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+    mappings = {
+      i = { ["<c-t>"] = trouble.open_with_trouble },
+      n = { ["<c-t>"] = trouble.open_with_trouble },
+    },
   },
   extensions = {
     ["ui-select"] = {
@@ -24,7 +30,7 @@ telescope.setup {
       },
     },
   },
-}
+})
 
 telescope.load_extension("noice")
 telescope.load_extension("projects")
