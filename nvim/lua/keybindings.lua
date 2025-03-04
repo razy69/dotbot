@@ -64,6 +64,14 @@ nm("<leader>`", "<cmd>WhichKey<CR>")                                            
 nm("<leader>n", "<cmd>Telekasten panel<CR>")                                                      -- Open Telekasten Menu
 -- }}}
 
+-- Formatter {{{
+nm("<leader>F", "<cmd>FormatWriteLock<CR>")                                                       -- Nvim Formatter
+-- }}}
+
+-- Linter {{{
+nm("<leader>l", "<cmd>lua require('lint').try_lint()<CR>")                                        -- Nvim Lint
+-- }}}
+
 -- Disable Exising Bindings {{{
 im("<C-n>", "<Nop>")
 im("<C-p>", "<Nop>")
