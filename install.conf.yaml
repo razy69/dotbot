@@ -65,8 +65,21 @@
       stdout: true
     -
       command: '
+        asdf_release="v0.16.4"
         if ! command -v asdf &> /dev/null; then
-          git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1;
+          case "$OSTYPE" in
+            dawrin*) osname="dawrin" ;;
+            linux*)  osname="linux" ;;
+            *)       osname="unknown" ;;
+          esac
+          case "$(arch)" in
+            arm64)  archname="arm64" ;;
+            x86_64) archname="amd64" ;;
+            *)      archname="386" ;;
+          esac
+          curl "https://github.com/asdf-vm/asdf/releases/download/${asdf_release}/asdf-${asdf_release}-${osname}-${archname}.tar.gz" -o "${HOME}/bin/asdf.tar.gz"
+          tar -xvf "${HOME}/bin/asdf.tar.gz" -c "${HOME}/bin/"
+          chmod +x "${HOME}/bin/asdf"
         else
           echo -e "\033[1;32masdf is installed\033[0m";
         fi'

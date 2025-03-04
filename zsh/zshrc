@@ -22,15 +22,16 @@ source "${ZSH}/config/plugins.zsh"
 source "${ZSH}/config/completions.zsh"
 
 # ASDF
-export ASDF="${HOME}/.asdf"
-source "${ASDF}/asdf.sh"
+export ASDF_DATA_DIR="${HOME}/.asdf"
+export GOPATH="${HOME}/go"
 
 # Path
 path=(
+  ${ASDF_DATA_DIR}/shims
+  ${GOPATH}/bin
   ${NVIM}/mason/bin
-  ${HOME}/.local/bin
   ${HOME}/bin
-  ${HOME}/.cargo/bin
+  ${HOME}/.local/bin
   $path
 )
 export PATH
