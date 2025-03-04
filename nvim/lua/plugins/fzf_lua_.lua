@@ -56,6 +56,21 @@ vim.api.nvim_create_autocmd("LspAttach", {
         buffer = ev.buf,
       }
     )
+    vim.keymap.set(
+      "n",
+      "gvD",
+      function()
+        fzf_lua.lsp_declarations({
+          sync = true,
+          jump_to_single_result = true,
+          jump_to_single_result_action = fzf_lua_actions.file_split,
+        })
+      end,
+      {
+        desc = "LSP Go to declaration",
+        buffer = ev.buf,
+      }
+    )
 
     -- Jumps to the definition of the symbol under the cursor.
     vim.keymap.set(
@@ -70,7 +85,23 @@ vim.api.nvim_create_autocmd("LspAttach", {
         })
       end,
       {
-        desc = "LSP Go to definition",
+        desc = "LSP Go to definition (vsplit)",
+        buffer = ev.buf,
+      }
+    )
+    vim.keymap.set(
+      "n",
+      "gvd",
+      function()
+        fzf_lua.lsp_definitions({
+          sync = true,
+          ignore_current_line = true,
+          jump_to_single_result = true,
+          jump_to_single_result_action = fzf_lua_actions.file_split,
+        })
+      end,
+      {
+        desc = "LSP Go to definition (split)",
         buffer = ev.buf,
       }
     )

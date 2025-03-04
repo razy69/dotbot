@@ -4,6 +4,8 @@
   See: https://github.com/folke/lazy.nvim
 ]]
 
+local lazyFile = { "BufReadPost", "BufNewFile", "BufWritePre" }
+
 return {
   -- Completions
   {
@@ -22,7 +24,7 @@ return {
   -- LSP
   {
     "neovim/nvim-lspconfig",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    event = lazyFile,
     dependencies = {
       "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
@@ -36,8 +38,9 @@ return {
   -- TreeSitter
   {
     "nvim-treesitter/nvim-treesitter",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
-    build = ":TSUpdateSync",
+    event = lazyFile,
+    lazy = vim.fn.argc(-1) == 0,
+    build = ":TSUpdate",
     dependencies = {
       "nvim-treesitter/nvim-treesitter-textobjects",
     },
@@ -134,7 +137,7 @@ return {
   -- VSCode like winbar
   {
     "utilyre/barbecue.nvim",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    event = lazyFile,
     dependencies = {
       "SmiteshP/nvim-navic",
     },
@@ -146,20 +149,20 @@ return {
   -- Rainbow delimiters
   {
     "HiPhish/rainbow-delimiters.nvim",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    event = lazyFile,
   },
 
   -- Highlight arguments
   {
     "m-demare/hlargs.nvim",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    event = lazyFile,
     dependencies = { "nvim-treesitter" },
   },
 
   -- Highlighting Words
   {
     "RRethy/vim-illuminate",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    event = lazyFile,
     config = function()
       require("plugins.illuminate_")
     end,
@@ -278,6 +281,7 @@ return {
   -- Indent Guide
   {
     "lukas-reineke/indent-blankline.nvim",
+    event = lazyFile,
     main = "ibl",
     opts = {},
     config = function()
@@ -326,14 +330,14 @@ return {
   -- Peek lines
   {
     "nacro90/numb.nvim",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    event = lazyFile,
     opts = {},
   },
 
   -- Scroll bar
   {
     "lewis6991/satellite.nvim",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    event = lazyFile,
     opts = {
       handlers = {
         cursor = {
@@ -371,7 +375,7 @@ return {
   -- Todo comments
   {
     "folke/todo-comments.nvim",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
+    event = lazyFile,
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {
       highlight = {
@@ -388,7 +392,7 @@ return {
   -- Code documentation
   {
     "danymat/neogen",
-    lazy = true,
+    event = lazyFile,
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
       require("plugins.neogen_")
@@ -407,10 +411,8 @@ return {
   -- Mark utility
   {
     "otavioschwanck/arrow.nvim",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
-    dependencies = {
-      { "echasnovski/mini.icons" },
-    },
+    event = lazyFile,
+    dependencies = { "echasnovski/mini.icons" },
     opts = {
       show_icons = true,
       leader_key = "M",
@@ -452,7 +454,7 @@ return {
   -- Highlight color
   {
     "norcalli/nvim-colorizer.lua",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
+    event = lazyFile,
     init = function()
       require("colorizer").setup {
         "css", "javascript", "html", "tmux",
@@ -463,7 +465,7 @@ return {
   -- Vim motion helper
   {
     "folke/flash.nvim",
-    event = "VeryLazy",
+    event = lazyFile,
     opts = {
       modes = {
         char = {
@@ -476,8 +478,8 @@ return {
   -- Surround selections
   {
     "kylechui/nvim-surround",
+    event = lazyFile,
     version = "*",
-    event = "VeryLazy",
     config = function()
       require("nvim-surround").setup({})
     end

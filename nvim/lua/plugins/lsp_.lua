@@ -8,23 +8,6 @@ local lspconfig = require("lspconfig")
 local mason_lspconfig = require("mason-lspconfig")
 local utils = require("config.utils")
 local blink = utils.prequire("blink.cmp")
-local blink_capabilities = blink and blink.get_lsp_capabilities() or {}
-local capabilities = vim.tbl_deep_extend(
-  "force",
-  {},
-  vim.lsp.protocol.make_client_capabilities(),
-  lspconfig.util.default_config.capabilities,
-  blink_capabilities,
-  {
-    workspace = {
-      fileOperations = {
-        didRename = true,
-        willRename = true,
-      },
-    },
-  }
-)
-
 local servers = {
   -- IAC
   "puppet",
@@ -47,6 +30,7 @@ local servers = {
   "html",
 }
 
+-- LSP log can generate huge files
 vim.lsp.set_log_level("OFF")
 
 -- Add border to document hover (see: https://github.com/neovim/neovim/pull/13998)
@@ -54,17 +38,14 @@ vim.lsp.handlers["textDocument/foldingRange"] = {
   dynamicRegistration = false,
   lineFoldingOnly = true,
 }
-
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
   vim.lsp.handlers.hover,
   { border = "rounded" }
 )
-
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
   vim.lsp.handlers.signature_help,
   { border = "rounded" }
 )
-
 vim.lsp.handlers["textDocument/completion/completionItem/snippetSupport"] = true
 vim.lsp.handlers["textDocument/completion/completionItem/resolveSupport"] = {
   properties = {
@@ -75,7 +56,6 @@ vim.lsp.handlers["textDocument/completion/completionItem/resolveSupport"] = {
 }
 
 require("lspconfig.ui.windows").default_options.border = "rounded"
-
 require("mason").setup({
   ui = {
     border = "single",
@@ -85,6 +65,11 @@ require("mason").setup({
       package_uninstalled = "󰅖"
     }
   }
+})
+
+mason_lspconfig.setup({
+  ensure_installed = servers,
+  automatic_installation = true,
 })
 
 local navic = utils.prequire("nvim-navic")
@@ -100,14 +85,27 @@ if navic then
   })
 end
 
-mason_lspconfig.setup({
-  ensure_installed = servers,
-  automatic_installation = true,
-})
+local capabilities = vim.tbl_deep_extend(
+  "force",
+  {},
+  vim.lsp.protocol.make_client_capabilities(),
+  blink and blink.get_lsp_capabilities() or {},
+  {
+    workspace = {
+      fileOperations = {
+        didRename = true,
+        willRename = true,
+      },
+      didChangeWatchedFiles = {
+        dynamicRegistration = true,
+      },
+    },
+  }
+)
 
 mason_lspconfig.setup_handlers({
   function(server_name)
-    lspconfig[server_name].setup{
+    lspconfig[server_name].setup({
       capabilities = capabilities,
       on_attach = function(client, bufnr)
         if navic and client.server_capabilities["documentSymbolProvider"] then
@@ -117,6 +115,6 @@ mason_lspconfig.setup_handlers({
           vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
         end
       end,
-    }
+    })
   end,
 })
