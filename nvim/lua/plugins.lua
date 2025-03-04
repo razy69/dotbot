@@ -22,11 +22,15 @@ return {
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-path",
+      "hrsh7th/cmp-calc",
       "hrsh7th/cmp-emoji",
       "hrsh7th/cmp-nvim-lsp-signature-help",
       "hrsh7th/cmp-nvim-lua",
       "rafamadriz/friendly-snippets",
       "lukas-reineke/cmp-under-comparator",
+      "f3fora/cmp-spell",
+      "ray-x/cmp-treesitter",
+      "onsails/lspkind-nvim",
     },
     config = function()
       require("extensions.cmp")
@@ -135,14 +139,6 @@ return {
     },
     config = function()
       require("extensions.noice")
-    end
-  },
-
-  -- LSP Kind
-  {
-    "onsails/lspkind-nvim",
-    config = function()
-      require("extensions.lspkind-conf")
     end
   },
 
