@@ -9,6 +9,7 @@ return {
   {
     "saghen/blink.cmp",
     build = "cargo build --release",
+    event = { "BufReadPost", "BufWritePost", "BufNewFile", "CmdlineEnter" },
     dependencies = {
       "rafamadriz/friendly-snippets",
     },
@@ -20,8 +21,7 @@ return {
   -- LSP
   {
     "neovim/nvim-lspconfig",
-    cmd = { "LspInfo", "LspInstall", "LspStart" },
-    event = { "BufReadPre", "BufNewFile" },
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     dependencies = {
       { "williamboman/mason.nvim" },
       { "williamboman/mason-lspconfig.nvim" },
@@ -41,7 +41,7 @@ return {
   -- TreeSitter
   {
     "nvim-treesitter/nvim-treesitter",
-    event = "BufReadPre",
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     build = ":TSUpdateSync",
     config = function()
       require("plugins.treesitter_")
@@ -51,7 +51,7 @@ return {
   -- Formatter
   {
     "stevearc/conform.nvim",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     config = function()
       require("plugins.conform_")
     end
@@ -74,7 +74,7 @@ return {
   {
     "kevinhwang91/nvim-bqf",
     ft = "qf",
-    config = function ()
+    config = function()
       require("bqf").setup({
         func_map = {
           vsplit = "s",
@@ -94,7 +94,8 @@ return {
   -- Fuzzy finder
   {
     "ibhagwan/fzf-lua",
-    config = function ()
+    cmd = "FzfLua",
+    config = function()
       require("plugins.fzf_lua_")
     end,
   },
@@ -123,7 +124,7 @@ return {
   -- VSCode like winbar
   {
     "utilyre/barbecue.nvim",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     dependencies = {
       "SmiteshP/nvim-navic",
     },
@@ -135,20 +136,20 @@ return {
   -- Rainbow delimiters
   {
     "HiPhish/rainbow-delimiters.nvim",
-    event = { "BufReadPre", "BufNewFile", "BufNew" },
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
   },
 
   -- Highlight arguments
   {
     "m-demare/hlargs.nvim",
-    event = { "BufReadPre", "BufNewFile", "BufNew" },
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     dependencies = { "nvim-treesitter" },
   },
 
   -- Highlighting Words
   {
     "RRethy/vim-illuminate",
-    event = { "BufReadPre", "BufNewFile", "BufNew" },
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     config = function()
       require("plugins.illuminate_")
     end,
@@ -166,7 +167,7 @@ return {
   -- Indent Guide
   {
     "shellRaining/hlchunk.nvim",
-    event = { "BufReadPre", "BufNewFile" },
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     config = function()
       require("plugins.hlchunk_")
     end
@@ -175,7 +176,7 @@ return {
   -- Code folding
   {
     "kevinhwang91/nvim-ufo",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     dependencies = { "kevinhwang91/promise-async" },
     config = function()
       require("plugins.ufo_")
@@ -185,7 +186,7 @@ return {
   -- Split/join code blocks
   {
     "Wansmer/treesj",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
       require("plugins.treesj_")
@@ -205,7 +206,7 @@ return {
   -- Peek lines
   {
     "nacro90/numb.nvim",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
   },
 
   -- Keybindings Helper
@@ -239,6 +240,7 @@ return {
   -- Todo comments
   {
     "folke/todo-comments.nvim",
+    event = { "BufReadPost", "BufNewFile", "BufNew" },
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {
       highlight = {
@@ -259,7 +261,7 @@ return {
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
       require("plugins.neogen_")
-     end,
+    end,
   },
 
   -- Startup menu
@@ -274,6 +276,7 @@ return {
   -- Mark utility
   {
     "otavioschwanck/arrow.nvim",
+    event = { "BufReadPost", "BufNewFile", "BufNew" },
     dependencies = {
       { "echasnovski/mini.icons" },
     },

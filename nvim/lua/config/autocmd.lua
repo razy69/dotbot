@@ -353,6 +353,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       function()
         fzf.lsp_definitions({
           sync = true,
+          ignore_current_line = true,
           jump_to_single_result = true,
           jump_to_single_result_action = require("fzf-lua.actions").file_vsplit,
         })
@@ -384,7 +385,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
       "n",
       "gi",
       function()
-        fzf.lsp_implementations()
+        fzf.lsp_implementations({
+          ignore_current_line = true,
+          jump_to_single_result = true,
+        })
       end,
       {
         desc = "LSP Implementations",
