@@ -8,7 +8,7 @@ set conceallevel=3
 " General options
 set number                      "Show line numbers
 set ruler
-set term=screen-256color
+set term=xterm-256color
 set showmatch
 set novisualbell                "Disable flash bell
 set noerrorbells                "Disable bell
@@ -27,7 +27,7 @@ set hidden
 set shortmess+=F                " Disabled "filename" XXXL, XXXC
 set noshowcmd                   " Disable display of last command
 set noshowmode                  " Disable -- INSERT --
-filetype off
+filetype on
 
 " Search highlight
 set hlsearch
@@ -35,7 +35,7 @@ hi Search ctermbg=222
 
 " Vim tabs
 "CTRL+N creates a new window
-nnoremap <C-n>:tabnew<CR>
+"nnoremap <C-n>:tabnew<CR>
 
 " More natural split opening
 set splitbelow
@@ -59,7 +59,7 @@ set softtabstop=2               "When hitting <BS>, pretend like a tab is remove
 set tabstop=2                   "Tabs are n spaces
 
 " / + p = paste in paste mode
-map <silent> <leader>p :set paste<CR>"*p:set nopaste<CR>
+"map <silent> <leader>p :set paste<CR>"*p:set nopaste<CR>
 
 " Enable folding
 set foldmethod=indent
@@ -68,7 +68,7 @@ set nofoldenable
 set foldlevel=99
 
 " Enable folding with the spacebar
-nnoremap <space> za<CR>
+"nnoremap <space> za<CR>
 
 " File format
 set fileformat=unix
