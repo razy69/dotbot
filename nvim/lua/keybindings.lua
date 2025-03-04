@@ -38,10 +38,8 @@ nm("<leader>f", "<cmd>Telescope live_grep<CR>")                                 
 nm("<leader>b", "<cmd>Telescope buffers<CR>")                                              -- Show all buffers
 nm("<leader>a", "<cmd>Telescope<CR>")                                                      -- Show all commands
 nm("<leader>d", "<cmd>Telescope diagnostics<CR>")                                          -- Show diagnostics
--- }}}
-
--- Trouble {{{
-nm("<leader>x", "<cmd>TroubleToggle<CR>")                                                  -- Show all problems in project (with help of LSP)
+nm("<leader>u", "<cmd>Telescope undo<CR>")                                                 -- Show Telescope undo menu
+nm("<leader>p", "<cmd>Telescope neoclip<CR>")                                              -- Show Telescope neoclip menu
 -- }}}
 
 -- Neo Tree {{{

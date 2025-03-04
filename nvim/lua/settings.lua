@@ -34,6 +34,7 @@ opt.fileencoding = "utf-8"             -- File encoding
 -- }}}
 
 -- Other {{{
+opt.laststatus = 0                     -- Disable Neovim builtin status bar
 opt.number = true                      -- Enable line number
 opt.wrap = true                        -- Enable line wrap
 opt.showcmd = false                    -- Disable display of last command
