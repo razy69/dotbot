@@ -52,4 +52,13 @@ Then move generated file to `~/.dotbot/zsh/keymaps/`.
 
 ## Additional Setup
 
-Download, install and setup terminal font: https://www.nerdfonts.com/font-downloads
+Font:
+  - Any patched NerdFont: https://www.nerdfonts.com/font-downloads
+
+Programs:
+  - batcat: https://github.com/sharkdp/bat
+  - delta: https://github.com/dandavison/delta
+  - erdtree: https://github.com/solidiquis/erdtree
+  - ripgrep: https://github.com/BurntSushi/ripgrep
+  - fd: https://github.com/sharkdp/fd
+  - exa: https://github.com/ogham/exa
