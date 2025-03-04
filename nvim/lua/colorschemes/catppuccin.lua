@@ -4,8 +4,6 @@
   See: https://github.com/catppuccin/nvim
 ]]
 
-vim.cmd("highlight EoLSpace ctermbg=238 guibg=#cb214e")
-
 require("catppuccin").setup({
     flavour = "frappe", -- latte, frappe, macchiato, mocha
     background = { -- :h background
