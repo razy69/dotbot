@@ -10,7 +10,6 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
-
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -27,7 +26,6 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
   end
 end
 vim.opt.rtp:prepend(lazypath)
-
 
 -- Setup lazy.nvim
 require("lazy").setup({
@@ -54,13 +52,11 @@ require("lazy").setup({
         "netrwSettings",
         "netrwFileHandlers",
         "getscript",
-        "vimball",
         "2html_plugin",
         "logipat",
         "rrhelper",
         "spellfile_plugin",
         "spellfile",
-        "shada",
         "tutor",
         "rplugin",
         "tohtml",

@@ -109,7 +109,6 @@ vim.opt.autowrite = false
 vim.opt.autoread = false
 vim.opt.undolevels = 1000
 vim.opt.updatetime = 100
-vim.opt.shada = ""
 vim.g.bigfile_size = 1024 * 1024 * 5 -- 5 MB
 
 -- Wildmenu
