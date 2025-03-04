@@ -74,7 +74,6 @@ return {
   {
     "folke/trouble.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
-    -- branch = "dev",
     keys = {
       {
         "<leader>xx",
@@ -167,6 +166,18 @@ return {
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("extensions.bufferline")
+    end,
+  },
+
+  -- Refactoring
+  {
+    "ThePrimeagen/refactoring.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    config = function()
+      require("refactoring").setup()
     end,
   },
 
@@ -345,6 +356,16 @@ return {
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
+  },
+
+  -- Markdown
+  {
+    "MeanderingProgrammer/markdown.nvim",
+    name = "render-markdown", -- Only needed if you have another plugin named markdown.nvim
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+    config = function()
+        require("render-markdown").setup({})
+    end,
   },
 
   -- Markdown TOC

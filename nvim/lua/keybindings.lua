@@ -44,6 +44,7 @@ wk.add({
   { "<leader>d", "<cmd>Telescope diagnostics<cr>", desc = "Show diagnostics", mode = "n" },
   { "<leader>u", "<cmd>Telescope undo<cr>", desc = "Undo menu", mode = "n" },
   { "<leader>h", "<cmd>Noice telescope<cr>", desc = "Open Noice history in Telescope", mode = "n" },
+  { "<leader>rr", function() require("telescope").extensions.refactoring.refactors() end, mode = {"n", "x"} },
 
   -- Telekasten
   { "<leader>nn", "<cmd>Telekasten panel<cr>", desc = "Open Telekasten panel", mode = "n" },
