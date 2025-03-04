@@ -11,7 +11,7 @@ local capabilities = vim.tbl_deep_extend(
   {},
   vim.lsp.protocol.make_client_capabilities(),
   lsp_config.util.default_config.capabilities,
-  require("cmp_nvim_lsp").default_capabilities(),
+  require("blink.cmp").get_lsp_capabilities(),
   {
     workspace = {
       fileOperations = {
@@ -45,8 +45,36 @@ local servers = {
   "html",
 }
 
+-- Add border to document hover (see: https://github.com/neovim/neovim/pull/13998)
+vim.lsp.handlers["textDocument/foldingRange"] = {
+  dynamicRegistration = false,
+  lineFoldingOnly = true,
+}
+
+vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+  vim.lsp.handlers.hover,
+  { border = "rounded" }
+)
+
+vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
+  vim.lsp.handlers.signature_help,
+  { border = "rounded" }
+)
+
+vim.lsp.handlers["textDocument/completion/completionItem/snippetSupport"] = true
+vim.lsp.handlers["textDocument/completion/completionItem/resolveSupport"] = {
+  properties = {
+    "documentation",
+    "detail",
+    "additionalTextEdits",
+  },
+}
+
+require("lspconfig.ui.windows").default_options.border = "rounded"
+
 require("mason").setup({
   ui = {
+    border = "single",
     icons = {
       package_installed = "",
       package_pending = "󰄾",
@@ -90,30 +118,3 @@ mason_lsp_config.setup_handlers({
     })
   end,
 })
-
--- Add border to document hover (see: https://github.com/neovim/neovim/pull/13998)
-vim.lsp.handlers["textDocument/foldingRange"] = {
-  dynamicRegistration = false,
-  lineFoldingOnly = true,
-}
-
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-  vim.lsp.handlers.hover,
-  { border = "rounded" }
-)
-
-vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-  vim.lsp.handlers.signature_help,
-  { border = "rounded" }
-)
-
-vim.lsp.handlers["textDocument/completion/completionItem/snippetSupport"] = true
-vim.lsp.handlers["textDocument/completion/completionItem/resolveSupport"] = {
-  properties = {
-    "documentation",
-    "detail",
-    "additionalTextEdits",
-  },
-}
-
-require("lspconfig.ui.windows").default_options.border = "rounded"

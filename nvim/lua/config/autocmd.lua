@@ -321,3 +321,118 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
     vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
   end,
 })
+
+-- Add keybindings for lspconfig
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = augroup("UserLspConfig"),
+  callback = function(ev)
+    -- Jumps to the declaration of the symbol under the cursor.
+    vim.keymap.set(
+      "n",
+      "gD",
+      function()
+        vim.cmd("vsplit")
+        vim.lsp.buf.declaration()
+      end,
+      {
+        desc = "LSP Go to declaration",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Jumps to the definition of the symbol under the cursor.
+    vim.keymap.set(
+      "n",
+      "gd",
+      function()
+        vim.cmd("vsplit")
+        vim.lsp.buf.definition()
+      end,
+      {
+        desc = "LSP Go to definition",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Displays hover information about the symbol under the cursor in a floating
+    -- window. Calling the function twice will jump into the floating window.
+    vim.keymap.set(
+      "n",
+      "K",
+      vim.lsp.buf.hover,
+      {
+        desc = "LSP Hover",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Lists all the implementations for the symbol under the cursor in the quickfix window.
+    vim.keymap.set(
+      "n",
+      "gi",
+      vim.lsp.buf.implementation,
+      {
+        desc = "LSP Implementations",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Displays signature information about the symbol under the cursor in a floating window.
+    vim.keymap.set(
+      "n",
+      "<C-k>",
+      vim.lsp.buf.signature_help,
+      {
+        desc = "LSP Signature help",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Jumps to the definition of the type of the symbol under the cursor.
+    vim.keymap.set(
+      "n",
+      "tD",
+      function()
+        vim.cmd("vsplit")
+        vim.lsp.buf.type_definition()
+      end,
+      {
+        desc = "LSP Type definition",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Renames all references to the symbol under the cursor.
+    vim.keymap.set(
+      "n",
+      "<leader>rn",
+      vim.lsp.buf.rename,
+      {
+        desc = "LSP Rename references",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Selects a code action available at the current cursor position.
+    vim.keymap.set(
+      { "n", "v" },
+      "<leader>ca",
+      vim.lsp.buf.code_action,
+      {
+        desc = "LSP Code action",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Lists all the references to the symbol under the cursor in the quickfix window.
+    vim.keymap.set(
+      "n",
+      "gr",
+      vim.lsp.buf.references,
+      {
+        desc = "LSP References",
+        buffer = ev.buf,
+      }
+    )
+  end,
+})

@@ -5,13 +5,24 @@
 ]]
 
 return {
+  -- Completions
+  {
+    "saghen/blink.cmp",
+    build = "cargo build --release",
+    dependencies = {
+      "rafamadriz/friendly-snippets",
+    },
+    config = function()
+      require("plugins.cmp_")
+    end,
+  },
+
   -- LSP
   {
     "neovim/nvim-lspconfig",
     cmd = { "LspInfo", "LspInstall", "LspStart" },
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
-      { "hrsh7th/cmp-nvim-lsp" },
       { "williamboman/mason.nvim" },
       { "williamboman/mason-lspconfig.nvim" },
     },
@@ -34,30 +45,6 @@ return {
     build = ":TSUpdateSync",
     config = function()
       require("plugins.treesitter_")
-    end,
-  },
-
-  -- Completions
-  {
-    "hrsh7th/nvim-cmp",
-    event = "InsertEnter",
-    dependencies = {
-      { "L3MON4D3/LuaSnip", build = "make install_jsregexp" },
-      "saadparwaiz1/cmp_luasnip",
-      "hrsh7th/cmp-nvim-lua",
-      "hrsh7th/cmp-buffer",
-      "hrsh7th/cmp-cmdline",
-      "ray-x/cmp-treesitter",
-      "FelipeLema/cmp-async-path",
-      "petertriho/cmp-git",
-      "lukas-reineke/cmp-under-comparator",
-      "onsails/lspkind-nvim",
-      "hrsh7th/cmp-nvim-lsp",
-      "hrsh7th/cmp-nvim-lsp-signature-help",
-      "hrsh7th/cmp-nvim-lsp-document-symbol",
-    },
-    config = function()
-      require("plugins.cmp_")
     end,
   },
 
@@ -137,20 +124,6 @@ return {
     "folke/trouble.nvim",
     cmd = "Trouble",
     opts = {},
-  },
-
-  -- Fuzzy finder and more
-  {
-    "nvim-telescope/telescope.nvim",
-    cmd = "Telescope",
-    tag = "0.1.8",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "s1n7ax/nvim-window-picker",
-    },
-    config = function()
-      require("plugins.telescope_")
-    end,
   },
 
   -- VSCode like winbar
@@ -267,19 +240,6 @@ return {
     dependencies = {
       "nvim-treesitter/nvim-treesitter"
     },
-  },
-
-  -- Refactoring
-  {
-    "ThePrimeagen/refactoring.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-    lazy = false,
-    config = function()
-      require("refactoring").setup()
-    end,
   },
 
   -- Todo comments
