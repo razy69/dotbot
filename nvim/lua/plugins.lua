@@ -107,7 +107,7 @@ return {
   -- Indentation Highlighting
   {
     "lukas-reineke/indent-blankline.nvim",
-	  branch = "v3",
+	  branch = "master",
     config = function ()
       require("extensions.indent-blankline")
      end
@@ -339,7 +339,9 @@ return {
     "Wansmer/treesj",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
-      require("treesj").setup({})
+      require("treesj").setup({
+        max_join_length = 1000,
+      })
     end,
   },
 
@@ -358,6 +360,16 @@ return {
       require("extensions.neogen")
     end
   },
+
+	{
+    "s1n7ax/nvim-window-picker",
+    name = "window-picker",
+    event = "VeryLazy",
+    version = "2.*",
+    config = function()
+        require("window-picker").setup()
+    end,
+	},
 -- ]]
 
 -- Theme [[
