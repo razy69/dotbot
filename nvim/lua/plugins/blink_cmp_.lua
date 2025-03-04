@@ -22,35 +22,24 @@ if luasnip then
       require("luasnip").jump(direction)
     end,
   }
+
+  -- Load friendly snippets
+  require("luasnip.loaders.from_vscode").lazy_load()
 end
 
 require("blink.cmp").setup({
-  -- Disable for some filetypes
   enabled = function()
+    -- Disable for some filetypes
     return not vim.tbl_contains({ "markdown", "neo-tree" }, vim.bo.filetype)
         and vim.bo.buftype ~= "prompt"
         and vim.b.completion ~= false
   end,
-  appearance = {
-    use_nvim_cmp_as_default = true,
-    nerd_font_variant = "mono",
-  },
   completion = {
-    trigger = {
-      prefetch_on_insert = true,
-      show_in_snippet = true,
-      show_on_keyword = true,
-      show_on_trigger_character = true,
-      show_on_blocked_trigger_characters = function()
-        if vim.api.nvim_get_mode().mode == "c" then return {} end
-        return { " ", "\n", "\t" }
-      end,
-      show_on_accept_on_trigger_character = true,
-      show_on_insert_on_trigger_character = false,
-      show_on_x_blocked_trigger_characters = { "'", '"', "(" },
+    keyword = {
+      range = "full",
     },
     list = {
-      max_items = 200,
+      max_items = 50,
       selection = {
         preselect = false,
         auto_insert = true,
@@ -63,12 +52,7 @@ require("blink.cmp").setup({
       treesitter_highlighting = true,
     },
     menu = {
-      auto_show = true,
       border = "rounded",
-      min_width = 15,
-      max_height = 10,
-      scrolloff = 2,
-      scrollbar = true,
       draw = {
         treesitter = { enabled = true },
         columns = {
@@ -80,12 +64,6 @@ require("blink.cmp").setup({
   },
   signature = {
     enabled = true,
-    trigger = {
-      blocked_trigger_characters = {},
-      blocked_retrigger_characters = {},
-      -- When true, will show the signature help window when the cursor comes after a trigger character when entering insert mode
-      show_on_insert_on_trigger_character = true,
-    },
     window = {
       border = "rounded",
       treesitter_highlighting = true,
@@ -99,34 +77,33 @@ require("blink.cmp").setup({
       else
         return { "lsp", "path", "snippets", "buffer" }
       end
-    end
+    end,
   },
   snippets = snippets_opts,
   keymap = {
-    ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
-    ["<C-e>"] = { "hide", "fallback" },
-    ["<CR>"] = { "accept", "fallback" },
+    ["<C-q>"] = { "hide", "fallback" },
+    ["<CR>"] = { "select_and_accept", "fallback" },
     ["<Tab>"] = {
       function(cmp)
         if cmp.snippet_active() then
           return cmp.accept()
-        else
-          return cmp.select_and_accept()
         end
       end,
       "snippet_forward",
       "fallback",
     },
     ["<S-Tab>"] = { "snippet_backward", "fallback" },
-    ["<Up>"] = { "select_prev", "fallback" },
-    ["<Down>"] = { "select_next", "fallback" },
     ["<C-p>"] = { "select_prev", "fallback" },
     ["<C-n>"] = { "select_next", "fallback" },
 
     ["<C-b>"] = { "scroll_documentation_up", "fallback" },
     ["<C-f>"] = { "scroll_documentation_down", "fallback" },
   },
+  cmdline = {
+    keymap = {
+      preset = "enter",
+      ["<CR>"] = { "accept_and_enter", "fallback" },
+      ["<Tab>"] = { "select_accept_and_enter", "fallback" },
+    },
+  },
 })
-
--- Load friendly snippets
-require("luasnip.loaders.from_vscode").lazy_load()
