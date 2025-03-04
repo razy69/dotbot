@@ -47,6 +47,14 @@ mason_null_ls.setup{
 -- Setup every needed language server in lspconfig
 mason_lspconfig.setup_handlers{
   function (server_name)
-    lspconfig[server_name].setup {}
+    lspconfig[server_name].setup {
+      settings = {
+        Lua = {
+          diagnostics = {
+            globals = { "vim" }
+          },
+        },
+      },
+    }
   end,
 }
