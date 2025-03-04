@@ -89,7 +89,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "VimEnter" }, {
 
     local illuminate = utils.prequire("illuminate")
     if illuminate then
-      illuminate.toggle()
+      illuminate.invisible_buf()
     end
 
     local barbecue = utils.prequire("barbecue.ui")
@@ -99,7 +99,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "VimEnter" }, {
   end,
 })
 
-vim.api.nvim_create_autocmd("BufLeave", {
+vim.api.nvim_create_autocmd({ "BufLeave" }, {
   desc = "Alpha Enter",
   group = alpha_group,
   callback = function()
@@ -121,7 +121,7 @@ vim.api.nvim_create_autocmd("BufLeave", {
 
     local illuminate = utils.prequire("illuminate")
     if illuminate then
-      illuminate.toggle()
+      illuminate.visible_buf()
     end
 
     local barbecue = utils.prequire("barbecue.ui")

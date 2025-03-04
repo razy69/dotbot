@@ -9,7 +9,7 @@ return {
   {
     "saghen/blink.cmp",
     build = "cargo build --release",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile", "CmdlineEnter" },
+    event = { "InsertEnter" },
     dependencies = {
       "L3MON4D3/LuaSnip",
       "rafamadriz/friendly-snippets",
@@ -24,8 +24,9 @@ return {
     "neovim/nvim-lspconfig",
     event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     dependencies = {
-      { "williamboman/mason.nvim" },
-      { "williamboman/mason-lspconfig.nvim" },
+      "williamboman/mason.nvim",
+      "williamboman/mason-lspconfig.nvim",
+      "neovim/nvim-lspconfig",
     },
     config = function()
       require("plugins.lsp_")
@@ -37,6 +38,9 @@ return {
     "nvim-treesitter/nvim-treesitter",
     event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     build = ":TSUpdateSync",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter-textobjects",
+    },
     config = function()
       require("plugins.treesitter_")
     end,
@@ -45,7 +49,9 @@ return {
   -- Formatter
   {
     "stevearc/conform.nvim",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    keys = {
+      { "<leader>f", "<cmd>Format<cr>", desc = "Format buffer", mode = "n" },
+    },
     config = function()
       require("plugins.conform_")
     end
@@ -97,9 +103,13 @@ return {
   {
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
+    lazy = true,
     dependencies = {
       "nvim-lua/plenary.nvim",
       "MunifTanjim/nui.nvim",
+    },
+    keys = {
+      { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Open/Close Neotree", mode = "n" },
     },
     config = function()
       require("plugins.neotree_")
@@ -110,7 +120,20 @@ return {
   {
     "folke/trouble.nvim",
     cmd = "Trouble",
-    opts = {},
+    opts = {
+      modes = {
+        symbols = {
+          win = {
+            type = "split",
+            relative = "win",
+            position = "right",
+            size = 0.3,
+            pinned = true,
+            focus = false,
+          },
+        },
+      },
+    },
   },
 
   -- VSCode like winbar
@@ -168,11 +191,14 @@ return {
   -- Split/join code blocks
   {
     "Wansmer/treesj",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     dependencies = { "nvim-treesitter/nvim-treesitter" },
+    keys = {
+      { "<leader>j", "<cmd>TSJToggle<cr>", desc = "Join Toggle" },
+    },
     config = function()
       require("treesj").setup({
-        max_join_length = 1000,
+        max_join_length = 500,
+        use_default_keymaps = false,
       })
     end,
   },
@@ -190,7 +216,7 @@ return {
   -- Peek lines
   {
     "nacro90/numb.nvim",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    lazy = true,
     config = function()
       require("numb").setup()
     end
@@ -238,7 +264,7 @@ return {
   -- Code documentation
   {
     "danymat/neogen",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
+    lazy = true,
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
       require("plugins.neogen_")
@@ -271,11 +297,11 @@ return {
   -- Icons
   {
     "echasnovski/mini.icons",
-    opts = {},
     lazy = true,
     specs = {
       { "nvim-tree/nvim-web-devicons", enabled = false, optional = true },
     },
+    opts = {},
     init = function() -- Override nvim-web-devicons
       package.preload["nvim-web-devicons"] = function()
         require("mini.icons").mock_nvim_web_devicons()
@@ -315,6 +341,16 @@ return {
     opts = {},
   },
 
+  -- Surround selections
+  {
+    "kylechui/nvim-surround",
+    version = "*",
+    event = "VeryLazy",
+    config = function()
+      require("nvim-surround").setup({})
+    end
+  },
+
   -- Session
   {
     "folke/persistence.nvim",
@@ -325,7 +361,7 @@ return {
   -- Keybindings Helper
   {
     "folke/which-key.nvim",
-    event = "VeryLazy",
+    event = { "VeryLazy" },
     config = function()
       require("plugins.which_key_")
     end

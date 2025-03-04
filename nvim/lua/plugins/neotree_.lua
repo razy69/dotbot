@@ -9,15 +9,26 @@ local events = require("neo-tree.events")
 require("neo-tree").setup {
   close_if_last_window = true,
   enable_git_status = true,
-  enable_diagnostics = false,
-  sources = { "filesystem", "buffers", "git_status" },
+  enable_diagnostics = true,
+  sources = {
+    "filesystem",
+    "buffers",
+    "git_status",
+  },
+  source_selector = {
+    winbar = true,
+    statusline = false,
+  },
   open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf" },
   default_component_configs = {
     indent = {
       with_expanders = true, -- if nil and file nesting is enabled, will enable expanders
-      expander_collapsed = "",
-      expander_expanded = "",
+      expander_collapsed = "",
+      expander_expanded = "",
       expander_highlight = "NeoTreeExpander",
+    },
+    modified = {
+      symbol = "",
     },
     git_status = {
       symbols = {
@@ -66,15 +77,16 @@ require("neo-tree").setup {
       nowait = true,
     },
     mappings = {
-      ["e"] = function() vim.api.nvim_exec("Neotree focus filesystem left", true) end,
-      ["b"] = function() vim.api.nvim_exec("Neotree focus buffers left", true) end,
-      ["g"] = function() vim.api.nvim_exec("Neotree focus git_status left", true) end,
+      ["fi"] = function() vim.api.nvim_exec("Neotree focus filesystem left", true) end,
+      ["bu"] = function() vim.api.nvim_exec("Neotree focus buffers left", true) end,
+      ["gi"] = function() vim.api.nvim_exec("Neotree focus git_status left", true) end,
+      ["b"] = "noop",
     },
   },
   filesystem = {
-    bind_to_cwd = false,
+    bind_to_cwd = true,
     follow_current_file = { enabled = true },
-    use_libuv_file_watcher = true,
+    use_libuv_file_watcher = false,
     filtered_items = {
       hide_dotfiles = false,
       hide_gitignored = false,
@@ -84,34 +96,14 @@ require("neo-tree").setup {
     follow_current_file = {
       enabled = true,
     },
-    group_empty_dirs = true, -- when true, empty folders will be grouped together
-    show_unloaded = true,
+    group_empty_dirs = false, -- when true, empty folders will be grouped together
+    show_unloaded = false,
   },
   event_handlers = {
     {
       event = events.FILE_OPENED,
       handler = function()
         require("neo-tree.command").execute({ action = "close" })
-      end
-    },
-    {
-      event = events.NEO_TREE_BUFFER_ENTER,
-      handler = function()
-        -- Cursor hide
-        local hl = vim.api.nvim_get_hl_by_name("Cursor", true)
-        hl.blend = 100
-        vim.api.nvim_set_hl(0, "Cursor", hl)
-        vim.opt.guicursor:append("a:Cursor/lCursor")
-      end
-    },
-    {
-      event = events.NEO_TREE_BUFFER_LEAVE,
-      handler = function()
-        -- Cursor show
-        local hl = vim.api.nvim_get_hl_by_name("Cursor", true)
-        hl.blend = 0
-        vim.api.nvim_set_hl(0, "Cursor", hl)
-        vim.opt.guicursor:remove("a:Cursor/lCursor")
       end
     },
   },
