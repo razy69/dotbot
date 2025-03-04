@@ -363,6 +363,15 @@ return {
     },
   },
 
+  -- Drop down terminal
+  {
+    "akinsho/toggleterm.nvim",
+    version = "*",
+    config = function ()
+      require("toggleterm").setup({})
+    end
+  },
+
   -- Colorschemes
   {
     "echasnovski/mini.icons",
