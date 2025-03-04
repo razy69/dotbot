@@ -22,9 +22,9 @@ _comp_options+=(globdots)
 zmodload zsh/complist
 
 fpath=(
-  $ASDF_DIR/completions
-  $ZSH/plugins/zsh-completions/src
-  $ZSH/completions
+  ${ASDF_DIR}/completions
+  ${ZSH}/plugins/zsh-completions/src
+  ${ZSH}/completions
   $fpath
 )
 

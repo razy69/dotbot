@@ -6,15 +6,11 @@ fi
 # Zsh Home
 export ZSH="${HOME}/.zsh"
 
-# ASDF Home
-export ASDF="${HOME}/.asdf"
-
 # Path
 path=(
   ${HOME}/.local/bin
   ${HOME}/bin
-  ${ASDF}/shims
-  ${path}
+  $path
 )
 export PATH
 
@@ -36,17 +32,18 @@ source "${ZSH}/config/functions.zsh"
 # Aliases
 source "${ZSH}/config/aliases.zsh"
 
-# ASDF
-source "${ASDF}/asdf.sh"
-
-# Completion
-source "${ZSH}/config/completions.zsh"
-
 # Secrets
 [[ ! -f "${ZSH}/config/secrets.zsh" ]] || source "${ZSH}/config/secrets.zsh"
 
 # Work
 [[ ! -f "${ZSH}/config/work.zsh" ]] || source "${ZSH}/config/work.zsh"
+
+# ASDF
+export ASDF="${HOME}/.asdf"
+source "${ASDF}/asdf.sh"
+
+# Completion
+source "${ZSH}/config/completions.zsh"
 
 # Powerlevel10k
 source "${ZSH}/config/p10k.zsh"
