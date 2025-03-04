@@ -37,6 +37,7 @@
     time                    # current time
     dir                     # current directory
     vcs                     # git status
+    virtualenv              # python virtual environment (https://docs.python.org/3/library/venv.html)
     # =========================[ Line #2 ]=========================
     newline                 # \n
     prompt_char             # prompt symbol
@@ -48,15 +49,15 @@
   # last prompt line gets hidden if it would overlap with left prompt.
   typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
     # =========================[ Line #1 ]=========================
-    status                  # exit code of the last command
-    command_execution_time  # duration of the last command
-    background_jobs         # presence of background jobs
-    direnv                  # direnv status (https://direnv.net/)
+    # status                  # exit code of the last command
+    # command_execution_time  # duration of the last command
+    # background_jobs         # presence of background jobs
+    # direnv                  # direnv status (https://direnv.net/)
     # asdf                  # asdf version manager (https://github.com/asdf-vm/asdf)
-    virtualenv              # python virtual environment (https://docs.python.org/3/library/venv.html)
+    # virtualenv              # python virtual environment (https://docs.python.org/3/library/venv.html)
     # anaconda              # conda environment (https://conda.io/)
-    pyenv                   # python environment (https://github.com/pyenv/pyenv)
-    goenv                   # go environment (https://github.com/syndbg/goenv)
+    # pyenv                   # python environment (https://github.com/pyenv/pyenv)
+    # goenv                   # go environment (https://github.com/syndbg/goenv)
     # nodenv                # node.js version from nodenv (https://github.com/nodenv/nodenv)
     # nvm                   # node.js version from nvm (https://github.com/nvm-sh/nvm)
     # nodeenv               # node.js environment (https://github.com/ekalinin/nodeenv)
@@ -78,21 +79,21 @@
     # phpenv                # php version from phpenv (https://github.com/phpenv/phpenv)
     # scalaenv              # scala version from scalaenv (https://github.com/scalaenv/scalaenv)
     # haskell_stack         # haskell version from stack (https://haskellstack.org/)
-    kubecontext             # current kubernetes context (https://kubernetes.io/)
-    terraform               # terraform workspace (https://www.terraform.io)
+    # kubecontext             # current kubernetes context (https://kubernetes.io/)
+    # terraform               # terraform workspace (https://www.terraform.io)
     # terraform_version     # terraform version (https://www.terraform.io)
     # aws                   # aws profile (https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html)
     # aws_eb_env            # aws elastic beanstalk environment (https://aws.amazon.com/elasticbeanstalk/)
     # azure                 # azure account name (https://docs.microsoft.com/en-us/cli/azure)
     # gcloud                # google cloud cli account and project (https://cloud.google.com/)
     # google_app_cred       # google application credentials (https://cloud.google.com/docs/authentication/production)
-    toolbox                 # toolbox name (https://github.com/containers/toolbox)
+    # toolbox                 # toolbox name (https://github.com/containers/toolbox)
     # nordvpn               # nordvpn connection status, linux only (https://nordvpn.com/)
     # ranger                # ranger shell (https://github.com/ranger/ranger)
     # nnn                   # nnn shell (https://github.com/jarun/nnn)
     # lf                    # lf shell (https://github.com/gokcehan/lf)
     # xplr                  # xplr shell (https://github.com/sayanarijit/xplr)
-    vim_shell               # vim shell indicator (:sh)
+    # vim_shell               # vim shell indicator (:sh)
     # midnight_commander    # midnight commander shell (https://midnight-commander.org/)
     # nix_shell             # nix shell (https://nixos.org/nixos/nix-pills/developing-with-nix-shell.html)
     # chezmoi_shell         # chezmoi shell (https://www.chezmoi.io/)
@@ -107,7 +108,7 @@
     # taskwarrior           # taskwarrior task count (https://taskwarrior.org/)
     # cpu_arch              # CPU architecture
     # =========================[ Line #2 ]=========================
-    newline                 # \n
+    # newline                 # \n
     # ip                    # ip address and bandwidth usage for a specified network interface
     # public_ip             # public IP address
     # proxy                 # system-wide http/https/ftp proxy
@@ -289,7 +290,7 @@
   # opening a directory in the file manager simply by clicking the link.
   # Can also be handy when the directory is shortened, as it allows you to see
   # the full directory that was used in previous commands.
-  typeset -g POWERLEVEL9K_DIR_HYPERLINK=false
+  typeset -g POWERLEVEL9K_DIR_HYPERLINK=true
 
   # Enable special styling for non-writable and non-existent directories. See POWERLEVEL9K_LOCK_ICON
   # and POWERLEVEL9K_DIR_CLASSES below.
@@ -359,7 +360,7 @@
 
   # Untracked files icon. It's really a question mark, your font isn't broken.
   # Change the value of this parameter to show a different icon.
-  typeset -g POWERLEVEL9K_VCS_UNTRACKED_ICON='?'
+  typeset -g POWERLEVEL9K_VCS_UNTRACKED_ICON=''
 
   # Formatter for Git status.
   #
@@ -442,7 +443,7 @@
       (( VCS_STATUS_COMMITS_AHEAD  )) && res+="${clean}⇡${VCS_STATUS_COMMITS_AHEAD}"
     elif [[ -n $VCS_STATUS_REMOTE_BRANCH ]]; then
       # = if up to date with the remote.
-      res+=" ${clean}="
+      res+=" ${clean}"
     fi
 
     # ⇠42 if behind the push remote.
@@ -454,13 +455,13 @@
     (( VCS_STATUS_STASHES        )) && res+=" ${clean}*${VCS_STATUS_STASHES}"
     # 'merge' if the repo is in an unusual state.
     [[ -n $VCS_STATUS_ACTION     ]] && res+=" ${conflicted}${VCS_STATUS_ACTION}"
-    # ~42 if have merge conflicts.
-    (( VCS_STATUS_NUM_CONFLICTED )) && res+=" ${conflicted}~${VCS_STATUS_NUM_CONFLICTED}"
+    # x42 if have merge conflicts.
+    (( VCS_STATUS_NUM_CONFLICTED )) && res+=" ${conflicted}x${VCS_STATUS_NUM_CONFLICTED}"
     # +42 if have staged changes.
     (( VCS_STATUS_NUM_STAGED     )) && res+=" ${modified}+${VCS_STATUS_NUM_STAGED}"
-    # !42 if have unstaged changes.
-    (( VCS_STATUS_NUM_UNSTAGED   )) && res+=" ${modified}!${VCS_STATUS_NUM_UNSTAGED}"
-    # ?42 if have untracked files. It's really a question mark, your font isn't broken.
+    # ~42 if have unstaged changes.
+    (( VCS_STATUS_NUM_UNSTAGED   )) && res+=" ${modified}~${VCS_STATUS_NUM_UNSTAGED}"
+    # 42 if have untracked files. It's really a question mark, your font isn't broken.
     # See POWERLEVEL9K_VCS_UNTRACKED_ICON above if you want to use a different icon.
     # Remove the next line if you don't want to see untracked files at all.
     (( VCS_STATUS_NUM_UNTRACKED  )) && res+=" ${untracked}${(g::)POWERLEVEL9K_VCS_UNTRACKED_ICON}${VCS_STATUS_NUM_UNTRACKED}"
@@ -469,7 +470,7 @@
     # than the number of files in the Git index, or due to bash.showDirtyState being set to false
     # in the repository config. The number of staged and untracked files may also be unknown
     # in this case.
-    (( VCS_STATUS_HAS_UNSTAGED == -1 )) && res+=" ${modified}─"
+    (( VCS_STATUS_HAS_UNSTAGED == -1 )) && res+=" ${modified}"
 
     typeset -g my_git_format=$res
   }
@@ -933,12 +934,14 @@
   # Python virtual environment color.
   typeset -g POWERLEVEL9K_VIRTUALENV_FOREGROUND=37
   # Don't show Python version next to the virtual environment name.
-  typeset -g POWERLEVEL9K_VIRTUALENV_SHOW_PYTHON_VERSION=false
+  typeset -g POWERLEVEL9K_VIRTUALENV_SHOW_PYTHON_VERSION=true
   # If set to "false", won't show virtualenv if pyenv is already shown.
   # If set to "if-different", won't show virtualenv if it's the same as pyenv.
-  typeset -g POWERLEVEL9K_VIRTUALENV_SHOW_WITH_PYENV=false
+  typeset -g POWERLEVEL9K_VIRTUALENV_SHOW_WITH_PYENV=true
   # Separate environment name from Python version only with a space.
-  typeset -g POWERLEVEL9K_VIRTUALENV_{LEFT,RIGHT}_DELIMITER=
+  #typeset -g POWERLEVEL9K_VIRTUALENV_{LEFT,RIGHT}_DELIMITER=
+  typeset -g POWERLEVEL9K_VIRTUALENV_LEFT_DELIMITER="("
+  typeset -g POWERLEVEL9K_VIRTUALENV_RIGHT_DELIMITER=")"
   # Custom icon.
   # typeset -g POWERLEVEL9K_VIRTUALENV_VISUAL_IDENTIFIER_EXPANSION='⭐'
 
