@@ -77,13 +77,17 @@ mason_lspconfig.setup{
 
 
 -- Setup LSP config
-local capabilities = require("cmp_nvim_lsp").default_capabilities()
+local lsp_defaults = lspconfig.util.default_config
+lsp_defaults.capabilities = vim.tbl_deep_extend(
+  "force",
+  lsp_defaults.capabilities,
+  require("cmp_nvim_lsp").default_capabilities()
+)
+
 
 mason_lspconfig.setup_handlers({
   function(server_name)
-    local opts = {
-      capabilities = capabilities,
-    }
+    local opts = {}
 
     if server_name == "lua_ls" then
       opts["settings"] = {

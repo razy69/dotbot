@@ -14,6 +14,8 @@
     ~/:
       force: true
 - link:
+    ~/.dir_colors:
+      path: misc/dir_colors
     ~/.gitconfig:
       path: git/gitconfig
     ~/.gitignore:
