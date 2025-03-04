@@ -1,3 +1,7 @@
+" Enable UTF8
+scriptencoding utf-8
+set encoding=utf-8
+
 " Theming and colors
 syntax on
 
@@ -47,14 +51,14 @@ set foldlevel=99
 " Enable folding with the spacebar
 nnoremap <space> za<CR>
 
-" File format and encoding
+" File format
 set fileformat=unix
-set encoding=UTF-8
 
 " Show Invisible
 set list
 set showbreak=↪\
-set listchars=trail:•,precedes:❮,extends:❯,nbsp:␣,tab:⇥\
+set listchars=trail:•,tab:❯-,precedes:◀,extends:▶,nbsp:␣
+match ErrorMsg '\s\+$'
 
 " Copy/Paste OSX
 set clipboard=unnamed
