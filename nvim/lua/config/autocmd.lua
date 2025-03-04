@@ -97,15 +97,15 @@ vim.api.nvim_create_autocmd({ "BufWinEnter", "FileType" }, {
     end
     -- don't apply to git messages
     if (ft:match("commit") or ft:match("rebase")) then
-        return
+      return
     end
     -- get position of last saved edit
-    local markpos = vim.api.nvim_buf_get_mark(0,'"')
+    local markpos = vim.api.nvim_buf_get_mark(0, '"')
     local line = markpos[1]
     local col = markpos[2]
     -- if in range, go there
     if (line > 1) and (line <= vim.api.nvim_buf_line_count(0)) then
-        vim.api.nvim_win_set_cursor(0,{line,col})
+      vim.api.nvim_win_set_cursor(0, { line, col })
     end
   end
 })
@@ -256,6 +256,47 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
     local file = vim.uv.fs_realpath(event.match) or event.match
     vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
   end,
+})
+
+-- Don't auto comment new line
+vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
+  group = M.augroup("useful"),
+  callback = function()
+    vim.cmd("set formatoptions-=cro")
+  end,
+})
+
+-- Toggles the search highlight automatically
+local hl_search_group = M.augroup("hl_search")
+vim.api.nvim_create_autocmd("InsertEnter", {
+  group = hl_search_group,
+  callback = function()
+    vim.schedule(function() vim.cmd("nohlsearch") end)
+  end
+})
+vim.api.nvim_create_autocmd("CursorMoved", {
+  group = hl_search_group,
+  callback = function()
+    -- No bloat lua adpatation of: https://github.com/romainl/vim-cool
+    local view, rpos = vim.fn.winsaveview(), vim.fn.getpos(".")
+    -- Move the cursor to a position where (whereas in active search) pressing `n`
+    -- brings us to the original cursor position, in a forward search / that means
+    -- one column before the match, in a backward search ? we move one col forward
+    vim.cmd(string.format("silent! keepjumps go%s",
+      (vim.fn.line2byte(view.lnum) + view.col + 1 - (vim.v.searchforward == 1 and 2 or 0))))
+    -- Attempt to goto next match, if we're in an active search cursor position
+    -- should be equal to original cursor position
+    local ok, _ = pcall(vim.cmd, "silent! keepjumps norm! n")
+    local insearch = ok and (function()
+      local npos = vim.fn.getpos(".")
+      return npos[2] == rpos[2] and npos[3] == rpos[3]
+    end)()
+    -- restore original view and position
+    vim.fn.winrestview(view)
+    if not insearch then
+      vim.schedule(function() vim.cmd("nohlsearch") end)
+    end
+  end
 })
 
 return M
