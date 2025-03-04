@@ -31,13 +31,13 @@ require("lualine").setup({
       {
         "branch",
         on_click = function()
-          -- vim.api.nvim_command("Telescope git_branches")
+          vim.api.nvim_command("FzfLua git_branches")
         end
       },
       {
         "diff",
         on_click = function()
-          -- vim.api.nvim_command("Telescope git_status")
+          vim.api.nvim_command("FzfLua git_status")
         end
       },
       {
@@ -84,7 +84,7 @@ require("lualine").setup({
           return string.format("%s", text)
         end,
         on_click = function()
-          -- vim.api.nvim_command("Telescope filetypes")
+          vim.api.nvim_command("FzfLua filetypes")
         end,
       },
       {

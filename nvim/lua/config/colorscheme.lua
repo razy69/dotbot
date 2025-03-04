@@ -44,6 +44,7 @@ require("catppuccin").setup({
     notify = true,
     gitsigns = true,
     treesitter = true,
+    fzf = true,
     render_markdown = true,
     lsp_trouble = true,
     rainbow_delimiters = true,

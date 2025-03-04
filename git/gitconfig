@@ -12,13 +12,15 @@
 [interactive]
   diffFilter = delta --diff-so-fancy --color-only --features=interactive
 
+[include]
+  path = "~/.config/delta/themes/catppuccin.gitconfig"
+
 [delta]
   navigate = true
   light = false
   side-by-side = true
   line-numbers = true
-  features = decorations
-  syntax-theme = Monokai Extended Origin
+  features = catppuccin-frappe
   true-color = always
 
 [merge]
@@ -52,3 +54,9 @@
 
 [credential]
   helper = store
+
+[gpg]
+	program = gpg
+
+[commit]
+  gpgsign = true

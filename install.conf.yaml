@@ -34,6 +34,12 @@
       path: tmux/tmux
     ~/.config/nvim:
       path: nvim
+    ~/.config/bat/config:
+      path: bat/bat.conf
+    ~/.config/bat/themes:
+      path: bat/themes/catppuccin/themes
+    ~/.config/delta/themes/catppuccin.gitconfig:
+      path: delta/themes/catppuccin/catppuccin.gitconfig
     ~/.vim/colors:
       path: vim/colors
     ~/.vimrc:

@@ -23,9 +23,9 @@ dashboard.section.header.val = {
 -- Set menu
 dashboard.section.buttons.val = {
   dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
-  -- dashboard.button("f", "󰆌  Search file", ":Telescope find_files<CR>"),
-  -- dashboard.button("g", "  Find in files", ":Telescope live_grep<CR>"),
-  -- dashboard.button("r", "  Recent files", ":Telescope oldfiles<CR>"),
+  dashboard.button("f", "󰆌  Search file", ":FzfLua files<CR>"),
+  dashboard.button("g", "  Find in files", ":FzfLua live_grep<CR>"),
+  dashboard.button("r", "  Recent files", ":FzfLua oldfiles<CR>"),
   dashboard.button("s", "  Settings", ":e $MYVIMRC <BAR> :cd %:p:h<CR>"),
   dashboard.button("u", "󰁪  Update plugins", ":Lazy! sync <BAR> MasonUpdate<CR>"),
   dashboard.button("q", "  Quit", ":qa<CR>"),

@@ -59,20 +59,6 @@ return {
 
   -- UI
   {
-    "stevearc/dressing.nvim",
-    lazy = true,
-    init = function()
-      vim.ui.select = function(...)
-        require("lazy").load({ plugins = { "dressing.nvim" } })
-        return vim.ui.select(...)
-      end
-      vim.ui.input = function(...)
-        require("lazy").load({ plugins = { "dressing.nvim" } })
-        return vim.ui.input(...)
-      end
-    end,
-  },
-  {
     "folke/noice.nvim",
     lazy = false,
     dependencies = {
@@ -102,6 +88,14 @@ return {
     "nvim-lualine/lualine.nvim",
     config = function()
       require("plugins.lualine_")
+    end,
+  },
+
+  -- Fuzzy finder
+  {
+    "ibhagwan/fzf-lua",
+    config = function ()
+      require("plugins.fzf_lua_")
     end,
   },
 

@@ -38,7 +38,3 @@ vim.api.nvim_create_user_command(
   end,
   { range = true }
 )
-
--- Grep withtout Noice popup and open results in quickfix window
-vim.cmd("command! -nargs=+ -complete=file Grep noautocmd silent grep! <args> | redraw! | copen")
-vim.cmd("command! -nargs=+ -complete=file LGrep noautocmd silent lgrep! <args> | redraw! | lopen")

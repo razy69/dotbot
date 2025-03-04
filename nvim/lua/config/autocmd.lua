@@ -323,6 +323,8 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 })
 
 -- Add keybindings for lspconfig
+local fzf = require("fzf-lua")
+
 vim.api.nvim_create_autocmd("LspAttach", {
   group = augroup("UserLspConfig"),
   callback = function(ev)
@@ -331,8 +333,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       "n",
       "gD",
       function()
-        vim.cmd("vsplit")
-        vim.lsp.buf.declaration()
+        fzf.lsp_declarations({ jump_to_single_result = true })
       end,
       {
         desc = "LSP Go to declaration",
@@ -345,11 +346,62 @@ vim.api.nvim_create_autocmd("LspAttach", {
       "n",
       "gd",
       function()
-        vim.cmd("vsplit")
-        vim.lsp.buf.definition()
+        fzf.lsp_definitions({ jump_to_single_result = true })
       end,
       {
         desc = "LSP Go to definition",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Lists all the references to the symbol under the cursor in the quickfix window.
+    vim.keymap.set(
+      "n",
+      "gr",
+      function()
+        fzf.lsp_references({ winopts = { split = "belowright new" } })
+      end,
+      {
+        desc = "LSP References",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Lists all the implementations for the symbol under the cursor in the quickfix window.
+    vim.keymap.set(
+      "n",
+      "gi",
+      function()
+        fzf.lsp_implementations({ winopts = { split = "belowright new" } })
+      end,
+      {
+        desc = "LSP Implementations",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Selects a code action available at the current cursor position.
+    vim.keymap.set(
+      { "n", "v" },
+      "<leader>ca",
+      function()
+        fzf.lsp_code_actions({ winopts = { split = "belowright new" } })
+      end,
+      {
+        desc = "LSP Code action",
+        buffer = ev.buf,
+      }
+    )
+
+    -- Live workspace symbols query
+    vim.keymap.set(
+      { "n", "v" },
+      "<leader>ls",
+      function()
+        fzf.lsp_live_workspace_symbols({ winopts = { split = "belowright new" } })
+      end,
+      {
+        desc = "LSP Live Symbols",
         buffer = ev.buf,
       }
     )
@@ -366,17 +418,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
       }
     )
 
-    -- Lists all the implementations for the symbol under the cursor in the quickfix window.
-    vim.keymap.set(
-      "n",
-      "gi",
-      vim.lsp.buf.implementation,
-      {
-        desc = "LSP Implementations",
-        buffer = ev.buf,
-      }
-    )
-
     -- Displays signature information about the symbol under the cursor in a floating window.
     vim.keymap.set(
       "n",
@@ -384,20 +425,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.lsp.buf.signature_help,
       {
         desc = "LSP Signature help",
-        buffer = ev.buf,
-      }
-    )
-
-    -- Jumps to the definition of the type of the symbol under the cursor.
-    vim.keymap.set(
-      "n",
-      "tD",
-      function()
-        vim.cmd("vsplit")
-        vim.lsp.buf.type_definition()
-      end,
-      {
-        desc = "LSP Type definition",
         buffer = ev.buf,
       }
     )
@@ -412,27 +439,5 @@ vim.api.nvim_create_autocmd("LspAttach", {
         buffer = ev.buf,
       }
     )
-
-    -- Selects a code action available at the current cursor position.
-    vim.keymap.set(
-      { "n", "v" },
-      "<leader>ca",
-      vim.lsp.buf.code_action,
-      {
-        desc = "LSP Code action",
-        buffer = ev.buf,
-      }
-    )
-
-    -- Lists all the references to the symbol under the cursor in the quickfix window.
-    vim.keymap.set(
-      "n",
-      "gr",
-      vim.lsp.buf.references,
-      {
-        desc = "LSP References",
-        buffer = ev.buf,
-      }
-    )
-  end,
+  end
 })

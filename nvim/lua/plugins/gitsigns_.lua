@@ -1,12 +1,10 @@
 --[[
-  File: gitsigns.lua
+  File: gitsigns_.lua
   Description: Configuration of gitsigns
   See: https://github.com/lewis6991/gitsigns.nvim
 ]]
 
-local gitsigns = require("gitsigns")
-
-gitsigns.setup({
+require("gitsigns").setup({
   signs = {
     add          = { text = '▍' },
     change       = { text = '▍' },

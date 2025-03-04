@@ -26,3 +26,9 @@
 [submodule "zsh/plugins/spaceship"]
 	path = zsh/plugins/spaceship
 	url = https://github.com/spaceship-prompt/spaceship-prompt.git
+[submodule "bat/themes/catppuccin"]
+	path = bat/themes/catppuccin
+	url = https://github.com/catppuccin/bat
+[submodule "delta/themes/catppuccin"]
+	path = delta/themes/catppuccin
+	url = https://github.com/catppuccin/delta

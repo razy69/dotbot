@@ -13,6 +13,8 @@
 
 local noice = require("noice")
 local wk = require("which-key")
+local fzf_lua = require("fzf-lua")
+local fzf_lua_opts = { winopts = { split = "belowright new" } }
 
 -- Disable Exising Bindings
 vim.api.nvim_set_keymap("i", "<C-n>", "<Nop>", { noremap = true })
@@ -58,8 +60,6 @@ wk.add({
   { "-",            "<C-x>",                                                      desc = "Decrement Numbers",                            mode = "n" },
   { "+",            "<C-a>gv",                                                    desc = "Increment Numbers",                            mode = "v" },
   { "-",            "<C-x>gv",                                                    desc = "Decrement Numbers",                            mode = "v" },
-  { "<leader>g",    ":Grep ",                                                     desc = "Grep command",                                 mode = "n" },
-
   { "<leader>/",    ":%s/",                                                       desc = "Substitute",                                   mode = "n" },
   { "<leader>?",    ":%S/",                                                       desc = "Substitute (rev)",                             mode = "n" },
   { "<leader>/",    ":s/",                                                        desc = "Substitute",                                   mode = "x" },
@@ -68,6 +68,13 @@ wk.add({
 
   -- Neotree
   { "<leader>e",    "<cmd>Neotree toggle<cr>",                                    desc = "Open/Close Neotree",                           mode = "n" },
+
+  -- FzfLua
+  { "<leader>O",    function() fzf_lua.oldfiles(fzf_lua_opts) end,                desc = "Show recent files",                            mode = "n" },
+  { "<leader>o",    function() fzf_lua.files(fzf_lua_opts) end,                   desc = "Search for a file",                            mode = "n" },
+  { "<leader>i",    function() fzf_lua.jumps(fzf_lua_opts) end,                   desc = "Go to previous location",                      mode = "n" },
+  { "<leader>g",    function() fzf_lua.live_grep(fzf_lua_opts) end,               desc = "Find string in project",                       mode = "n" },
+  { "<leader>b",    function() fzf_lua.buffers(fzf_lua_opts) end,                 desc = "Show all buffers",                             mode = "n" },
 
   -- Trouble
   { "<leader>xx",   "<cmd>Trouble diagnostics toggle focus=true<cr>",             desc = "Diagnostics (Trouble)",                        mode = "n" },
