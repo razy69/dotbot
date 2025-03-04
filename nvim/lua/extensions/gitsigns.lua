@@ -6,20 +6,25 @@
 
 local gitsigns = require("gitsigns")
 
-gitsigns.setup{
-  signs = {
-    add          = { text = '▍' },
-    change       = { text = '▍' },
-    delete       = { text = '▍' },
-    topdelete    = { text = '▍' },
-    changedelete = { text = '▍' },
-    untracked    = { text = '▍' },
-  },
-  current_line_blame = true,
-  current_line_blame_opts = {
-    virt_text = true,
-    virt_text_pos = "right_align",
-    delay = 1000,
-    ignore_whitespace = false,
-  },
+gitsigns.setup {
+	signs = {
+		add          = { text = '▍' },
+		change       = { text = '▍' },
+		delete       = { text = '▍' },
+		topdelete    = { text = '▍' },
+		changedelete = { text = '▍' },
+		untracked    = { text = '▍' },
+	},
+	current_line_blame = true,
+	current_line_blame_opts = {
+		virt_text = true,
+		virt_text_pos = "right_align",
+		delay = 1000,
+		ignore_whitespace = false,
+	},
+	signcolumn = true,
+	watch_gitdir = {
+		follow_files = true
+	},
+	attach_to_untracked = true,
 }

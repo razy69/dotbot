@@ -85,10 +85,11 @@ return {
   -- Indentation Highlighting
   {
     "lukas-reineke/indent-blankline.nvim",
-    branch = "master",
+    event = { "BufReadPost", "BufNewFile" },
     config = function()
       require("extensions.indent-blankline")
-    end
+    end,
+    main = "ibl",
   },
 
   -- Rainbow delimiters
@@ -99,7 +100,7 @@ return {
   -- Lualine (statusbar)
   {
     "nvim-lualine/lualine.nvim",
-    event = { "BufReadPost", "BufNewFile", "BufNew", },
+    event = { "BufReadPost", "BufNewFile", "BufNew" },
     dependencies = "nvim-tree/nvim-web-devicons",
     config = function()
       require("extensions.lualine")
