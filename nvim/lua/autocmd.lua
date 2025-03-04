@@ -93,3 +93,22 @@ api.nvim_create_autocmd({"BufUnload"}, {
     opt.guicursor:remove("a:Cursor/lCursor")
   end,
 })
+
+-- Color override highlights
+vim.cmd("match EoLSpace /\\s\\+$/")
+
+api.nvim_create_autocmd({"InsertLeave"}, {
+  desc = "Enable EoLSpace highlight and match rule",
+  callback = function()
+    if (vim.bo.filetype ~= "neo-tree") then
+      vim.cmd("highlight EoLSpace ctermbg=238 guibg=#cb214e")
+    end
+  end,
+})
+
+api.nvim_create_autocmd({"InsertEnter"}, {
+  desc = "Disable EoLSpace highlight and match rule",
+  callback = function()
+    vim.cmd("highlight clear EoLSpace")
+  end,
+})

@@ -54,12 +54,12 @@ lualine.setup({
       {"encoding"},
       {"fileformat"},
       {"filetype"},
-      {
-        function()
-          return get_venv()
-        end,
-        cond = function() return vim.bo.filetype == "python" end,
-      },
+      -- {
+      --   function()
+      --     return get_venv()
+      --   end,
+      --   cond = function() return vim.bo.filetype == "python" end,
+      -- },
     },
   },
   inactive_sections = {

@@ -19,6 +19,7 @@ opt.smarttab = true     -- Handle tabs more intelligently
 
 -- Cursor {{{
 opt.cursorline = true -- Highlight current cursorline
+opt.guicursor = "n-v-c-sm:block-Cursor-blinkon0,i-ci:ver30-Cursor,r:hor50-Cursor"
 -- }}}
 
 -- Clipboard {{{
@@ -41,13 +42,10 @@ opt.wrap = true          -- Enable line wrap
 opt.showcmd = false      -- Disable display of last command
 opt.showmode = false     -- Disable -- INSERT --
 opt.hidden = true        -- Enable modified buffers in background
-opt.guicursor = "i-ci:ver30-iCursor-blinkwait300-blinkon200-blinkoff150,n-v-c-sm:ver30"
 opt.termguicolors = true
 opt.complete = ""
 opt.completeopt = ""
 
-vim.cmd("match EoLSpace /\\s\\+$/")
-vim.cmd("highlight EoLSpace ctermbg=238 guibg=#cb214e")
 vim.cmd("let &t_8f = '\\<Esc>[38;2;%lu;%lu;%lum'")
 vim.cmd("let &t_8b = '\\<Esc>[48;2;%lu;%lu;%lum'")
 -- }}}

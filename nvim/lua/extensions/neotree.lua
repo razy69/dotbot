@@ -32,12 +32,32 @@ neotree.setup {
       folder_open = "",
       folder_empty = "",
     },
+    name = {
+      trailing_slash = false,
+      use_git_status_colors = true,
+      highlight = "NeoTreeFileName",
+    },
+    file_size = {
+      enabled = true,
+      required_width = 50, -- min width of window required to show this column
+    },
+    type = {
+      enabled = true,
+      required_width = 70, -- min width of window required to show this column
+    },
+    last_modified = {
+      enabled = true,
+      required_width = 90, -- min width of window required to show this column
+    },
+    created = {
+      enabled = true,
+      required_width = 110, -- min width of window required to show this column
+    },
+    symlink_target = {
+      enabled = true,
+    },
   },
-  name = {
-    trailing_slash = true,
-    use_git_status_colors = true,
-    highlight = "NeoTreeFileName",
-  },
+
   window = {
     width = 40,
     mapping_options = {
