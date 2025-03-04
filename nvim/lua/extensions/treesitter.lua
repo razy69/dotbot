@@ -4,7 +4,13 @@
   See: https://github.com/tree-sitter/tree-sitter
 ]]
 
-require("nvim-treesitter.configs").setup {
+opt.foldmethod = "expr"
+opt.foldexpr = "nvim_treesitter#foldexpr()"
+opt.foldlevelstart = -1
+opt.foldenable = false
+opt.foldlevel = 99
+
+require("nvim-treesitter.configs").setup{
 
   -- Needed parsers
   ensure_installed = {
@@ -66,9 +72,3 @@ require("nvim-treesitter.configs").setup {
     max_file_lines = 3000
   }
 }
-
-opt.foldmethod = "expr"
-opt.foldexpr = "nvim_treesitter#foldexpr()"
-opt.foldlevelstart = -1
-opt.foldenable = false
-opt.foldlevel = 99

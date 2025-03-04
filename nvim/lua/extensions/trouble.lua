@@ -6,4 +6,4 @@
 
 local trouble = require("trouble")
 
-trouble.setup()
+trouble.setup{}

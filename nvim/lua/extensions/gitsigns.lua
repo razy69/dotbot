@@ -6,7 +6,7 @@
 
 local gitsigns = require("gitsigns")
 
-gitsigns.setup({
+gitsigns.setup{
   current_line_blame = true,
   current_line_blame_opts = {
     virt_text = true,
@@ -14,4 +14,4 @@ gitsigns.setup({
     delay = 1000,
     ignore_whitespace = false,
   },
-})
+}

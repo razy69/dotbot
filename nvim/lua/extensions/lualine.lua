@@ -6,7 +6,7 @@
 
 local lualine = require("lualine")
 
-lualine.setup({
-    icons_enabled = true,
-    theme = "wombat",
-})
+lualine.setup{
+  icons_enabled = true,
+  theme = "monokai-pro",
+}

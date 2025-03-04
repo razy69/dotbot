@@ -169,24 +169,10 @@ return {
   {
     "loctvl842/monokai-pro.nvim",
     lazy = false,
+    dependencies = "nvim-tree/nvim-web-devicons",
     config = function()
       require("extensions.colorscheme.monokai")
     end
   },
   -- }}}
-
-  -- Which Key {{{
-  {
-    "folke/which-key.nvim",
-    event = "VeryLazy",
-    init = function()
-      vim.o.timeout = true
-      vim.o.timeoutlen = 300
-    end,
-    config = function()
-      require("extensions.which-key")
-    end
-  },
-  -- }}}
-
 }
