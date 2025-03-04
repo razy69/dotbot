@@ -21,6 +21,22 @@ api.nvim_create_autocmd("FileType", {
   end
 })
 
+-- Check if we need to reload the file when it changed
+api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
+  group = augroup("checktime"),
+  command = "checktime",
+})
+
+-- resize splits if window got resized
+api.nvim_create_autocmd({ "VimResized" }, {
+  group = augroup("resize_splits"),
+  callback = function()
+    local current_tab = fn.tabpagenr()
+    cmd("tabdo wincmd =")
+    cmd("tabnext " .. current_tab)
+  end,
+})
+
 -- Go to last loc when opening a buffer
 api.nvim_create_autocmd("BufReadPost", {
   group = augroup("last_loc"),
@@ -67,6 +83,33 @@ api.nvim_create_autocmd("FileType", {
   callback = function()
     opt.foldenable = false
   end
+})
+
+-- Alpha vim Hide tabline
+api.nvim_create_autocmd("User", {
+  pattern = "AlphaReady",
+  desc = "disable tabline for alpha",
+  callback = function()
+    opt.showtabline = 0
+    local hl = api.nvim_get_hl_by_name("Cursor", true)
+    hl.blend = 100
+    api.nvim_set_hl(0, "Cursor", hl)
+    opt.guicursor:append("a:Cursor/lCursor")
+    require("illuminate").invisible_buf()
+  end,
+})
+
+-- Alpha vim Show tabline
+api.nvim_create_autocmd("BufUnload", {
+  buffer = 0,
+  desc = "enable tabline after alpha",
+  callback = function()
+    opt.showtabline = 2
+    local hl = api.nvim_get_hl_by_name("Cursor", true)
+    hl.blend = 0
+    api.nvim_set_hl(0, "Cursor", hl)
+    opt.guicursor:remove("a:Cursor/lCursor")
+  end,
 })
 
 -- Lint on Leave Insert Mode
