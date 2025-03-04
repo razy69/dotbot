@@ -5,14 +5,12 @@
 ]]
 
 local lualine = require("lualine")
-local navic = require("nvim-navic")
 
 lualine.setup({
   icons_enabled = true,
   theme = "monokai-pro",
   extensions = {
-    "neo-tree",
-    "trouble"
+    "lazy", "neo-tree", "nvim-dap-ui",
   },
   sections = {
     lualine_a = {
@@ -29,6 +27,7 @@ lualine.setup({
       },
       {
         "diagnostics",
+        sources = {"nvim_lsp"},
         symbols = {error = " ", warn = " ", info = " ", hint = " "},
       },
     },
@@ -36,16 +35,18 @@ lualine.setup({
       {
         "filename",
         file_status = true,
-        path = 1,
-      },
-      {
-        function()
-          return navic.get_location()
-        end,
-        cond = function()
-          return navic.is_available()
-        end
+        newfile_status = false,
+        path = 3,
       },
     },
   },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = {"filename"},
+    lualine_x = {"location"},
+    lualine_y = {},
+    lualine_z = {}
+  },
+  inactive_winbar = {},
 })

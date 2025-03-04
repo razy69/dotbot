@@ -6,14 +6,14 @@
 
 local noice = require("noice")
 
-noice.setup{
+noice.setup({
   lsp = {
     -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
     override = {
       ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
       ["vim.lsp.util.stylize_markdown"] = true,
       ["cmp.entry.get_documentation"] = true,
-      },
+    },
   },
   cmdline = {
     enabled = true, -- enables the Noice cmdline UI
@@ -24,4 +24,10 @@ noice.setup{
       filter = { pattern = "^:%s*!", icon = "$", lang = "bash" },
     },
   },
-}
+  routes = {
+    {
+      filter = { event = "notify", find = "No information available", }, -- Suppress 'No information available' popup message
+      opts = { skip = true},
+    },
+  },
+})

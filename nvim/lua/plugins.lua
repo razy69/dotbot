@@ -12,19 +12,16 @@ return {
   -- Indentation Highlighting {{{
   {
     "lukas-reineke/indent-blankline.nvim",
-    lazy = false,
   },
   -- }}}
 
-  -- Bufferline {{{
+  -- Theme Monokai {{{
   {
-    "akinsho/bufferline.nvim",
+    "loctvl842/monokai-pro.nvim",
     lazy = false,
-    dependencies = {
-      "nvim-tree/nvim-web-devicons"
-    },
+    dependencies = "nvim-tree/nvim-web-devicons",
     config = function()
-      require("extensions.bufferline")
+      require("extensions.colorscheme.monokai")
     end
   },
   -- }}}
@@ -48,11 +45,46 @@ return {
   },
   -- }}}
 
+  -- Noice {{{
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "rcarriga/nvim-notify",
+    },
+    config = function()
+      require("extensions.noice")
+    end
+  },
+  -- }}}
+
+  -- TreeSitter {{{
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    event = { "BufReadPost", "BufNewFile" },
+    config = function()
+      require("extensions.treesitter")
+    end
+  },
+  -- }}}
+
+  -- Lualine {{{
+  {
+    "nvim-lualine/lualine.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    dependencies = "nvim-tree/nvim-web-devicons",
+    config = function()
+      require("extensions.lualine")
+    end
+  },
+  -- }}}
+
   -- Neo Tree {{{
   {
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
-    lazy = false,
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons",
@@ -60,38 +92,6 @@ return {
     },
     config = function ()
       require("extensions.neotree")
-    end
-  },
-  -- }}}
-
-  -- Telescope {{{
-  {
-    "nvim-telescope/telescope.nvim",
-    tag = "0.1.2",
-    lazy = false,
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "ahmedkhalf/project.nvim",
-      "nvim-telescope/telescope-ui-select.nvim",
-      "nvim-telescope/telescope-media-files.nvim",
-      "debugloop/telescope-undo.nvim",
-    },
-    config = function()
-      require("extensions.telescope")
-    end
-  },
-  -- }}}
-
-  -- Telekasten
-  {
-    "renerocksai/telekasten.nvim",
-    event = "VeryLazy",
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-      "renerocksai/calendar-vim",
-    },
-    config = function()
-      require("extensions.telekasten")
     end
   },
   -- }}}
@@ -119,9 +119,40 @@ return {
   -- LSP Kind {{{
   {
     "onsails/lspkind-nvim",
-    lazy = true,
     config = function()
       require("extensions.lspkind-conf")
+    end
+  },
+  -- }}}
+
+  -- Telescope {{{
+  {
+    "nvim-telescope/telescope.nvim",
+    tag = "0.1.2",
+    lazy = true,
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "ahmedkhalf/project.nvim",
+      "nvim-telescope/telescope-ui-select.nvim",
+      "nvim-telescope/telescope-media-files.nvim",
+      "debugloop/telescope-undo.nvim",
+    },
+    config = function()
+      require("extensions.telescope")
+    end
+  },
+  -- }}}
+
+  -- Telekasten
+  {
+    "renerocksai/telekasten.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+      "renerocksai/calendar-vim",
+    },
+    config = function()
+      require("extensions.telekasten")
     end
   },
   -- }}}
@@ -129,47 +160,8 @@ return {
   -- Git Signs {{{
   {
     "lewis6991/gitsigns.nvim",
-    lazy = false,
     config = function()
       require("extensions.gitsigns")
-    end
-  },
-  -- }}}
-
-  -- Noice {{{
-  {
-    "folke/noice.nvim",
-    event = "VeryLazy",
-    dependencies = {
-      "MunifTanjim/nui.nvim",
-      "rcarriga/nvim-notify",
-    },
-    config = function()
-      require("extensions.noice")
-    end
-  },
-  -- }}}
-
-  -- TreeSitter {{{
-  {
-    "nvim-treesitter/nvim-treesitter",
-    lazy = false,
-    build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
-    config = function()
-      require("extensions.treesitter")
-    end
-  },
-  -- }}}
-
-  -- Lualine {{{
-  {
-    "nvim-lualine/lualine.nvim",
-    --lazy = false,
-    event = { "BufReadPost", "BufNewFile" },
-    dependencies = "nvim-tree/nvim-web-devicons",
-    config = function()
-      require("extensions.lualine")
     end
   },
   -- }}}
@@ -184,17 +176,6 @@ return {
     end,
     config = function()
       require("extensions.which-key")
-    end
-  },
-  -- }}}
-
-  -- Nvim-Navic {{{
-  {
-    "SmiteshP/nvim-navic",
-    lazy = false,
-    dependencies = "neovim/nvim-lspconfig",
-    config = function()
-      require("extensions.nvim-navic-conf")
     end
   },
   -- }}}
@@ -232,14 +213,29 @@ return {
   },
   -- }}}
 
-  -- Theme Monokai {{{
+  -- Barbecue {{{
   {
-    "loctvl842/monokai-pro.nvim",
-    lazy = false,
-    dependencies = "nvim-tree/nvim-web-devicons",
+    "utilyre/barbecue.nvim",
+    dependencies = {
+      "SmiteshP/nvim-navic",
+      "nvim-tree/nvim-web-devicons",
+    },
     config = function()
-      require("extensions.colorscheme.monokai")
-    end
+      require("extensions.barbecue")
+    end,
   },
   -- }}}
+
+  -- Bufferline {{{
+  {
+    "akinsho/bufferline.nvim",
+    dependencies = {
+      "nvim-tree/nvim-web-devicons"
+    },
+    config = function()
+      require("extensions.bufferline")
+    end,
+  },
+  -- }}}
+
 }

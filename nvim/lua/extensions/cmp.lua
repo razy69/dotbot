@@ -7,6 +7,7 @@
 local cmp = require("cmp")
 local lspkind = require("lspkind")
 
+
 cmp.setup{
 
   -- Mappings for cmp
@@ -46,3 +47,5 @@ cmp.setup{
     })
   }
 }
+
+require("cmp_nvim_lsp").default_capabilities()
