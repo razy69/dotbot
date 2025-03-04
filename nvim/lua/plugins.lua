@@ -152,14 +152,13 @@ return {
     end
   },
 
-  -- Pretty Fold
+  -- Nvim-UFO
   {
-    "anuvyklack/pretty-fold.nvim",
-    config = function()
-      require("pretty-fold").setup({
-        fill_char = "-",
-      })
-    end,
+    "kevinhwang91/nvim-ufo",
+    dependencies = { "kevinhwang91/promise-async" },
+    config = function ()
+      require("extensions.nvim-ufo")
+    end
   },
 
   -- Git Signs
@@ -317,6 +316,48 @@ return {
     event = "InsertEnter",
     opts = {}
   },
+
+  -- better-escape.nvim
+  {
+    "max397574/better-escape.nvim",
+    config = function()
+      require("better_escape").setup()
+    end,
+  },
+
+  -- numb.nvim
+  {
+    "nacro90/numb.nvim",
+    config = function ()
+      require("numb").setup()
+    end,
+  },
+
+  -- treesj
+  {
+    "Wansmer/treesj",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    config = function()
+      require("treesj").setup({})
+    end,
+  },
+
+  -- Comment.nvim
+  {
+    "numToStr/Comment.nvim",
+    lazy = false,
+    opts = {},
+  },
+
+  -- Neogen
+  {
+    "danymat/neogen",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    config = function ()
+      require("extensions.neogen")
+    end
+  }
+
 -- ]]
 
 }
