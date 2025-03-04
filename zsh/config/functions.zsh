@@ -19,7 +19,6 @@ fi
 export SSH_AUTH_SOCK="${HOME}/.ssh/ssh_auth_sock"
 ssh-add -l > /dev/null || ssh-add
 
-
 # Tmux share ssh-agent
 function update_environment_from_tmux() {
   if [ -n "${TMUX}" ]; then
@@ -29,3 +28,13 @@ function update_environment_from_tmux() {
 
 autoload -zU add-zsh-hook
 add-zsh-hook precmd update_environment_from_tmux
+
+
+# Utils
+function uuid_gen() {
+  if command -v uuidgen >/dev/null; then
+    tr '[:upper:]' '[:lower:]' <<< $(uuidgen)
+  else
+    python3 -c 'import uuid; print(uuid.uuid4())'
+  fi
+}
