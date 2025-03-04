@@ -60,6 +60,9 @@ set smarttab                    "Insert tabs on the start of a line according to
 set softtabstop=2               "When hitting <BS>, pretend like a tab is removed, even if spaces
 set tabstop=2                   "Tabs are n spaces
 
+" / + p = paste in paste mode
+map <silent> <leader>p :set paste<CR>"*p:set nopaste<CR>
+
 " Enable folding
 set foldmethod=indent
 set foldnestmax=20
@@ -103,7 +106,6 @@ autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
 " --------
 call plug#begin('~/.vim/plugged')
   Plug 'patstockwell/vim-monokai-tasty'
-  Plug 'dense-analysis/ale'
   Plug 'vim-airline/vim-airline'
   Plug 'vim-airline/vim-airline-themes'
   Plug 'preservim/nerdtree'
@@ -112,7 +114,6 @@ call plug#begin('~/.vim/plugged')
   Plug 'nvie/vim-flake8'
   Plug 'airblade/vim-gitgutter'
   Plug 'tpope/vim-fugitive'
-  "Plug 'frazrepo/vim-rainbow'
   Plug 'mrk21/yaml-vim'
   Plug 'blueyed/vim-diminactive'
   Plug 'nathanaelkane/vim-indent-guides'
@@ -133,16 +134,31 @@ let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_theme='bubblegum'
 
-" Vim rainbow settings
-let g:rainbow_active = 1
-
 " NERDTree settings
+hi NERDTreeDir ctermfg=LightGray cterm=bold
 let NERDTreeQuitOnOpen=1
 let NERDTreeShowHidden=1
 let NERDTreeAutoDeleteBuffer = 1
 let NERDTreeDirArrows = 1
 let NERDTreeMinimalUI = 1
-hi NERDTreeDir ctermfg=LightGray cterm=bold
+let g:NERDTreeGitStatusUseNerdFonts = 1
+let g:WebDevIconsUnicodeDecorateFolderNodes = 1
+let g:NERDTreeGitStatusNodeColorization = 1
+let g:NERDTreeGitStatusWithFlags = 1
+let g:NERDTreeGitStatusIndicatorMapCustom = {
+    \ "Modified"  : "⋆",
+    \ "Staged"    : "•",
+    \ "Untracked" : "∘",
+    \ "Dirty"     : "x",
+    \ "Clean"     : "✔︎",
+    \ }
+let g:NERDTreeColorMapCustom = {
+    \ "Modified"  : "#528AB3",
+    \ "Staged"    : "#538B54",
+    \ "Untracked" : "#BE5849",
+    \ "Dirty"     : "#299999",
+    \ "Clean"     : "#87939A"
+    \ }
 nnoremap <silent> <expr> <C-o> g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
 nnoremap <silent> <Leader>v :NERDTreeFind<CR>
 "Start NERDTree when Vim is started without file arguments.

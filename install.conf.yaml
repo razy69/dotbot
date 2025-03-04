@@ -36,6 +36,9 @@
       command: git submodule update --init --recursive
       description: Installing submodules
     -
+      command: git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+      description: Install zsh-syntax-highlighting
+    -
       command: '
         for bin in flake8 git tmux vim zsh; do
           if ! command -v "$bin" &> /dev/null;
