@@ -27,20 +27,16 @@ api.nvim_create_autocmd("FileType", {
 
 
 -- Check if we need to reload the file when it changed
---api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
---  group = augroup("checktime"),
---  command = "checktime",
---})
-vim.api.nvim_create_autocmd({"BufEnter", "CursorHold", "CursorHoldI", "FocusGained", "TermClose", "TermLeave"}, {
-  command = "if mode() != 'c' | checktime | endif",
-  pattern = { "*" },
-})
-
--- Notify if file changed
-vim.api.nvim_create_autocmd({"FileChangedShellPost"}, {
-  command = "echohl WarningMsg | echo 'File changed on disk. Buffer reloaded.' | echohl None",
-  pattern = { "*" },
-})
+-- vim.api.nvim_create_autocmd({"BufEnter", "CursorHold", "CursorHoldI", "FocusGained", "TermClose", "TermLeave"}, {
+--   command = "if mode() != 'c' | checktime | endif",
+--   pattern = { "*" },
+-- })
+--
+-- -- Notify if file changed
+-- vim.api.nvim_create_autocmd({"FileChangedShellPost"}, {
+--   command = "echohl WarningMsg | echo 'File changed on disk. Buffer reloaded.' | echohl None",
+--   pattern = { "*" },
+-- })
 
 
 -- Go to last loc when opening a buffer

@@ -5,14 +5,17 @@
 ]]
 
 
-local lsp_zero = require("lsp-zero")
 local cmp = require("cmp")
 local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-local cmp_action = lsp_zero.cmp_action()
 local luasnip = require("luasnip")
+local lspkind = require("lspkind")
 
 require("luasnip.loaders.from_vscode").lazy_load()
 
+lspkind.init({
+  mode = "symbol_text",
+  preset = "codicons",
+})
 
 -- Add parentheses after selecting function or method item
 cmp.event:on(
@@ -22,7 +25,12 @@ cmp.event:on(
 
 cmp.setup({
 
-  formatting = lsp_zero.cmp_format({details = true}),
+  formatting = {
+    format = lspkind.cmp_format({
+      maxwidth = 50,
+      ellipsis_char = "...",
+    })
+  },
 
   snippet = {
     expand = function(args)
@@ -31,31 +39,45 @@ cmp.setup({
   },
 
   preselect = cmp.PreselectMode.Item,
-  keyword_length = 2,
   completion = {
     completeopt = "menu,menuone,noinsert",
   },
 
   -- Mappings for cmp
   mapping = {
-    ["<C-p>"] = cmp.mapping.select_prev_item(),
-    ["<C-n>"] = cmp.mapping.select_next_item(),
-    ["<C-f>"] = cmp_action.luasnip_jump_forward(),
-    ["<C-b>"] = cmp_action.luasnip_jump_backward(),
-    ["<C-u>"] = cmp.mapping.scroll_docs(-4),
-    ["<C-d>"] = cmp.mapping.scroll_docs(4),
+    ["<CR>"] = cmp.mapping.confirm({ select = true }),
     ["<C-Space>"] = cmp.mapping.complete(),
     ["<C-e>"] = cmp.mapping.abort(),
-    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+    ["<C-p>"] = cmp.mapping.select_prev_item(),
+    ["<C-n>"] = cmp.mapping.select_next_item(),
+		["<Tab>"] = cmp.mapping(function(fallback)
+			if cmp.visible() then
+				cmp.select_next_item()
+			elseif luasnip.expand_or_jumpable() then
+				luasnip.expand_or_jump()
+			else
+				fallback()
+			end
+		end, { "i", "s" }),
+    ["<S-Tab>"] = cmp.mapping(function(fallback)
+			if cmp.visible() then
+				cmp.select_prev_item()
+			elseif luasnip.jumpable(-1) then
+				luasnip.jump(-1)
+			else
+				fallback()
+			end
+		end, { "i", "s" }),
   },
 
   sources = cmp.config.sources({
-    { name = "nvim_lsp_signature_help" },
     { name = "nvim_lsp" },
+    { name = "nvim_lsp_signature_help" },
     { name = "treesitter" },
     { name = "luasnip" },
     { name = "nvim_lua" },
-    { name = "path" },
+    { name = "async_path" },
+		{ name = "buffer" },
   }),
 
   cmp.setup.filetype("gitcommit", {
@@ -82,16 +104,18 @@ cmp.setup({
 -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won"t work anymore).
 cmp.setup.cmdline({ "/", "?" }, {
   mapping = cmp.mapping.preset.cmdline(),
-  sources = {
+  sources = cmp.config.sources({
+    { name = "nvim_lsp_document_symbol" }
+  }, {
     { name = "buffer" }
-  }
+  }),
 })
 
 -- Use cmdline & path source for ":" (if you enabled `native_menu`, this won"t work anymore).
 cmp.setup.cmdline(":", {
   mapping = cmp.mapping.preset.cmdline(),
   sources = cmp.config.sources({
-      { name = "path" }
+      { name = "async_path" }
     },
     {
       { name = "cmdline" }
