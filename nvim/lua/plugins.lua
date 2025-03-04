@@ -132,16 +132,13 @@ return {
     end,
   },
 
-  -- Refactoring
+  -- Indent Guide
   {
-    "ThePrimeagen/refactoring.nvim",
-    cmd = "Refactor",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
+    "lukas-reineke/indent-blankline.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    main = "ibl",
     config = function()
-      require("refactoring").setup()
+      require("extensions.ibl_")
     end,
   },
 
@@ -160,15 +157,6 @@ return {
     config = function()
       require("extensions.ufo_")
     end,
-  },
-
-  -- Hlchunk
-  {
-    "shellRaining/hlchunk.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    config = function()
-      require("extensions.hlchunk_")
-    end
   },
 
   -- Rainbow delimiters
@@ -201,13 +189,6 @@ return {
     config = function()
       require("hlargs").setup()
     end,
-  },
-
-  -- Jump to outer node smartly
-  {
-    "Mr-LLLLL/treesitter-outer",
-    event = { "BufReadPost", "BufNewFile", "BufNew" },
-    dependencies = "nvim-treesitter/nvim-treesitter",
   },
 
   -- Autopairs
@@ -283,23 +264,10 @@ return {
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope-media-files.nvim",
       "debugloop/telescope-undo.nvim",
-      "ThePrimeagen/refactoring.nvim",
     },
     config = function()
       require("extensions.telescope_")
     end,
-  },
-
-  -- Diff tools
-  {
-    "akinsho/git-conflict.nvim",
-    lazy = true,
-    version = "*",
-    config = true,
-  },
-  {
-    "sindrets/diffview.nvim",
-    cmd = "DiffviewOpen",
   },
 
   -- Note management
@@ -331,23 +299,6 @@ return {
     end,
   },
 
-  -- Utils
-  {
-    "max397574/better-escape.nvim",
-    lazy = true,
-    config = function()
-      require("better_escape").setup()
-    end,
-  },
-
-  -- Smooth scroll
-  {
-    "karb94/neoscroll.nvim",
-    config = function()
-      require("neoscroll").setup({})
-    end,
-  },
-
   -- Readline Bindings
   {
     "assistcontrol/readline.nvim",
@@ -367,12 +318,12 @@ return {
   {
     "akinsho/toggleterm.nvim",
     version = "*",
-    config = function ()
+    config = function()
       require("toggleterm").setup({})
     end
   },
 
-  -- Colorschemes
+  -- Icons & Colorscheme
   {
     "echasnovski/mini.icons",
     opts = {},

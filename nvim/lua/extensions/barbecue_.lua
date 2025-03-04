@@ -11,5 +11,5 @@ barbecue.setup({
   create_autocmd = false,
   show_dirname = true,
   show_basename = true,
-  exclude_filetypes = { "neo-tree" }
+  exclude_filetypes = { "neo-tree", "alpha" }
 })

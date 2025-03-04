@@ -40,7 +40,7 @@ vim.cmd("set guioptions-=T")
 
 -- Clipboard
 opt.clipboard:append("unnamedplus") -- Use system clipboard
-opt.fixeol = true                    -- Turn off appending new line in the end of a file
+opt.fixeol = true                   -- Turn off appending new line in the end of a file
 
 -- Other
 vim.cmd("match EoLSpace /\\s\\+$/")
@@ -72,7 +72,6 @@ opt.titlestring = "%<%F%=%l/%L - nvim"
 opt.termguicolors = true
 opt.confirm = true
 opt.spelloptions:append "camel"
-opt.smoothscroll = true
 opt.scrolloff = 2
 opt.backspace = "indent,eol,start"
 opt.conceallevel = 0

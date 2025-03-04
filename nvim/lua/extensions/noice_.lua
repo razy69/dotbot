@@ -9,7 +9,7 @@ require("notify").setup({
   render = "default",
   timeout = 1200,
   minimum_width = 50,
-  icons = { ERROR = "", WARN = "", INFO = "", DEBUG = "", TRACE = "" },
+  icons = { ERROR = "", WARN = "", INFO = "", DEBUG = "", TRACE = "" },
   level = vim.log.levels.INFO,
   fps = 5,
   background_colour = "#000000",

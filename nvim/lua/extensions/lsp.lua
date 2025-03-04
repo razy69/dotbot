@@ -89,15 +89,7 @@ vim.lsp.handlers["textDocument/foldingRange"] = {
   lineFoldingOnly = true,
 }
 
--- vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
--- border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
--- })
--- vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
--- border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
--- })
-
 vim.lsp.handlers["textDocument/completion/completionItem/snippetSupport"] = true
-
 vim.lsp.handlers["textDocument/completion/completionItem/resolveSupport"] = {
   properties = {
     "documentation",
