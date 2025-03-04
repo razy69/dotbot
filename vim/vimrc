@@ -2,13 +2,9 @@
 scriptencoding UTF-8
 set encoding=UTF-8
 
-" Theming and colors
-set conceallevel=3
-
 " General options
 set number                      "Show line numbers
 set ruler
-set term=xterm-256color
 set showmatch
 set novisualbell                "Disable flash bell
 set noerrorbells                "Disable bell
@@ -31,11 +27,6 @@ filetype on
 
 " Search highlight
 set hlsearch
-hi Search ctermbg=222
-
-" Vim tabs
-"CTRL+N creates a new window
-"nnoremap <C-n>:tabnew<CR>
 
 " More natural split opening
 set splitbelow
@@ -58,9 +49,6 @@ set smarttab                    "Insert tabs on the start of a line according to
 set softtabstop=2               "When hitting <BS>, pretend like a tab is removed, even if spaces
 set tabstop=2                   "Tabs are n spaces
 
-" / + p = paste in paste mode
-"map <silent> <leader>p :set paste<CR>"*p:set nopaste<CR>
-
 " Enable folding
 set foldmethod=indent
 set foldnestmax=20
@@ -68,7 +56,7 @@ set nofoldenable
 set foldlevel=99
 
 " Enable folding with the spacebar
-"nnoremap <space> za<CR>
+nnoremap <space> za<CR>
 
 " File format
 set fileformat=unix
@@ -77,13 +65,11 @@ set fileformat=unix
 set list
 set showbreak=↪\
 set listchars=trail:•,tab:❯-,precedes:◀,extends:▶,nbsp:␣
-match ErrorMsg '\s\+$'
 
 " Copy/Paste OSX
 set clipboard=unnamed
 
 " Python settings
-let python_highlight_all = 1
 au BufNewFile,BufRead *.{py}
       \ set tabstop=4 |
       \ set softtabstop=4 |
@@ -101,4 +87,9 @@ au BufNewFile,BufRead *.js, *.html, *.css, *.yaml, *.json
 
 " Set theme
 syntax on
-silent! colorscheme vim-monokai-tasty
+set termguicolors
+if !has('gui_running') && &term =~ '\%(screen\|tmux\)'
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+endif
+silent! colorscheme catpuccin_frappe
