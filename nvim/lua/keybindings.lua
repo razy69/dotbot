@@ -110,4 +110,5 @@ wk.add({
 
   -- Telekasten
   { "<leader>n",    "<cmd>Telekasten panel<cr>",                                                           desc = "Open Telekasten panel",             mode = "n" },
+
 })
