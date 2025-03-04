@@ -35,7 +35,7 @@ hi Search ctermbg=222
 
 " Vim tabs
 "CTRL+N creates a new window
-nnoremap <C-n> :tabnew<CR>
+nnoremap <C-n>:tabnew<CR>
 
 " More natural split opening
 set splitbelow
@@ -82,11 +82,6 @@ match ErrorMsg '\s\+$'
 " Copy/Paste OSX
 set clipboard=unnamed
 
-" Vim dirs
-set backupdir=~/.vim/backup//
-set directory=~/.vim/swp//
-set undodir=~/.vim/undo//
-
 " Python settings
 let python_highlight_all = 1
 au BufNewFile,BufRead *.{py}
@@ -104,144 +99,6 @@ au BufNewFile,BufRead *.js, *.html, *.css, *.yaml, *.json
   \ set softtabstop=2 |
   \ set shiftwidth=2
 
-" Need to install patched font:
-" https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/SourceCodePro
-
-" --------
-" Plugins
-" --------
-call plug#begin('~/.vim/plugged')
-  Plug 'patstockwell/vim-monokai-tasty'
-  Plug 'vim-airline/vim-airline'
-  Plug 'vim-airline/vim-airline-themes'
-  Plug 'preservim/nerdtree'
-  Plug 'Xuyuanp/nerdtree-git-plugin', { 'on':  'NERDTreeToggle' }
-  Plug 'tiagofumo/vim-nerdtree-syntax-highlight', { 'on':  'NERDTreeToggle' }
-  Plug 'airblade/vim-gitgutter'
-  Plug 'blueyed/vim-diminactive'
-  Plug 'nathanaelkane/vim-indent-guides'
-  Plug 'ryanoasis/vim-devicons'
-  Plug 'tmhedberg/SimpylFold'
-  Plug 'vim-scripts/indentpython.vim'
-  Plug 'kien/ctrlp.vim'
-  Plug 'ycm-core/YouCompleteMe', { 'do': 'python3 ./install.py --all' }
-  Plug 'dense-analysis/ale'
-call plug#end()
-
-"Python with virtualenv support
-python3 << EOF
-import os
-import subprocess
-
-if "VIRTUAL_ENV" in os.environ:
-    project_base_dir = os.environ["VIRTUAL_ENV"]
-    script = os.path.join(project_base_dir, "bin/activate")
-    pipe = subprocess.Popen(". %s; env" % script, stdout=subprocess.PIPE, shell=True)
-    output = pipe.communicate()[0].decode('utf8').splitlines()
-    env = dict((line.split("=", 1) for line in output))
-    os.environ.update(env)
-
-EOF
-
 " Set theme
+syntax on
 silent! colorscheme vim-monokai-tasty
-if !has('gui_running')
-  set t_Co=256
-endif
-set background=dark
-hi Normal ctermbg=232
-hi nonText ctermbg=232
-
-" Airline config
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline_theme='bubblegum'
-
-" NERDTree settings
-hi NERDTreeDir ctermfg=LightGray cterm=bold
-let NERDTreeQuitOnOpen=1
-let NERDTreeShowHidden=1
-let NERDTreeAutoDeleteBuffer = 1
-let NERDTreeDirArrows = 1
-let NERDTreeMinimalUI = 1
-let g:NERDTreeGitStatusUseNerdFonts = 1
-let g:WebDevIconsUnicodeDecorateFolderNodes = 1
-let g:NERDTreeGitStatusNodeColorization = 1
-let g:NERDTreeGitStatusWithFlags = 1
-let g:NERDTreeGitStatusIndicatorMapCustom = {
-    \ "Modified"  : "⋆",
-    \ "Staged"    : "•",
-    \ "Untracked" : "∘",
-    \ "Dirty"     : "x",
-    \ "Clean"     : "✔︎",
-    \ }
-let g:NERDTreeColorMapCustom = {
-    \ "Modified"  : "#528AB3",
-    \ "Staged"    : "#538B54",
-    \ "Untracked" : "#BE5849",
-    \ "Dirty"     : "#299999",
-    \ "Clean"     : "#87939A"
-    \ }
-nnoremap <silent> <expr> <C-o> g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
-nnoremap <silent> <Leader>v :NERDTreeFind<CR>
-"Start NERDTree when Vim is started without file arguments.
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | NERDTree | endif
-"Exit Vim if NERDTree is the only window remaining in the only tab.
-autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
-"Remove / at the end of dir names
-augroup nerdtreehidecwd
-  autocmd!
-  autocmd FileType nerdtree syntax match NERDTreeDirSlash #/$# contained conceal containedin=NERDTreeDir
-  autocmd FileType nerdtree setlocal conceallevel=3
-augroup end
-
-" Vim diminactive settings
-hi ColorColumn ctermbg=232
-let g:diminactive_enable_focus = 1
-let g:diminactive_use_syntax = 1
-
-" Vim Indent Guides
-let g:indent_guides_exclude_filetypes = ['help', 'nerdtree']
-let g:indent_guides_enable_on_vim_startup = 1
-let g:indent_guides_start_level = 2
-let g:indent_guides_guide_size = 1
-let g:indent_guides_auto_colors = 0
-hi IndentGuidesOdd ctermbg=236
-
-" Vim YouCompleteMe settings
-let g:ycm_python_interpreter_path = ''
-let g:ycm_python_sys_path = []
-let g:ycm_extra_conf_vim_data = [
-  \  'g:ycm_python_interpreter_path',
-  \  'g:ycm_python_sys_path'
-  \]
-let g:ycm_global_ycm_extra_conf = '~/.ycm_global_extra_conf.py'
-let g:ycm_autoclose_preview_window_after_completion=1
-map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-
-" Highligh line in current window
-set cursorline!
-hi CursorLine ctermbg=234
-
-" Ale
-let g:ale_enabled = 1
-let g:ale_sign_error = 'x'
-let g:ale_sign_warning = '~'
-let g:ale_lint_on_enter = 1
-let g:ale_fix_on_save = 1
-let g:ale_open_list = 1
-let g:ale_lint_on_text_changed = 'never'
-let g:airline#extensions#ale#enabled = 1
-let g:ale_echo_msg_error_str = 'E'
-let g:ale_echo_msg_warning_str = 'W'
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-let b:ale_linters = ['flake8', 'mypy']
-let g:ale_fixers = {
-\   '*': ['remove_trailing_lines', 'trim_whitespace'],
-\   'python': ['black', 'isort'],
-\}
-let g:ale_python_isort_options = '--line-length 120 --profile black'
-let g:ale_python_black_options = '--line-length 120'
-let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E203 --max-complexity=20'
-let g:ale_python_mypy_options = '--ignore-missing-imports --disallow-untyped-defs --show-error-codes --show-error-context --show-column-numbers --strict-equality --warn-no-return --warn-incomplete-stub --warn-redundant-casts --warn-unreachable'
