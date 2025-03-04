@@ -97,3 +97,60 @@ mason_lspconfig.setup_handlers{
     }
   end,
 }
+
+-- Setup diagnostics for all LSP handlers
+vim.diagnostic.config({
+  virtual_text = {
+    spacing = 4,
+    prefix = "▎",
+    format = function(diagnostic)
+      return string.format(
+        "%s (%s)",
+        diagnostic.message,
+        diagnostic.source
+      )
+    end,
+  },
+  severity_sort = true,
+  signs = true,
+  float = {
+    border = "none",
+    format = function(diagnostic)
+      return string.format(
+        "%s (%s)",
+        diagnostic.message,
+        diagnostic.source
+      )
+    end,
+  },
+})
+
+
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+  vim.lsp.diagnostic.on_publish_diagnostics, {
+    virtual_text = {
+      spacing = 4,
+      prefix = "▎",
+      format = function(diagnostic)
+        return string.format(
+          "%s (%s) [%s]",
+          diagnostic.message,
+          diagnostic.source,
+          diagnostic.code or diagnostic.user_data.lsp.code
+        )
+      end,
+    },
+    signs = true,
+    float = {
+      border = "none",
+      format = function(diagnostic)
+        return string.format(
+          "%s (%s) [%s]",
+          diagnostic.message,
+          diagnostic.source,
+          diagnostic.code or diagnostic.user_data.lsp.code
+        )
+      end,
+    },
+  }
+)

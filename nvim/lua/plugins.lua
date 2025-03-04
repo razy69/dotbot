@@ -240,4 +240,22 @@ return {
   },
   -- }}}
 
+  -- Vim Illuminate {{{
+  {
+		"RRethy/vim-illuminate",
+		config = function()
+			require("illuminate").configure()
+		end,
+  },
+  -- }}}
+
+  -- hlargs.vim {{{
+  {
+    "m-demare/hlargs.nvim",
+    config = function()
+     require("hlargs").setup()
+    end
+  },
+  -- }}}
+
 }
