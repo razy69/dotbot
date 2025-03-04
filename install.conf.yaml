@@ -8,6 +8,7 @@
     - ~/bin
     - ~/.config
     - ~/.vim
+    - ~/.zsh/completions
 - clean:
     ~/:
       force: true
@@ -55,3 +56,6 @@
     -
       command: nvim --headless "+Lazy! sync" +qa
       description: Install nvim plugins
+    -
+      command: chmod -R 755 ~/.zsh/completions
+      description: Fix zsh compinit insecure directories

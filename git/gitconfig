@@ -41,8 +41,14 @@
 [color]
   ui = auto
 
+[color "status"]
+  added = yellow
+  changed = green
+  untracked = blue
+
 [alias]
   loga = log --oneline --graph --color --decorate
+  s = status -s -b
 
 [credential]
   helper = store
