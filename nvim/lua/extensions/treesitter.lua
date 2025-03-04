@@ -61,8 +61,8 @@ require("nvim-treesitter.configs").setup {
 vim.treesitter.language.register("markdown", "telekasten")
 
 
-require("nvim_context_vt").setup({
-  min_rows = 3,
-  prefix = "",
-  disable_ft = { "markdown", "telekasten", "neo-tree" },
-})
+--require("nvim_context_vt").setup({
+--  min_rows = 3,
+--  prefix = "",
+--  disable_ft = { "markdown", "telekasten", "neo-tree" },
+--})
