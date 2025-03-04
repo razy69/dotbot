@@ -22,6 +22,7 @@ navic.setup {
     auto_attach = true,
     preference = servers,
   },
+  highlight = true,
 }
 
 barbecue.setup({

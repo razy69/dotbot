@@ -21,4 +21,4 @@ local lazy = require("lazy")
 lazy.setup("plugins")
 
 -- Colorscheme
-vim.cmd("colorscheme monokai-pro")
+vim.cmd("colorscheme catppuccin")

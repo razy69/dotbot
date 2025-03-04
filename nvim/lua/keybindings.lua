@@ -25,6 +25,7 @@ nm("ga", "<cmd>lua vim.lsp.buf.code_action()<CR>")          -- Code actions
 nm("gR", "<cmd>lua vim.lsp.buf.rename()<CR>")               -- Rename an object
 nm("gD", "<cmd>lua vim.lsp.buf.declaration()<CR>")          -- Go to declaration
 nm("<leader>D", "<cmd>lua vim.diagnostic.open_float()<CR>") -- Open diagnostics float window
+nm("<leader>R", "<cmd>LspRestart<CR>")                      -- Restart LSP Servers
 -- }}}
 
 -- Telescope {{{
@@ -72,6 +73,8 @@ nm("<leader>l", "<cmd>lua require('lint').try_lint()<CR>") -- Nvim Lint
 -- Neogen {{{
 nm("<leader>a", "<cmd>lua require('neogen').generate()<CR>") -- Neogen Annotations
 -- }}}
+
+nm("<leader>bg", "<cmd>BackgroundToggle<CR>")
 
 -- Disable Exising Bindings {{{
 im("<C-n>", "<Nop>")
