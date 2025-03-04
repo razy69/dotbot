@@ -17,7 +17,7 @@ local servers = {
   "emmet_ls",
   "gopls",
   "jedi_language_server",
-  -- "ruff_lsp",
+  "ruff_lsp",
   "terraformls",
 }
 
@@ -60,3 +60,6 @@ end
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
   border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
 })
+
+-- vim.lsp.handlers["textDocument/hover"] = ...
+-- vim.lsp.handlers["textDocument/signatureHelp"] = ...

@@ -3,7 +3,7 @@
   Description: Custom commands
 ]]
 
-require "helpers/globals"
+require("globals")
 
 vim.api.nvim_create_user_command("Format", function(args)
 	local range = nil

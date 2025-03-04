@@ -4,7 +4,14 @@
   Info: Use <zo> and <zc> to open and close foldings
 ]]
 
-require "helpers/globals"
+require("globals")
+
+-- Configure timeout for which-key panel
+vim.opt.timeout = true
+vim.opt.timeoutlen = 500
+
+-- Set <leader> to `space`
+g.mapleader = " "
 
 -- Tabs {{{
 opt.autoindent = true
@@ -45,9 +52,6 @@ opt.hidden = true        -- Enable modified buffers in background
 opt.termguicolors = true
 opt.complete = ""
 opt.completeopt = ""
-
-vim.cmd("let &t_8f = '\\<Esc>[38;2;%lu;%lu;%lum'")
-vim.cmd("let &t_8b = '\\<Esc>[48;2;%lu;%lu;%lum'")
 -- }}}
 
 -- Search {{{

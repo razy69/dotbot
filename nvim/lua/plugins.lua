@@ -5,7 +5,7 @@
   See: https://github.com/folke/lazy.nvim
 ]]
 
-require("helpers/globals")
+require("globals")
 
 return {
 
@@ -52,6 +52,12 @@ return {
     "zeioth/garbage-day.nvim",
     dependencies = "neovim/nvim-lspconfig",
     event = "VeryLazy",
+  },
+
+  -- LSP Code action
+  {
+    "luckasRanarison/clear-action.nvim",
+    opts = {},
   },
 
   -- TreeSitter
@@ -127,6 +133,7 @@ return {
 		event = "VeryLazy",
 		dependencies = {
 			"MunifTanjim/nui.nvim",
+      "rcarriga/nvim-notify",
 		},
 		config = function()
 			require("extensions.noice")
@@ -325,14 +332,6 @@ return {
     end,
   },
 
-  -- Find / Replace
-  {
-    "nvim-pack/nvim-spectre",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
-  },
-
   -- Note management
   {
     "renerocksai/telekasten.nvim",
@@ -346,13 +345,6 @@ return {
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
-    init = function()
-      vim.opt.timeout = true
-      vim.opt.timeoutlen = 500
-    end,
-    config = function()
-      require("extensions.which-key")
-    end,
   },
 
   -- Markdown TOC
@@ -366,15 +358,6 @@ return {
   },
 
   -- Colorschemes
-  -- {
-  --   "loctvl842/monokai-pro.nvim",
-  --   lazy = false,
-  --   config = function()
-  --     require("colorschemes.monokai")
-  --   end,
-  --   priority = 1000,
-  -- },
-
   {
     "rachartier/tiny-devicons-auto-colors.nvim",
     dependencies = {
