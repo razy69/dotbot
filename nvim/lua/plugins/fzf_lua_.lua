@@ -47,8 +47,8 @@ vim.api.nvim_create_autocmd("LspAttach", {
       function()
         fzf_lua.lsp_declarations({
           sync = true,
-          jump_to_single_result = true,
-          jump_to_single_result_action = fzf_lua_actions.file_vsplit,
+          jump1 = true,
+          jump1_action = fzf_lua_actions.file_vsplit,
         })
       end,
       {
@@ -62,8 +62,8 @@ vim.api.nvim_create_autocmd("LspAttach", {
       function()
         fzf_lua.lsp_declarations({
           sync = true,
-          jump_to_single_result = true,
-          jump_to_single_result_action = fzf_lua_actions.file_split,
+          jump1 = true,
+          jump1_action = fzf_lua_actions.file_split,
         })
       end,
       {
@@ -80,8 +80,8 @@ vim.api.nvim_create_autocmd("LspAttach", {
         fzf_lua.lsp_definitions({
           sync = true,
           ignore_current_line = true,
-          jump_to_single_result = true,
-          jump_to_single_result_action = fzf_lua_actions.file_vsplit,
+          jump1 = true,
+          jump1_action = fzf_lua_actions.file_vsplit,
         })
       end,
       {
@@ -96,8 +96,8 @@ vim.api.nvim_create_autocmd("LspAttach", {
         fzf_lua.lsp_definitions({
           sync = true,
           ignore_current_line = true,
-          jump_to_single_result = true,
-          jump_to_single_result_action = fzf_lua_actions.file_split,
+          jump1 = true,
+          jump1_action = fzf_lua_actions.file_split,
         })
       end,
       {
@@ -129,7 +129,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       function()
         fzf_lua.lsp_implementations({
           ignore_current_line = true,
-          jump_to_single_result = true,
+          jump1 = true,
         })
       end,
       {

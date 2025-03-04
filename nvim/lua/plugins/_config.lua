@@ -174,10 +174,6 @@ return {
     event = "VeryLazy",
     dependencies = {
       "nvim-neotest/nvim-nio",
-      "mfussenegger/nvim-dap",
-      "rcarriga/nvim-dap-ui",
-      "theHamsta/nvim-dap-virtual-text",
-      "nvim-neotest/nvim-nio",
       "nvim-lua/plenary.nvim",
       "antoinemadec/FixCursorHold.nvim",
       "nvim-treesitter/nvim-treesitter",
@@ -186,15 +182,100 @@ return {
       {
         "fredrikaverpil/neotest-golang",
         dependencies = {
-          "uga-rosa/utf8.nvim",
-          "leoluz/nvim-dap-go",
+          {
+            "leoluz/nvim-dap-go",
+            "andythigpen/nvim-coverage",
+            "uga-rosa/utf8.nvim",
+            opts = {},
+          },
         },
-        version = "*",
+        branch = "main",
       },
     },
-    config = function()
-      require("plugins.neotest_")
+    opts = function(_, opts)
+      opts.adapters = opts.adapters or {}
+      opts.adapters["neotest-golang"] = {
+        sanitize_output = true,
+        go_test_args = {
+          "-v",
+          "-count=1",
+          "-coverprofile=" .. vim.fn.getcwd() .. "/coverage.out",
+        },
+      }
     end,
+    config = function(_, opts)
+      if opts.adapters then
+        local adapters = {}
+        for name, config in pairs(opts.adapters or {}) do
+          if type(name) == "number" then
+            if type(config) == "string" then
+              config = require(config)
+            end
+            adapters[#adapters + 1] = config
+          elseif config ~= false then
+            local adapter = require(name)
+            if type(config) == "table" and not vim.tbl_isempty(config) then
+              local meta = getmetatable(adapter)
+              if adapter.setup then
+                adapter.setup(config)
+              elseif adapter.adapter then
+                adapter.adapter(config)
+                adapter = adapter.adapter
+              elseif meta and meta.__call then
+                adapter(config)
+              else
+                error("Adapter " .. name .. " does not support setup")
+              end
+            end
+            adapters[#adapters + 1] = adapter
+          end
+        end
+        opts.adapters = adapters
+      end
+
+      require("dap-go").setup()
+      require("coverage").setup({
+        auto_reload = true,
+        signs = {
+          covered = { text = "┋" },
+          uncovered = { text = "┋" },
+        }
+      })
+      require("neotest").setup(opts)
+    end
+  },
+  {
+    "mfussenegger/nvim-dap",
+    event = "VeryLazy",
+  },
+  {
+    "rcarriga/nvim-dap-ui",
+    event = "VeryLazy",
+    dependencies = {
+      "nvim-neotest/nvim-nio",
+      "mfussenegger/nvim-dap",
+    },
+    opts = {},
+    config = function(_, opts)
+      -- setup dap config by VsCode launch.json file
+      -- require("dap.ext.vscode").load_launchjs()
+      local dap = require("dap")
+      local dapui = require("dapui")
+      dapui.setup(opts)
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open({})
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close({})
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close({})
+      end
+    end,
+  },
+  {
+    "theHamsta/nvim-dap-virtual-text",
+    opts = {},
   },
 
   -- Git Signs
