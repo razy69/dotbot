@@ -122,26 +122,26 @@ cmp.setup({
         fallback()
       end
     end, { "i", "s" }),
-    ["<Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then
-        luasnip.expand_or_jump()
-      elseif has_words_before() then
-        cmp.complete()
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-    ["<S-Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
+    -- ["<Tab>"] = cmp.mapping(function(fallback)
+    --   if cmp.visible() then
+    --     cmp.select_next_item()
+    --   elseif luasnip.expand_or_jumpable() then
+    --     luasnip.expand_or_jump()
+    --   elseif has_words_before() then
+    --     cmp.complete()
+    --   else
+    --     fallback()
+    --   end
+    -- end, { "i", "s" }),
+    -- ["<S-Tab>"] = cmp.mapping(function(fallback)
+    --   if cmp.visible() then
+    --     cmp.select_prev_item()
+    --   elseif luasnip.jumpable(-1) then
+    --     luasnip.jump(-1)
+    --   else
+    --     fallback()
+    --   end
+    -- end, { "i", "s" }),
   },
 
   sources = cmp.config.sources({
@@ -162,41 +162,41 @@ cmp.setup({
       name = "nvim_lua",
       group_index = 2,
     },
-    {
-      name = "luasnip",
-      keyword_length = 3,
-      max_item_count = 3,
-      option = { use_show_condition = true },
-      entry_filter = function()
-        local context = require("cmp.config.context")
-        return not context.in_treesitter_capture("string") and not context.in_syntax_group("String")
-      end,
-    },
-    {
-      name = "buffer",
-      keyword_length = 3,
-      max_item_count = 5,
-      group_index = 4,
-      option = {
-        get_bufnrs = function()
-          local bufs = {}
-          for _, win in ipairs(vim.api.nvim_list_wins()) do
-            bufs[vim.api.nvim_win_get_buf(win)] = true
-          end
-          return vim.tbl_keys(bufs)
-        end,
-      },
-    },
+    -- {
+    --   name = "luasnip",
+    --   keyword_length = 3,
+    --   max_item_count = 1,
+    --   option = { use_show_condition = true },
+    --   entry_filter = function()
+    --     local context = require("cmp.config.context")
+    --     return not context.in_treesitter_capture("string") and not context.in_syntax_group("String")
+    --   end,
+    -- },
+    -- {
+    --   name = "buffer",
+    --   keyword_length = 3,
+    --   max_item_count = 5,
+    --   group_index = 4,
+    --   option = {
+    --     get_bufnrs = function()
+    --       local bufs = {}
+    --       for _, win in ipairs(vim.api.nvim_list_wins()) do
+    --         bufs[vim.api.nvim_win_get_buf(win)] = true
+    --       end
+    --       return vim.tbl_keys(bufs)
+    --     end,
+    --   },
+    -- },
     {
       name = "path",
       keyword_length = 4,
       max_item_count = 3,
       group_index = 4,
     },
-    {
-      name = "emoji",
-      group_index = 5,
-    },
+    -- {
+    --   name = "emoji",
+    --   group_index = 5,
+    -- },
   }),
 
   sorting = {
@@ -217,8 +217,8 @@ cmp.setup({
 
   formatting = {
     format = lspkind.cmp_format({
-      maxwidth = 50,      -- prevent the popup from showing more than provided characters (e.g 50 will not show more than 50 characters)
-      ellipsis_char = "...", -- when popup menu exceed maxwidth, the truncated part would show ellipsis_char instead (must define maxwidth first)
+      maxwidth = 50,
+      ellipsis_char = "...",
     })
   },
 
@@ -243,4 +243,4 @@ cmp.setup.cmdline(":", {
     })
 })
 
-require("luasnip.loaders.from_vscode").lazy_load()
+-- require("luasnip.loaders.from_vscode").lazy_load()
