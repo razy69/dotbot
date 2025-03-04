@@ -1,0 +1,22 @@
+diff --git a/themes/half-life.zsh-theme b/themes/half-life.zsh-theme
+index c79027ed..39d1c6c8 100644
+--- a/themes/half-life.zsh-theme
++++ b/themes/half-life.zsh-theme
+@@ -81,9 +81,9 @@ function steeef_precmd {
+         # check for untracked files or updated submodules, since vcs_info doesn't
+         if [[ ! -z $(git ls-files --other --exclude-standard 2> /dev/null) ]]; then
+             PR_GIT_UPDATE=1
+-            FMT_BRANCH="${PM_RST} on %{$turquoise%}%b%u%c%{$hotpink%} ●${PR_RST}"
++            FMT_BRANCH="${PM_RST} on %{$FG[003]%}%b%u%c%{$hotpink%} ●${PR_RST}"
+         else
+-            FMT_BRANCH="${PM_RST} on %{$turquoise%}%b%u%c${PR_RST}"
++            FMT_BRANCH="${PM_RST} on %{$FG[003]%}%b%u%c${PR_RST}"
+         fi
+         zstyle ':vcs_info:*:prompt:*' formats       "${FMT_BRANCH}"
+ 
+@@ -93,4 +93,4 @@ function steeef_precmd {
+ }
+ add-zsh-hook precmd steeef_precmd
+ 
+-PROMPT=$'%{$purple%}%n%{$reset_color%} in %{$limegreen%}%~%{$reset_color%}$(ruby_prompt_info " with%{$fg[red]%} " v g "%{$reset_color%}")$vcs_info_msg_0_%{$orange%} λ%{$reset_color%} '
++PROMPT=$'%{$FG[006]%}%n%{$reset_color%} in %{$FG[002]%}%~%{$reset_color%}$(ruby_prompt_info " with%{$fg[red]%} " v g "%{$reset_color%}")$vcs_info_msg_0_%{$orange%} λ%{$reset_color%} '

@@ -47,3 +47,8 @@
     -
       command: vim +'PlugInstall --sync' +qa
       description: Install vim plugins
+    -
+      command: '
+        patch -sf "${HOME}/.dotbot/zsh/ohmyzsh/themes/half-life.zsh-theme"
+              "${HOME}/.dotbot/zsh/half-life.zsh-theme.patch"'
+      description: Patching half-life zsh theme
