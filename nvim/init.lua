@@ -21,4 +21,4 @@ local lazy = require("lazy")
 lazy.setup("plugins")
 
 -- Setup colorscheme
-require("colorschemes/sonokai")
+require("colorschemes.sonokai")

@@ -27,9 +27,8 @@ cmp.event:on(
 cmp.setup({
 
   snippet = {
-    -- REQUIRED - you must specify a snippet engine
     expand = function(args)
-      luasnip.lsp_expand(args.body) -- For `luasnip` users.
+      luasnip.lsp_expand(args.body)
     end,
   },
 
@@ -49,57 +48,20 @@ cmp.setup({
     ["<C-d>"] = cmp.mapping.scroll_docs(4),
     ["<C-Space>"] = cmp.mapping.complete(),
     ["<C-e>"] = cmp.mapping.abort(),
-    ["<CR>"] = cmp.mapping.confirm({
-      select = false,
-      behavior = cmp.ConfirmBehavior.Replace,
-    }),
-    ["<Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then
-        luasnip.expand_or_jump()
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-    ["<S-Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
+    ["<CR>"] = cmp.mapping.confirm({ select = true }),
   },
 
   sources = cmp.config.sources({
-    {
-      name = "nvim_lsp",
-      group_index = 1,
-      keyword_length = 2,
-    },
-    {
-      name = "nvim_lsp_signature_help",
-      group_index = 1,
-      keyword_length = 2,
-    },
-    {
-      name = "treesitter",
-      group_index = 2,
-      keyword_length = 2,
-    },
-    {
-      name = "nvim_lua",
-      group_index = 2,
-      keyword_length = 3,
-    },
-    {
-      name = "path",
-      group_index = 3,
-      keyword_length = 4,
-      max_item_count = 3,
-    },
+    { name = "nvim_lsp" },
+    { name = "luasnip" },
+    { name = "nvim_lsp_signature_help" },
+    { name = "treesitter" },
+    { name = "nvim_lua" },
+    { name = "path" },
+  }),
+
+  cmp.setup.filetype("gitcommit", {
+    sources = cmp.config.sources({{ name = "git" }}, {{ name = "buffer" }})
   }),
 
   sorting = {

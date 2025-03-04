@@ -42,8 +42,8 @@ opt.guicursor = "i-ci:ver30-iCursor-blinkwait300-blinkon200-blinkoff150,n-v-c-sm
 opt.completeopt = {}
 opt.termguicolors = true
 vim.cmd("match EoLSpace /\\s\\+$/")
-vim.cmd("let &t_8f = '\\<Esc>[38;2;%lu;%lu;%lum'")
-vim.cmd("let &t_8b = '\\<Esc>[48;2;%lu;%lu;%lum'")
+--vim.cmd("let &t_8f = '\\<Esc>[38;2;%lu;%lu;%lum'")
+--vim.cmd("let &t_8b = '\\<Esc>[48;2;%lu;%lu;%lum'")
 -- }}}
 
 -- Search {{{
