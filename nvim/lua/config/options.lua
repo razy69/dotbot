@@ -132,14 +132,19 @@ vim.opt.splitright = true -- Put new vertical splits to right
 vim.diagnostic.config({
   severity_sort = true,
   signs = true,
+  underline = false,
+  update_in_insert = false,
+  virtual_box = true,
   virtual_text = {
     spacing = 4,
     prefix = "▎",
+    source = "if_many",
     format = function(diagnostic)
       return string.format(
-        "%s (%s)",
+        "%s (%s: %s)",
         diagnostic.message,
-        diagnostic.source
+        diagnostic.source,
+        diagnostic.code
       )
     end,
   },
@@ -147,13 +152,13 @@ vim.diagnostic.config({
     border = "none",
     format = function(diagnostic)
       return string.format(
-        "%s (%s)",
+        "%s (%s: %s)",
         diagnostic.message,
-        diagnostic.source
+        diagnostic.source,
+        diagnostic.code
       )
     end,
   },
-  virtual_box = true,
 })
 vim.fn.sign_define(
   "DiagnosticSignError",

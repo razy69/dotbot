@@ -26,8 +26,6 @@
       path: zsh/config
     ~/.zsh/plugins:
       path: zsh/plugins
-    ~/.zsh/themes:
-      path: zsh/themes
     ~/.zsh/keymaps:
       path: zsh/keymaps
     ~/.tmux.conf:

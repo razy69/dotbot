@@ -23,6 +23,6 @@
 [submodule "zsh/plugins/fast-syntax-highlighting"]
   path = zsh/plugins/fast-syntax-highlighting
   url = https://github.com/zdharma-zmirror/fast-syntax-highlighting
-[submodule "zsh/themes/powerlevel10k"]
-  path = zsh/themes/powerlevel10k
-  url = https://github.com/romkatv/powerlevel10k.git
+[submodule "zsh/plugins/spaceship"]
+	path = zsh/plugins/spaceship
+	url = https://github.com/spaceship-prompt/spaceship-prompt.git

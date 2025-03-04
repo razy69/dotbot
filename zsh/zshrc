@@ -1,24 +1,6 @@
-#Enable Powerlevel10k instant prompt
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 # Zsh Home
 export ZSH="${HOME}/.zsh"
 export NVIM="${HOME}/.local/share/nvim"
-
-# ASDF
-export ASDF="${HOME}/.asdf"
-source "${ASDF}/asdf.sh"
-
-# Path
-path=(
-  ${NVIM}/mason/bin
-  ${HOME}/.local/bin
-  ${HOME}/bin
-  $path
-)
-export PATH
 
 # Settings
 source "${ZSH}/config/settings.zsh"
@@ -26,14 +8,18 @@ source "${ZSH}/config/settings.zsh"
 # Keybindings
 source "${ZSH}/config/bindings.zsh"
 
-# Theme
-source "${ZSH}/themes/powerlevel10k/powerlevel10k.zsh-theme"
-
 # Functions
 source "${ZSH}/config/functions.zsh"
 
 # Aliases
 source "${ZSH}/config/aliases.zsh"
+
+# Prompt
+export SPACESHIP_CONFIG="${ZSH}/config/spaceship.zsh"
+source "${ZSH}/plugins/spaceship/spaceship.zsh"
+
+# Plugins
+source "${ZSH}/config/plugins.zsh"
 
 # Secrets
 [[ ! -f "${ZSH}/config/secrets.zsh" ]] || source "${ZSH}/config/secrets.zsh"
@@ -44,8 +30,16 @@ source "${ZSH}/config/aliases.zsh"
 # Completion
 source "${ZSH}/config/completions.zsh"
 
-# Powerlevel10k
-source "${ZSH}/config/p10k.zsh"
+# ASDF
+export ASDF="${HOME}/.asdf"
+source "${ASDF}/asdf.sh"
 
-# Plugins
-source "${ZSH}/config/plugins.zsh"
+# Path
+path=(
+  ${NVIM}/mason/bin
+  ${HOME}/.local/bin
+  ${HOME}/bin
+  ${HOME}/.cargo/bin
+  $path
+)
+export PATH

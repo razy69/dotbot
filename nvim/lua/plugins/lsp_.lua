@@ -8,6 +8,10 @@ local lsp_config = require("lspconfig")
 local mason_lsp_config = require("mason-lspconfig")
 local capabilities = vim.tbl_deep_extend(
   "force",
+  {},
+  vim.lsp.protocol.make_client_capabilities(),
+  lsp_config.util.default_config.capabilities,
+  require("cmp_nvim_lsp").default_capabilities(),
   {
     workspace = {
       fileOperations = {
@@ -15,10 +19,7 @@ local capabilities = vim.tbl_deep_extend(
         willRename = true,
       },
     },
-  },
-  vim.lsp.protocol.make_client_capabilities(),
-  lsp_config.util.default_config.capabilities,
-  require("cmp_nvim_lsp").default_capabilities()
+  }
 )
 
 local servers = {
@@ -33,7 +34,7 @@ local servers = {
   "gopls",
   "golangci_lint_ls",
   -- Python
-  "ruff_lsp",
+  "ruff",
   "jedi_language_server",
   -- Other filetype
   "bashls",
@@ -68,34 +69,6 @@ mason_lsp_config.setup({
   ensure_installed = servers,
   automatic_installation = true,
   handlers = nil,
-  diagnostics = {
-    underline = false,
-    update_in_insert = false,
-    virtual_text = {
-      spacing = 4,
-      source = "if_many",
-      prefix = "●",
-    },
-    severity_sort = true,
-    signs = {
-      text = {
-        [vim.diagnostic.severity.ERROR] = "",
-        [vim.diagnostic.severity.WARN] = "",
-        [vim.diagnostic.severity.HINT] = "",
-        [vim.diagnostic.severity.INFO] = "",
-      },
-    },
-  },
-  inlay_hints = {
-    enabled = true,
-  },
-  document_highlight = {
-    enabled = true,
-  },
-  format = {
-    formatting_options = nil,
-    timeout_ms = nil,
-  },
 })
 
 mason_lsp_config.setup_handlers({
@@ -109,6 +82,9 @@ mason_lsp_config.setup_handlers({
       on_attach = function(client, bufnr)
         if client.server_capabilities["documentSymbolProvider"] then
           require("nvim-navic").attach(client, bufnr)
+        end
+        if client.server_capabilities.inlayHintProvider then
+          vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
         end
       end,
     })

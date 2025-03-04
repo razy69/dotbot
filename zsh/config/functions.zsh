@@ -11,8 +11,8 @@ precmd_functions+=(_fix_cursor)
 
 # SSH Agent
 if [ ! -S "${HOME}/.ssh/ssh_auth_sock" ]; then
-    eval $(ssh-agent)
-    ln -sf "$SSH_AUTH_SOCK" "${HOME}/.ssh/ssh_auth_sock"
+  eval $(ssh-agent)
+  ln -sf "$SSH_AUTH_SOCK" "${HOME}/.ssh/ssh_auth_sock"
 fi
 
 export SSH_AUTH_SOCK="${HOME}/.ssh/ssh_auth_sock"
@@ -36,4 +36,29 @@ function uuid_gen() {
   else
     python3 -c 'import uuid; print(uuid.uuid4())'
   fi
+}
+
+
+# Tmux
+function tmux_new() {
+  if [ $# -eq 1 ]; then
+    TMUX_ENV="${1}"
+  else
+    TMUX_ENV="local"
+  fi
+
+  tmux -L "${TMUX_ENV}" has-session -t "${TMUX_ENV}" 2>/dev/null \
+    && tmux -L "${TMUX_ENV}" attach -t "${TMUX_ENV}" \
+    || tmux -L "${TMUX_ENV}" new-session -s "${TMUX_ENV}" -c "${PWD}"
+}
+
+
+function tmux_kill() {
+  if [ $# -eq 1 ]; then
+    TMUX_ENV="${1}"
+  else
+    TMUX_ENV="local"
+  fi
+
+  tmux -L "${TMUX_ENV}" kill-server
 }
