@@ -28,14 +28,6 @@ local capabilities = vim.tbl_deep_extend(
   cmp_lsp.default_capabilities()
 )
 
--- local handlers = {
---   function(server)
---     lsp_config[server].setup({
---       capabilities = capabilities,
---     })
---   end,
--- }
-
 mason.setup({
   ui = {
     icons = {
@@ -61,6 +53,10 @@ null_ls.setup({
 for _, lsp in ipairs(servers) do
   lsp_config[lsp].setup{
     capabilities = capabilities,
-    -- handlers = handlers,
   }
 end
+
+-- Add border to document hover (see: https://github.com/neovim/neovim/pull/13998)
+vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+  border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+})

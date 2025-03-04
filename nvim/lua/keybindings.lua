@@ -77,6 +77,6 @@ nm("<leader>a", "<cmd>lua require('neogen').generate()<CR>") -- Neogen Annotatio
 nm("<leader>bg", "<cmd>BackgroundToggle<CR>")
 
 -- Disable Exising Bindings {{{
--- im("<C-n>", "<Nop>")
--- im("<C-p>", "<Nop>")
+im("<C-n>", "<Nop>")
+im("<C-p>", "<Nop>")
 -- }}}

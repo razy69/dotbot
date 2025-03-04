@@ -6,7 +6,7 @@
 
 local gitsigns = require("gitsigns")
 
-gitsigns.setup {
+gitsigns.setup({
 	signs = {
 		add          = { text = '▍' },
 		change       = { text = '▍' },
@@ -19,7 +19,8 @@ gitsigns.setup {
 	current_line_blame_opts = {
 		virt_text = true,
 		virt_text_pos = "right_align",
-		delay = 1000,
+    virt_text_priority = 1,
+		delay = 2000,
 		ignore_whitespace = false,
 	},
 	signcolumn = true,
@@ -27,4 +28,4 @@ gitsigns.setup {
 		follow_files = true
 	},
 	attach_to_untracked = true,
-}
+})
