@@ -14,3 +14,31 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
   end
 end
 vim.opt.rtp:prepend(lazypath)
+
+-- loading lazy.nvim so that mappings are correct.
+-- This is also a good place to setup other settings (vim.opt)
+-- Make sure to setup `mapleader` and `maplocalleader` before
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
+
+local lazy = require("lazy")
+
+-- Setup lazy.nvim
+lazy.setup({
+  spec = {
+    -- import your plugins
+    { import = "plugins" },
+  },
+  -- automatically check for plugin updates
+  checker = { enabled = true },
+  ui = {
+    border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+    size = {
+      width = 0.8,
+      height = 0.8,
+    },
+  },
+  rocks = {
+    enabled = false,
+  },
+})

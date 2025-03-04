@@ -105,4 +105,4 @@ require("tiny-devicons-auto-colors").setup({
   colors = require("catppuccin.palettes").get_palette("frappe")
 })
 
-vim.cmd("match EoLSpace /\\s\\+$/")
+vim.cmd("colorscheme catppuccin")
