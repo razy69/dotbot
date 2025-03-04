@@ -32,6 +32,9 @@ source "${ZSH}/config/functions.zsh"
 # Aliases
 source "${ZSH}/config/aliases.zsh"
 
+# ASDF
+source "${HOME}/.asdf/asdf.sh"
+
 # Completion
 source "${ZSH}/config/completions.zsh"
 

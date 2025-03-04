@@ -47,11 +47,20 @@
     -
       command: '
         for bin in bat catimg delta erd exa fd git tmux nvim rg zsh; do
-          if ! command -v "$bin" &> /dev/null;
-            then echo -e "\033[1;33m! $bin is not installed\033[0m";
+          if ! command -v "$bin" &> /dev/null; then
+            echo -e "\033[1;33mx $bin is not installed\033[0m";
           fi;
         done'
       description: Checking installed binaries
+      stdout: true
+    -
+      command: '
+        if ! command -v asdf &> /dev/null; then
+          git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1;
+        else
+          echo -e "\033[1;32masdf is installed\033[0m";
+        fi'
+      description: Install ASDF
       stdout: true
     -
       command: ~/.tmux/plugins/tpm/bin/install_plugins
