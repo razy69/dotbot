@@ -21,8 +21,6 @@ return {
     build = ":MasonUpdate",
     lazy = false,
     dependencies = {
-      "mfussenegger/nvim-dap",
-      "rcarriga/nvim-dap-ui",
       "williamboman/mason-lspconfig.nvim",
       "neovim/nvim-lspconfig",
     },
@@ -48,14 +46,10 @@ return {
     dependencies = {
       "L3MON4D3/LuaSnip",
       "saadparwaiz1/cmp_luasnip",
-      "hrsh7th/cmp-cmdline",
-      "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-path",
-      "hrsh7th/cmp-emoji",
       "hrsh7th/cmp-nvim-lsp-signature-help",
       "hrsh7th/cmp-nvim-lua",
-      "rafamadriz/friendly-snippets",
       "lukas-reineke/cmp-under-comparator",
       "ray-x/cmp-treesitter",
       "onsails/lspkind-nvim",
@@ -229,8 +223,8 @@ return {
     "folke/which-key.nvim",
     event = "VeryLazy",
     init = function()
-      opt.timeout = true
-      opt.timeoutlen = 500
+      vim.opt.timeout = true
+      vim.opt.timeoutlen = 500
     end,
     config = function()
       require("extensions.which-key")
@@ -247,24 +241,6 @@ return {
     end,
   },
 
-  -- Session Manager
-  {
-    "Shatur/neovim-session-manager",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    config = function()
-      require("extensions.session-manager")
-    end,
-  },
-
-  -- Copy/paste manager
-  {
-    "AckslD/nvim-neoclip.lua",
-    dependencies = "nvim-telescope/telescope.nvim",
-    config = function()
-      require("extensions.neoclip")
-    end,
-  },
-
   -- Outer pair highlight
   {
     "utilyre/sentiment.nvim",
@@ -273,7 +249,7 @@ return {
     opts = {
     },
     init = function()
-      g.loaded_matchparen = 1
+      vim.g.loaded_matchparen = 1
     end,
   },
 
@@ -331,11 +307,13 @@ return {
   },
 
   -- Colorscheme
-  {
-    "loctvl842/monokai-pro.nvim",
-    config = function()
-      require("extensions.colorscheme.monokai")
-    end
-  },
+  -- {
+  --   "loctvl842/monokai-pro.nvim",
+  --   config = function()
+  --     require("extensions.colorscheme.monokai")
+  --   end
+  -- },
+
+  { "sainnhe/sonokai", name = "sonokai", priority = 1000 },
 
 }

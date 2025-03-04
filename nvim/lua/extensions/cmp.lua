@@ -11,55 +11,6 @@ local cmp_autopairs = require("nvim-autopairs.completion.cmp")
 local cmp_action = require("lsp-zero").cmp_action()
 local luasnip = require("luasnip")
 
-local is_not_comment = function()
-  local context = require("cmp.config.context")
-  return not context.in_treesitter_capture("comment") and not context.in_syntax_group("Comment")
-end
-
-local is_not_buftype = function()
-  local bt = vim.bo.buftype
-  local exclude_bt = {
-    "prompt",
-    "nofile",
-  }
-  for _, v in pairs(exclude_bt) do
-    if bt == v then
-      return false
-    end
-  end
-  return true
-end
-
-local is_not_filetype = function()
-  local ft = vim.bo.filetype
-  local exclude_ft = {
-    "neorepl",
-    "neoai-input",
-  }
-  for _, v in pairs(exclude_ft) do
-    if ft == v then
-      return false
-    end
-  end
-  return true
-end
-
-local is_not_luasnip = function()
-  ---@diagnostic disable-next-line: param-type-mismatch
-  return not fn.expand("%:p"):find(".*/nvim/lua/snippets/.*%.lua")
-end
-
-local cmp_is_enabled = function()
-  return is_not_comment() and is_not_buftype() and is_not_filetype() and is_not_luasnip()
-end
-
-local has_words_before = function()
-  unpack = unpack or table.unpack
-  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-end
-
-
 lspkind.init({
   mode = "symbol_text",
   preset = "codicons",
@@ -72,10 +23,6 @@ cmp.event:on(
 )
 
 cmp.setup({
-
-  enabled = function()
-    return cmp_is_enabled()
-  end,
 
   snippet = {
     -- REQUIRED - you must specify a snippet engine
@@ -102,56 +49,21 @@ cmp.setup({
       select = false,
       behavior = cmp.ConfirmBehavior.Replace,
     }),
-    ["<C-n>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then
-        luasnip.expand_or_jump()
-      elseif has_words_before() then
-        cmp.complete()
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-    ["<C-p>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-    -- ["<Tab>"] = cmp.mapping(function(fallback)
-    --   if cmp.visible() then
-    --     cmp.select_next_item()
-    --   elseif luasnip.expand_or_jumpable() then
-    --     luasnip.expand_or_jump()
-    --   elseif has_words_before() then
-    --     cmp.complete()
-    --   else
-    --     fallback()
-    --   end
-    -- end, { "i", "s" }),
-    -- ["<S-Tab>"] = cmp.mapping(function(fallback)
-    --   if cmp.visible() then
-    --     cmp.select_prev_item()
-    --   elseif luasnip.jumpable(-1) then
-    --     luasnip.jump(-1)
-    --   else
-    --     fallback()
-    --   end
-    -- end, { "i", "s" }),
+    ["<C-n>"] = cmp.mapping.select_next_item(),
+    ["<C-p>"] = cmp.mapping.select_prev_item(),
+
   },
 
   sources = cmp.config.sources({
     {
       name = "nvim_lsp",
       group_index = 1,
+      keyword_length = 2,
     },
     {
       name = "nvim_lsp_signature_help",
       group_index = 1,
+      keyword_length = 2,
     },
     {
       name = "treesitter",
@@ -160,43 +72,15 @@ cmp.setup({
     },
     {
       name = "nvim_lua",
+      keyword_length = 3,
       group_index = 2,
     },
-    -- {
-    --   name = "luasnip",
-    --   keyword_length = 3,
-    --   max_item_count = 1,
-    --   option = { use_show_condition = true },
-    --   entry_filter = function()
-    --     local context = require("cmp.config.context")
-    --     return not context.in_treesitter_capture("string") and not context.in_syntax_group("String")
-    --   end,
-    -- },
-    -- {
-    --   name = "buffer",
-    --   keyword_length = 3,
-    --   max_item_count = 5,
-    --   group_index = 4,
-    --   option = {
-    --     get_bufnrs = function()
-    --       local bufs = {}
-    --       for _, win in ipairs(vim.api.nvim_list_wins()) do
-    --         bufs[vim.api.nvim_win_get_buf(win)] = true
-    --       end
-    --       return vim.tbl_keys(bufs)
-    --     end,
-    --   },
-    -- },
     {
       name = "path",
       keyword_length = 4,
       max_item_count = 3,
-      group_index = 4,
+      group_index = 3,
     },
-    -- {
-    --   name = "emoji",
-    --   group_index = 5,
-    -- },
   }),
 
   sorting = {

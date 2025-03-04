@@ -4,11 +4,9 @@
   See: https://github.com/williamboman/mason.nvim
 ]]
 
--- local lsp_config = require("lspconfig")
 local mason = require("mason")
 local mason_lspconfig = require("mason-lspconfig")
 local lsp_zero = require("lsp-zero")
--- local lua_opts = lsp_zero.nvim_lua_ls()
 
 lsp_zero.on_attach(function(client, bufnr)
   lsp_zero.default_keymaps({
@@ -42,5 +40,3 @@ mason_lspconfig.setup({
     "terraformls",          -- Terraform
   },
 })
-
--- lsp_config.lua_ls.setup(lua_opts)
