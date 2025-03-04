@@ -19,7 +19,6 @@ api.nvim_set_keymap("i", "<C-p>", "<Nop>", { noremap = true })
 
 -- KEYMAP
 local wk = require("which-key")
-local readline = require("readline")
 
 wk.setup({
   win = {
@@ -79,15 +78,6 @@ wk.add({
   { "+",            "<C-a>gv",                                                                             desc = "Increment Numbers",                 mode = "v" },
   { "-",            "<C-x>gv",                                                                             desc = "Decrement Numbers",                 mode = "v" },
   { "<bs>",         "^",                                                                                   desc = "Go to first non-blank character",   mode = { "n", "v" } },
-
-  -- Readline Mapping
-  { "<C-e>",        function() readline.end_of_line() end,                                                 desc = "End of line",                       mode = { "n", "v", "i", "c" } },
-  { "<C-a>",        function() readline.beginning_of_line() end,                                           desc = "Beginning of line",                 mode = { "n", "v", "i", "c" } },
-  { "<M-f>",        function() readline.forward_word() end,                                                desc = "Move to next end of word",          mode = { "n", "v", "i", "c" } },
-  { "<M-b>",        function() readline.backward_word() end,                                               desc = "Move to previous start of word",    mode = { "n", "v", "i", "c" } },
-  { "<C-k>",        function() readline.kill_line() end,                                                   desc = "Cut text to the end of line",       mode = { "i", "c" } },
-  { "<C-u>",        function() readline.backward_kill_line() end,                                          desc = "Cut text to the beginning of line", mode = { "i", "c" } },
-  { "<C-w>",        function() readline.unix_word_rubout() end,                                            desc = "Cut previous word",                 mode = { "i", "c" } },
 
   -- Neotree
   { "<leader>e",    "<cmd>Neotree toggle<cr>",                                                             desc = "Open/Hide Neotree",                 mode = "n" },
