@@ -21,7 +21,7 @@ nm("<leader><BS>", "za<CR>")                                                    
 -- }}}
 
 -- LSP {{{
-nm("T", "<cmd>lua vim.lsp.buf.type_definition()<CR>")                             -- Type definition
+nm("T", "<cmd>lua vim.lsp.buf.type_definition()<CR>")                            -- Type definition
 nm("K", "<cmd>lua vim.lsp.buf.hover()<CR>")                                      -- Hover object
 nm("ga", "<cmd>lua vim.lsp.buf.code_action()<CR>")                               -- Code actions
 nm("gR", "<cmd>lua vim.lsp.buf.rename()<CR>")                                    -- Rename an object
@@ -44,13 +44,12 @@ nm("<leader>x", "<cmd>TroubleToggle<CR>")                                       
 -- }}}
 
 -- Neo Tree {{{
-nm("<leader>e", "<cmd>NeoTreeFocusToggle<CR>")                                   -- Toggle file explorer
+nm("<leader>e", "<cmd>Neotree toggle<CR>")                                       -- Toggle file explorer
 -- }}}
 
 -- Noice {{{
 nm("<leader>h", "<cmd>Noice telescope<CR>")                                      -- Opens Noice message history in Telescope
 -- }}}
-
 
 -- WhichKey {{{
 nm("<leader>`", "<cmd>WhichKey<CR>")                                             -- Open WhichKey

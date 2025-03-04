@@ -6,17 +6,6 @@
 
 local neotree = require("neo-tree")
 
-cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
-
-fn.sign_define("DiagnosticSignError",
-{text = "", texthl = "DiagnosticSignError"})
-fn.sign_define("DiagnosticSignWarn",
-{text = "", texthl = "DiagnosticSignWarn"})
-fn.sign_define("DiagnosticSignInfo",
-{text = "", texthl = "DiagnosticSignInfo"})
-fn.sign_define("DiagnosticSignHint",
-{text = "", texthl = "DiagnosticSignHint"})
-
 neotree.setup{
   close_if_last_window = true,
   enable_git_status = true,
@@ -55,52 +44,33 @@ neotree.setup{
       noremap = true,
       nowait = true,
     },
-    mappings = {
-      ["<cr>"] = "open",
-      ["h"] = "close_node",
-      ["e"] = function() api.nvim_exec("Neotree focus filesystem left", true) end,
-      ["b"] = function() api.nvim_exec("Neotree focus buffers left", true) end,
-      ["g"] = function() api.nvim_exec("Neotree focus git_status left", true) end,
-    },
   },
   filesystem = {
     filtered_items = {
       hide_dotfiles = false,
       hide_gitignored = false,
     },
-    follow_current_file = true,
+    follow_current_file = {
+      enabled = true,
+    },
     use_libuv_file_watcher = true,
   },
   buffers = {
-    follow_current_file = true, -- This will find and focus the file in the active buffer every
-                                -- time the current file is changed while the tree is open.
+    follow_current_file = {
+      enabled = true,
+    },
     group_empty_dirs = true,    -- when true, empty folders will be grouped together
     show_unloaded = true,
   },
   event_handlers = {
     {
-      event = "file_open_requested",
+      event = "file_opened",
       handler = function(file_path)
-        --auto close
-        require("neo-tree").close_all()
+        require("neo-tree.command").execute({ action = "close" })
       end
     },
-    {
-      event = "neo_tree_window_after_open",
-      handler = function(args)
-        if args.position == "left" or args.position == "right" then
-          vim.cmd("wincmd =")
-        end
-      end
-    },
-    {
-      event = "neo_tree_window_after_close",
-      handler = function(args)
-        if args.position == "left" or args.position == "right" then
-          vim.cmd("wincmd =")
-        end
-      end
-    },
+  },
+  events = {
     {
       event = "file_renamed",
       handler = function(args)
@@ -115,5 +85,5 @@ neotree.setup{
         print(args.source, " moved to ", args.destination)
       end
     },
-  },
+  }
 }
