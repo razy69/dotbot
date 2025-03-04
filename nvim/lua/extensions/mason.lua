@@ -29,16 +29,15 @@ mason_lspconfig.setup({
     lsp_zero.default_setup,
   },
   ensure_installed = {
-    "bashls",               -- LSP for Bash
-    "dockerls",             -- LSP for Docker
-    "lua_ls",               -- LSP for Lua
-    "emmet_ls",             -- LSP for Emmet (Vue, HTML, CSS)
-    "gopls",                -- LSP for Go
-    "yamlls",               -- LSP for YAML
-    "jsonls",               -- LSP for JSON
-    "jedi_language_server", -- LSP for Python
-    "ruff_lsp",             -- LSP for Python
-    "terraformls",          -- LSP for Terraform
+    -- LSP
+    "bashls",               -- Bash
+    "dockerls",             -- Docker
+    "lua_ls",               -- Lua
+    "emmet_ls",             -- Emmet (Vue, HTML, CSS)
+    "gopls",                -- Golang
+    "jedi_language_server", -- Python
+    "ruff_lsp",             -- Python
+    "terraformls",          -- Terraform
   },
 })
 

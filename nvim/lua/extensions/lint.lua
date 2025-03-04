@@ -6,16 +6,26 @@
 
 
 local lint = require("lint")
+local mason_lint = require("mason-nvim-lint")
 
 lint.linters_by_ft = {
-  ansible = { "ansible_lint" },
   bash = { "shellcheck" },
-  golang = { "revive" },
   json = { "jsonlint" },
   lua = { "luacheck" },
   markdown = { "markdownlint" },
   python = { "mypy" },
-  rst = { "rstlint" },
   sh = { "shellcheck" },
   yaml = { "yamllint" },
 }
+
+mason_lint.setup({
+  ensure_installed = {
+    -- Linters
+    "markdownlint", -- Markdown
+    "mypy",         -- Python
+    "luacheck",     -- Lua
+    "shellcheck",   -- sh/Bash
+    "yamllint",     -- Yaml
+    "jsonlint",     -- Json
+  }
+})
