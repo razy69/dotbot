@@ -42,6 +42,10 @@
       path: delta/themes/catppuccin/catppuccin.gitconfig
     ~/.config/ghostty/config:
       path: ghostty/config
+    ~/.config/k9s/config.yaml:
+      path: k9s/config.yaml
+    ~/.config/k9s/skins:
+      path: k9s/themes/catppuccin/dist
     ~/.vim/colors:
       path: vim/colors
     ~/.vimrc:

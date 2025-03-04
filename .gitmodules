@@ -32,3 +32,6 @@
 [submodule "delta/themes/catppuccin"]
 	path = delta/themes/catppuccin
 	url = https://github.com/catppuccin/delta
+[submodule "k9s/themes/catppuccin"]
+	path = k9s/themes/catppuccin
+	url = https://github.com/catppuccin/k9s
