@@ -70,7 +70,7 @@ vim.api.nvim_create_autocmd("VimResized", {
 vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
   group = window_group,
   callback = function(event)
-    if vim.bo[event.buf].buftype == "" then
+    if vim.api.nvim_buf_is_valid(event.buf) and vim.bo[event.buf].buftype == "" then
       vim.opt_local.cursorline = true
     end
   end,
@@ -153,7 +153,7 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.api.nvim_create_autocmd("FileType", {
   group = filetype_group,
   pattern = "bigfile",
-  callback = function(ev)
+  callback = function(event)
     vim.opt.syntax = "off"
     vim.opt.cursorline = false
     vim.opt.cursorcolumn = false
@@ -196,9 +196,13 @@ vim.api.nvim_create_autocmd("FileType", {
       lualine.hide()
     end
 
-    vim.schedule(function()
-      vim.bo[ev.buf].syntax = vim.filetype.match({ buf = ev.buf }) or ""
-    end)
+    vim.schedule(
+      function()
+        if vim.api.nvim_buf_is_valid(event.buf) then
+          vim.bo[event.buf].syntax = vim.filetype.match({ buf = event.buf }) or ""
+        end
+      end
+    )
   end,
 })
 
@@ -207,14 +211,11 @@ vim.api.nvim_create_autocmd("FileType", {
   group = M.augroup("close_with_q"),
   pattern = {
     "PlenaryTestPopup",
-    "grug-far",
     "help",
     "lspinfo",
     "notify",
     "qf",
-    "spectre_panel",
     "startuptime",
-    "tsplayground",
     "neotest-output",
     "checkhealth",
     "neogit",
@@ -222,10 +223,11 @@ vim.api.nvim_create_autocmd("FileType", {
     "DiffviewFiles",
     "neotest-summary",
     "neotest-output-panel",
-    "dbout",
     "gitsigns-blame",
+    "man",
   },
   callback = function(event)
+    if not vim.api.nvim_buf_is_valid(event.buf) then return end
     vim.bo[event.buf].buflisted = false
     vim.schedule(function()
       vim.keymap.set("n", "q", function()
@@ -234,19 +236,18 @@ vim.api.nvim_create_autocmd("FileType", {
       end, {
         buffer = event.buf,
         silent = true,
+        nowait = true,
         desc = "Quit buffer",
       })
     end)
   end,
 })
 
--- Make it easier to close man-files when opened inline
+-- Unlist quickfix buffers
 vim.api.nvim_create_autocmd("FileType", {
-  group = M.augroup("man_unlisted"),
-  pattern = { "man" },
-  callback = function(event)
-    vim.bo[event.buf].buflisted = false
-  end,
+  group = M.augroup("quickfix"),
+  pattern = "qf",
+  callback = function() vim.opt_local.buflisted = false end,
 })
 
 -- Auto create dir when saving a file, in case some intermediate directory does not exist
