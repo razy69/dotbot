@@ -9,20 +9,6 @@ require("helpers/globals")
 
 return {
 
-  -- Syntax [[
-  -- TreeSitter
-  {
-    "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
-    config = function()
-      require("extensions.treesitter")
-    end
-  },
-  -- ]]
-
-  -- LSP [[
-
   -- LSP-Zero
   {
     "VonHeikemen/lsp-zero.nvim",
@@ -44,9 +30,17 @@ return {
       require("extensions.mason")
     end
   },
-  -- ]]
 
-  -- Autocompletion [[
+  -- TreeSitter
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    event = { "BufReadPost", "BufNewFile" },
+    config = function()
+      require("extensions.treesitter")
+    end
+  },
+
   -- nvim-cmp
   {
     "hrsh7th/nvim-cmp",
@@ -71,9 +65,7 @@ return {
       require("extensions.cmp")
     end
   },
-  -- ]]
 
-  -- Formatter [[
   -- conform.nvim
   {
     "stevearc/conform.nvim",
@@ -81,9 +73,7 @@ return {
       require("extensions.conform")
     end
   },
-  -- ]]
 
-  -- Linter [[
   -- nvim-lint
   {
     "mfussenegger/nvim-lint",
@@ -91,9 +81,7 @@ return {
       require("extensions.lint")
     end
   },
-  -- ]]
 
-  -- Visual [[
   -- Indentation Highlighting
   {
     "lukas-reineke/indent-blankline.nvim",
@@ -187,9 +175,7 @@ return {
       require("hlargs").setup()
     end
   },
-  -- ]]
 
-  -- Features [[
   -- Neo Tree (file explorer)
   {
     "nvim-neo-tree/neo-tree.nvim",
@@ -207,8 +193,7 @@ return {
   -- Telescope (fuzzy finder and more)
   {
     "nvim-telescope/telescope.nvim",
-    tag = "0.1.3",
-    lazy = true,
+    tag = "0.1.4",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "ahmedkhalf/project.nvim",
@@ -224,7 +209,6 @@ return {
   -- Telekasten (note management)
   {
     "renerocksai/telekasten.nvim",
-    event = "VeryLazy",
     dependencies = {
       "nvim-telescope/telescope.nvim",
       "renerocksai/calendar-vim",
@@ -260,7 +244,6 @@ return {
   -- Neovim Session Manager (manage vim sessions)
   {
     "Shatur/neovim-session-manager",
-    event = "VeryLazy",
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
       require("extensions.session-manager")
@@ -270,7 +253,6 @@ return {
   -- Neoclip (copy/paste manager)
   {
     "AckslD/nvim-neoclip.lua",
-    event = "VeryLazy",
     dependencies = "nvim-telescope/telescope.nvim",
     config = function()
       require("extensions.neoclip")
@@ -285,7 +267,7 @@ return {
     opts = {
     },
     init = function()
-      vim.g.loaded_matchparen = 1
+      g.loaded_matchparen = 1
     end,
   },
 
@@ -342,25 +324,12 @@ return {
     end
   },
 
-  {
-    "s1n7ax/nvim-window-picker",
-    name = "window-picker",
-    event = "VeryLazy",
-    version = "2.*",
-    config = function()
-      require("window-picker").setup()
-    end,
-  },
-  -- ]]
-
-  -- Theme [[
+  -- Colorscheme
   {
     "loctvl842/monokai-pro.nvim",
-    lazy = false,
     dependencies = "nvim-tree/nvim-web-devicons",
     config = function()
       require("extensions.colorscheme.monokai")
     end
   },
-  -- ]]
 }
