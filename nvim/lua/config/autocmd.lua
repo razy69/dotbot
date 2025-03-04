@@ -59,6 +59,7 @@ vim.api.nvim_create_autocmd("VimResized", {
     local current_tab = vim.fn.tabpagenr()
     vim.cmd("tabdo wincmd =")
     vim.cmd("tabnext " .. current_tab)
+    require("fzf-lua").redraw()
   end,
 })
 
@@ -333,7 +334,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
       "n",
       "gD",
       function()
-        fzf.lsp_declarations({ jump_to_single_result = true })
+        fzf.lsp_declarations({
+          sync = true,
+          jump_to_single_result = true,
+          jump_to_single_result_action = require("fzf-lua.actions").file_vsplit,
+        })
       end,
       {
         desc = "LSP Go to declaration",
@@ -346,7 +351,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
       "n",
       "gd",
       function()
-        fzf.lsp_definitions({ jump_to_single_result = true })
+        fzf.lsp_definitions({
+          sync = true,
+          jump_to_single_result = true,
+          jump_to_single_result_action = require("fzf-lua.actions").file_vsplit,
+        })
       end,
       {
         desc = "LSP Go to definition",
@@ -359,7 +368,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
       "n",
       "gr",
       function()
-        fzf.lsp_references({ winopts = { split = "belowright new" } })
+        fzf.lsp_references({
+          ignore_current_line = true,
+          includeDeclaration = false,  -- Combined with ignore_current_line = true, it achieves "show other usages" behavior.
+        })
       end,
       {
         desc = "LSP References",
@@ -372,7 +384,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       "n",
       "gi",
       function()
-        fzf.lsp_implementations({ winopts = { split = "belowright new" } })
+        fzf.lsp_implementations()
       end,
       {
         desc = "LSP Implementations",
@@ -385,7 +397,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       { "n", "v" },
       "<leader>ca",
       function()
-        fzf.lsp_code_actions({ winopts = { split = "belowright new" } })
+        fzf.lsp_code_actions()
       end,
       {
         desc = "LSP Code action",
@@ -398,7 +410,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       { "n", "v" },
       "<leader>ls",
       function()
-        fzf.lsp_live_workspace_symbols({ winopts = { split = "belowright new" } })
+        fzf.lsp_live_workspace_symbols()
       end,
       {
         desc = "LSP Live Symbols",

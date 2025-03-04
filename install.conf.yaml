@@ -40,6 +40,8 @@
       path: bat/themes/catppuccin/themes
     ~/.config/delta/themes/catppuccin.gitconfig:
       path: delta/themes/catppuccin/catppuccin.gitconfig
+    ~/.config/ghostty/config:
+      path: ghostty/config
     ~/.vim/colors:
       path: vim/colors
     ~/.vimrc:

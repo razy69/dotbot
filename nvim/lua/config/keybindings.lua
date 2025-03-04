@@ -14,7 +14,6 @@
 local noice = require("noice")
 local wk = require("which-key")
 local fzf_lua = require("fzf-lua")
-local fzf_lua_opts = { winopts = { split = "belowright new" } }
 
 -- Disable Exising Bindings
 vim.api.nvim_set_keymap("i", "<C-n>", "<Nop>", { noremap = true })
@@ -41,50 +40,50 @@ wk.setup({
 wk.add({
 
   -- Which-Key
-  { "<leader>`",    function() wk.show() end,                                     desc = "Show Keymap",                                  mode = "n" },
+  { "<leader>`",    function() wk.show() end,                                              desc = "Show Keymap",                                  mode = "n" },
 
   -- Conform (Formatter)
-  { "<leader>f",    "<cmd>Format<cr>",                                            desc = "Format buffer",                                mode = "n" },
+  { "<leader>f",    "<cmd>Format<cr>",                                                     desc = "Format buffer",                                mode = "n" },
 
   -- VIM
-  { "<C-t>",        "<cmd>tabnew<cr>",                                            desc = "Open new tab",                                 mode = "n" },
-  { "<C-tn>",       "<cmd>tabN<cr>",                                              desc = "Go to previous tab",                           mode = "n" },
-  { "<C-tp>",       "<cmd>tabp<cr>",                                              desc = "Go to next tab",                               mode = "n" },
-  { "<leader>w",    "<cmd>w<cr>",                                                 desc = "Save buffer",                                  mode = "n" },
-  { "<leader>q",    "<cmd>confirm q<cr>",                                         desc = "Quit buffer",                                  mode = "n" },
-  { "<leader>Q",    "<cmd>confirm qall<cr>",                                      desc = "Quit all buffers",                             mode = "n" },
-  { "<leader><bs>", "za<cr>",                                                     desc = "Fold/Unfold code",                             mode = "n" },
-  { "<leader>bg",   "<cmd>BackgroundToggle<cr>",                                  desc = "Toggle background light/dark",                 mode = "n" },
-  { "<leader>qf",   "<cmd>copen<cr>",                                             desc = "Open quickfix",                                mode = "n" },
-  { "+",            "<C-a>",                                                      desc = "Increment Numbers",                            mode = "n" },
-  { "-",            "<C-x>",                                                      desc = "Decrement Numbers",                            mode = "n" },
-  { "+",            "<C-a>gv",                                                    desc = "Increment Numbers",                            mode = "v" },
-  { "-",            "<C-x>gv",                                                    desc = "Decrement Numbers",                            mode = "v" },
-  { "<leader>/",    ":%s/",                                                       desc = "Substitute",                                   mode = "n" },
-  { "<leader>?",    ":%S/",                                                       desc = "Substitute (rev)",                             mode = "n" },
-  { "<leader>/",    ":s/",                                                        desc = "Substitute",                                   mode = "x" },
-  { "<leader>?",    ":S/",                                                        desc = "Substitute (rev)",                             mode = "x" },
-  { "<bs>",         "^",                                                          desc = "Go to first non-blank character",              mode = { "n", "v" } },
+  { "<C-t>",        "<cmd>tabnew<cr>",                                                     desc = "Open new tab",                                 mode = "n" },
+  { "<C-tn>",       "<cmd>tabN<cr>",                                                       desc = "Go to previous tab",                           mode = "n" },
+  { "<C-tp>",       "<cmd>tabp<cr>",                                                       desc = "Go to next tab",                               mode = "n" },
+  { "<leader>w",    "<cmd>w<cr>",                                                          desc = "Save buffer",                                  mode = "n" },
+  { "<leader>q",    "<cmd>confirm q<cr>",                                                  desc = "Quit buffer",                                  mode = "n" },
+  { "<leader>Q",    "<cmd>confirm qall<cr>",                                               desc = "Quit all buffers",                             mode = "n" },
+  { "<leader><bs>", "za<cr>",                                                              desc = "Fold/Unfold code",                             mode = "n" },
+  { "<leader>bg",   "<cmd>BackgroundToggle<cr>",                                           desc = "Toggle background light/dark",                 mode = "n" },
+  { "<leader>qf",   "<cmd>copen<cr>",                                                      desc = "Open quickfix",                                mode = "n" },
+  { "+",            "<C-a>",                                                               desc = "Increment Numbers",                            mode = "n" },
+  { "-",            "<C-x>",                                                               desc = "Decrement Numbers",                            mode = "n" },
+  { "+",            "<C-a>gv",                                                             desc = "Increment Numbers",                            mode = "v" },
+  { "-",            "<C-x>gv",                                                             desc = "Decrement Numbers",                            mode = "v" },
+  { "<leader>/",    ":%s/",                                                                desc = "Substitute",                                   mode = "n" },
+  { "<leader>?",    ":%S/",                                                                desc = "Substitute (rev)",                             mode = "n" },
+  { "<leader>/",    ":s/",                                                                 desc = "Substitute",                                   mode = "x" },
+  { "<leader>?",    ":S/",                                                                 desc = "Substitute (rev)",                             mode = "x" },
+  { "<bs>",         "^",                                                                   desc = "Go to first non-blank character",              mode = { "n", "v" } },
 
   -- Neotree
-  { "<leader>e",    "<cmd>Neotree toggle<cr>",                                    desc = "Open/Close Neotree",                           mode = "n" },
+  { "<leader>e",    "<cmd>Neotree toggle<cr>",                                             desc = "Open/Close Neotree",                           mode = "n" },
 
   -- FzfLua
-  { "<leader>O",    function() fzf_lua.oldfiles(fzf_lua_opts) end,                desc = "Show recent files",                            mode = "n" },
-  { "<leader>o",    function() fzf_lua.files(fzf_lua_opts) end,                   desc = "Search for a file",                            mode = "n" },
-  { "<leader>i",    function() fzf_lua.jumps(fzf_lua_opts) end,                   desc = "Go to previous location",                      mode = "n" },
-  { "<leader>g",    function() fzf_lua.live_grep(fzf_lua_opts) end,               desc = "Find string in project",                       mode = "n" },
-  { "<leader>b",    function() fzf_lua.buffers(fzf_lua_opts) end,                 desc = "Show all buffers",                             mode = "n" },
+  { "<leader>O",    function() fzf_lua.oldfiles() end,                                     desc = "Show recent files",                            mode = "n" },
+  { "<leader>o",    function() fzf_lua.files() end,                                        desc = "Search for a file",                            mode = "n" },
+  { "<leader>i",    function() fzf_lua.jumps() end,                                        desc = "Go to previous location",                      mode = "n" },
+  { "<leader>g",    function() fzf_lua.live_grep({ multiprocess = true }) end, desc = "Find string in project",                     mode = "n" },
+  { "<leader>b",    function() fzf_lua.buffers() end,                                      desc = "Show all buffers",                             mode = "n" },
 
   -- Trouble
-  { "<leader>xx",   "<cmd>Trouble diagnostics toggle focus=true<cr>",             desc = "Diagnostics (Trouble)",                        mode = "n" },
-  { "<leader>xX",   "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",           desc = "Buffer Diagnostics (Trouble)",                 mode = "n" },
-  { "<leader>cs",   "<cmd>Trouble symbols toggle focus=false<cr>",                desc = "Symbols (Trouble)",                            mode = "n" },
-  { "<leader>cl",   "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", desc = "LSP Definitions / references / ... (Trouble)", mode = "n" },
-  { "<leader>xL",   "<cmd>Trouble loclist toggle<cr>",                            desc = "Location List (Trouble)",                      mode = "n" },
-  { "<leader>xQ",   "<cmd>Trouble qflist toggle<cr>",                             desc = "Quickfix List (Trouble)",                      mode = "n" },
+  { "<leader>xx",   "<cmd>Trouble diagnostics toggle focus=true<cr>",                      desc = "Diagnostics (Trouble)",                        mode = "n" },
+  { "<leader>xX",   "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",                    desc = "Buffer Diagnostics (Trouble)",                 mode = "n" },
+  { "<leader>cs",   "<cmd>Trouble symbols toggle focus=false<cr>",                         desc = "Symbols (Trouble)",                            mode = "n" },
+  { "<leader>cl",   "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",          desc = "LSP Definitions / references / ... (Trouble)", mode = "n" },
+  { "<leader>xL",   "<cmd>Trouble loclist toggle<cr>",                                     desc = "Location List (Trouble)",                      mode = "n" },
+  { "<leader>xQ",   "<cmd>Trouble qflist toggle<cr>",                                      desc = "Quickfix List (Trouble)",                      mode = "n" },
 
   -- Noice
-  { "<leader>nl",   function() noice.cmd("last") end,                             desc = "Last Noice message",                           mode = "n" },
-  { "<leader>nh",   function() noice.cmd("history") end,                          desc = "Noice message history",                        mode = "n" },
+  { "<leader>nl",   function() noice.cmd("last") end,                                      desc = "Last Noice message",                           mode = "n" },
+  { "<leader>nh",   function() noice.cmd("history") end,                                   desc = "Noice message history",                        mode = "n" },
 })
