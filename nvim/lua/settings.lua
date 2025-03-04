@@ -31,6 +31,7 @@ opt.fileencoding = "utf-8" -- File encoding
 -- }}}
 
 -- Other {{{
+opt.autoread = true      -- Watch for file changes
 opt.laststatus = 2
 opt.pumheight = 15       -- Limit height of popupmenu
 opt.number = true        -- Enable line number
