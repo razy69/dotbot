@@ -4,7 +4,8 @@
   See: https://github.com/catppuccin/nvim
 ]]
 
-local colors = require("catppuccin.palettes").get_palette("frappe")
+local palettes = require("catppuccin.palettes")
+local colors = (vim.o.background == "dark") and palettes.get_palette("frappe") or palettes.get_palette("latte")
 
 require("catppuccin").setup({
   flavour = "frappe", -- latte, frappe, macchiato, mocha
@@ -67,6 +68,17 @@ require("catppuccin").setup({
       BlinkCmpMenuBorder = { fg = colors.blue },
       BlinkCmpDocBorder = { fg = colors.blue },
       BlinkCmpSignatureHelpActiveParameter = { fg = colors.mauve },
+      GitGraphHash = { fg = colors.blue },
+      GitGraphTimestamp = { fg = colors.yellow },
+      GitGraphAuthor = { fg = colors.pink },
+      GitGraphBranchName = { fg = colors.green },
+      GitGraphBranchTag = { fg = colors.mauve },
+      GitGraphBranchMsg = { fg = colors.subtext1 },
+      GitGraphBranch1 = { fg = colors.blue },
+      GitGraphBranch2 = { fg = colors.green },
+      GitGraphBranch3 = { fg = colors.teal },
+      GitGraphBranch4 = { fg = colors.mauve},
+      GitGraphBranch5 = { fg = colors.lavender },
     },
   },
 })
