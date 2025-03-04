@@ -13,7 +13,7 @@ local servers = {
   "emmet_ls",
   "gopls",
   "jedi_language_server",
-  "ruff_lsp",
+  -- "ruff_lsp",
   "terraformls",
 }
 
