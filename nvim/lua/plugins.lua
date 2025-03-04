@@ -73,7 +73,6 @@ return {
   {
     "folke/trouble.nvim",
     cmd = "Trouble",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {},
   },
 
@@ -89,7 +88,6 @@ return {
   -- Statusbar
   {
     "nvim-lualine/lualine.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("extensions.lualine_")
     end,
@@ -119,7 +117,6 @@ return {
     event = { "BufReadPost", "BufNewFile", "BufNew" },
     dependencies = {
       "SmiteshP/nvim-navic",
-      "nvim-tree/nvim-web-devicons",
     },
     config = function()
       require("extensions.barbecue_")
@@ -258,7 +255,6 @@ return {
   {
     "goolord/alpha-nvim",
     event = { "VimEnter" },
-    dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("extensions.alpha_")
     end,
@@ -271,7 +267,6 @@ return {
     branch = "v3.x",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons",
       "MunifTanjim/nui.nvim",
     },
     config = function()
@@ -330,7 +325,6 @@ return {
     ft = { "markdown", "telekasten" },
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
-      "nvim-tree/nvim-web-devicons",
     },
     config = function()
       require("extensions.markdown_")
@@ -371,22 +365,18 @@ return {
 
   -- Colorschemes
   {
-    "rachartier/tiny-devicons-auto-colors.nvim",
-    event = "VeryLazy",
-    dependencies = {
-      "nvim-tree/nvim-web-devicons"
+    "echasnovski/mini.icons",
+    opts = {},
+    lazy = true,
+    specs = {
+      { "nvim-tree/nvim-web-devicons", enabled = false, optional = true },
     },
-    config = function()
-      local theme_colors = require("catppuccin.palettes").get_palette("frappe")
-      require("tiny-devicons-auto-colors").setup({
-        autoreload = true,
-        colors = theme_colors,
-        cache = {
-          enabled = true,
-          path = vim.fn.stdpath("cache") .. "/tiny-devicons-auto-colors-cache.json",
-        },
-      })
-    end
+    init = function()
+      package.preload["nvim-web-devicons"] = function()
+        require("mini.icons").mock_nvim_web_devicons()
+        return package.loaded["nvim-web-devicons"]
+      end
+    end,
   },
   {
     "catppuccin/nvim",
