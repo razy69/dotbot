@@ -11,7 +11,6 @@ alias gb="git checkout -b"
 alias gpf="git push --force"
 alias gp="git pull --rebase"
 
-alias vim="nvim"
 alias ccat="bat -p --paging=never"
 alias tree="erd"
 alias ll="exa -ahlgUu --octal-permissions --icons"

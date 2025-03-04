@@ -19,3 +19,7 @@ require("commands")
 -- Plugin management
 local lazy = require("lazy")
 lazy.setup("plugins")
+
+-- Setup colorscheme
+vim.opt.termguicolors = true
+vim.cmd("colorscheme monokai-pro")

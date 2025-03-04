@@ -31,13 +31,12 @@ opt.fileencoding = "utf-8" -- File encoding
 -- }}}
 
 -- Other {{{
-opt.laststatus = 0       -- Disable Neovim builtin status bar
+opt.laststatus = 2
 opt.pumheight = 15       -- Limit height of popupmenu
 opt.number = true        -- Enable line number
 opt.wrap = true          -- Enable line wrap
 opt.showcmd = false      -- Disable display of last command
 opt.showmode = false     -- Disable -- INSERT --
-opt.termguicolors = true -- Enable 24-bit colour
 opt.hidden = true        -- Enable modified buffers in background
 opt.guicursor = "i-ci:ver30-iCursor-blinkwait300-blinkon200-blinkoff150,n-v-c-sm:ver30"
 opt.completeopt = {}

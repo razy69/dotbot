@@ -28,6 +28,4 @@ export BAT_THEME="Monokai Extended Origin"
 export COMPLETION_WAITING_DOTS="false"
 
 autoload -U colors && colors
-
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 typeset -U path

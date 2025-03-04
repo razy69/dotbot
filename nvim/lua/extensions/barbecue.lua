@@ -15,7 +15,6 @@ navic.setup {
 }
 
 barbecue.setup({
-  theme = "monokai-pro",
   show_dirname = false,
   show_basename = false,
 })

@@ -333,9 +333,9 @@ return {
   -- Colorscheme
   {
     "loctvl842/monokai-pro.nvim",
-    dependencies = "nvim-tree/nvim-web-devicons",
     config = function()
       require("extensions.colorscheme.monokai")
     end
   },
+
 }
