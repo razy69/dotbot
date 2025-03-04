@@ -55,3 +55,7 @@ nm("<leader>h", "<cmd>Noice telescope<CR>")                                     
 -- WhichKey {{{
 nm("<leader>`", "<cmd>WhichKey<CR>")                                                       -- Open WhichKey
 -- }}}
+
+-- Telekasten {{{
+nm("<leader>n", "<cmd>Telekasten panel<CR>")                                               -- Open Telekasten Menu
+-- }}}

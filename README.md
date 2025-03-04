@@ -11,13 +11,13 @@ zsh
   - Powerlevel10k
 
 vim
-  - vim-monokai-tasty 
+  - vim-monokai-tasty
 
 nvim
   - lazy.nvim
-  - indent-blankline 
+  - indent-blankline
   - bufferline
-  - mason 
+  - mason
   - neo-tree
   - telescope
   - nvim-cmp
@@ -59,6 +59,7 @@ Font:
   - Any patched NerdFont: https://www.nerdfonts.com/font-downloads
 
 Programs:
+  - catimg: https://github.com/posva/catimg
   - batcat: https://github.com/sharkdp/bat
   - delta: https://github.com/dandavison/delta
   - erdtree: https://github.com/solidiquis/erdtree
