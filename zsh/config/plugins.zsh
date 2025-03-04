@@ -13,3 +13,6 @@ source "${ZSH}/plugins/zsh-completions/zsh-completions.plugin.zsh"
 
 # Fast Syntax Highlighting
 source "${ZSH}/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
+
+# Zsh VI mode
+source "${ZSH}/plugins/zsh-vi-mode/zsh-vi-mode.plugin.zsh"

@@ -23,7 +23,7 @@ export LC_ALL="en_US.UTF-8"
 export LANG="en_US.UTF-8"
 export EDITOR="nvim"
 export MANPATH="/usr/local/man:${MANPATH}"
-export VI_MODE_SET_CURSOR=false
+export VI_MODE_SET_CURSOR=true
 export BAT_THEME="Monokai Extended Origin"
 export COMPLETION_WAITING_DOTS="false"
 
