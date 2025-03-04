@@ -4,25 +4,6 @@
   See: https://github.com/williamboman/mason.nvim
 ]]
 
-local lspconfig = require("lspconfig")
-local mason_lspconfig = require("mason-lspconfig")
-local utils = require("config.utils")
-local blink = utils.prequire("blink.cmp")
-local default_capabilities = vim.tbl_deep_extend(
-  "force",
-  {},
-  vim.lsp.protocol.make_client_capabilities(),
-  blink and blink.get_lsp_capabilities() or {},
-  {
-    workspace = {
-      fileOperations = {
-        didRename = true,
-        willRename = true,
-      },
-    },
-  }
-)
-
 local servers = {
   -- IAC
   "puppet",
@@ -45,6 +26,51 @@ local servers = {
   "html",
 }
 
+local utils = require("config.utils")
+local blink = utils.prequire("blink.cmp")
+local default_capabilities = vim.tbl_deep_extend(
+  "force",
+  {},
+  vim.lsp.protocol.make_client_capabilities(),
+  blink and blink.get_lsp_capabilities() or {},
+  {
+    workspace = {
+      fileOperations = {
+        didRename = true,
+        willRename = true,
+      },
+    },
+    textDocument = {
+			foldingRange = {
+				dynamicRegistration = false,
+				lineFoldingOnly = true,
+			},
+			completion = {
+				completionItem = {
+					snippetSupport = true,
+				},
+			},
+		},
+  }
+)
+
+require("mason").setup({
+  ui = {
+    border = "rounded",
+    icons = {
+      package_installed = "",
+      package_pending = "󰄾",
+      package_uninstalled = "󰅖"
+    }
+  }
+})
+
+require("mason-lspconfig").setup({
+  ensure_installed = servers,
+  automatic_installation = true,
+})
+
+
 local navic = utils.prequire("nvim-navic")
 if navic then
   navic.setup({
@@ -58,44 +84,16 @@ if navic then
   })
 end
 
-require("mason").setup({
-  ui = {
-    border = "rounded",
-    icons = {
-      package_installed = "",
-      package_pending = "󰄾",
-      package_uninstalled = "󰅖"
-    }
+local navic_on_attach = function(client, bufnr)
+  if navic and client.server_capabilities["documentSymbolProvider"] then
+    navic.attach(client, bufnr)
+  end
+end
+
+local lspconfig = require("lspconfig")
+for _, lsp in ipairs(servers) do
+  lspconfig[lsp].setup{
+    on_attach = navic_on_attach,
+    capabilities = default_capabilities,
   }
-})
-
-mason_lspconfig.setup({
-  ensure_installed = servers,
-  automatic_installation = true,
-})
-
-mason_lspconfig.setup_handlers({
-  function(server_name)
-    lspconfig[server_name].setup({
-      capabilities = default_capabilities,
-      inlay_hints = {
-        enabled = false,
-      },
-      codelens = {
-        enabled = false,
-      },
-      format = {
-        formatting_options = nil,
-        timeout_ms = nil,
-      },
-      on_attach = function(client, bufnr)
-        if navic and client.server_capabilities["documentSymbolProvider"] then
-          navic.attach(client, bufnr)
-        end
-        if client.server_capabilities.inlayHintProvider then
-          vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-        end
-      end,
-    })
-  end,
-})
+end
