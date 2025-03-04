@@ -13,7 +13,7 @@ end
 
 -- Python setup tabs
 api.nvim_create_autocmd("FileType", {
-  pattern = "python",
+  pattern = { "*.py" },
   callback = function()
     opt.tabstop = 4
     opt.softtabstop = 4
