@@ -1,24 +1,42 @@
 " Enable UTF8
-scriptencoding utf-8
-set encoding=utf-8
+scriptencoding UTF-8
+set encoding=UTF-8
 
 " Theming and colors
-syntax on
+set conceallevel=3
+if !exists('g:syntax_on')
+  syntax enable
+endif
 
 " General options
-set number
+set number                      "Show line numbers
+set ruler
+set term=screen-256color
 set showmatch
-set novisualbell
-set noerrorbells
+set novisualbell                "Disable flash bell
+set noerrorbells                "Disable bell
 set smartcase
 set ignorecase
 set incsearch
 set nocompatible
 set undolevels=1000
+set history=1000                "Store lots of :cmdline history
 set backspace=indent,eol,start
 set wrap
+set showcmd                     "Show incomplete cmds down the bottom
+set showmode                    "Show current mode down the bottom
+set autoread                    "Reload files changed outside vim
+set hidden
+set shortmess+=F                " Disabled "filename" XXXL, XXXC
+set noshowcmd                   " Disable display of last command
+set noshowmode                  " Disable -- INSERT --
+
+" Search highlight
+set hlsearch
+hi Search ctermbg=222
 
 " Vim tabs
+"CTRL+N creates a new window
 nnoremap <C-n> :tabnew<CR>
 
 " More natural split opening
@@ -32,15 +50,15 @@ nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
 
 " Indent stuff
-set autoindent " always set autoindenting on
-set copyindent " copy the previous indentation on autoindenting
-set expandtab " expand tabs by default (overloadable per file type)
-set shiftround " use multiple of shiftwidth when indenting with '<' and '>'
-set shiftwidth=2 " number of spaces to use for autoindenting
+set autoindent                  "Always set autoindenting on
+set copyindent                  "Copy the previous indentation on autoindenting
+set expandtab                   "Expand tabs by default (overloadable per file type)
+set shiftround                  "Use multiple of shiftwidth when indenting with '<' and '>'
+set shiftwidth=2                "Number of spaces to use for autoindenting
 set smartindent
-set smarttab " insert tabs on the start of a line according to shiftwidth, not tabstop
-set softtabstop=2 " when hitting <BS>, pretend like a tab is removed, even if spaces
-set tabstop=2 " tabs are n spaces
+set smarttab                    "Insert tabs on the start of a line according to shiftwidth, not tabstop
+set softtabstop=2               "When hitting <BS>, pretend like a tab is removed, even if spaces
+set tabstop=2                   "Tabs are n spaces
 
 " Enable folding
 set foldmethod=indent
@@ -68,67 +86,6 @@ set backupdir=~/.vim/backup//
 set directory=~/.vim/swp//
 set undodir=~/.vim/undo//
 
-" --------
-" Plugins
-" --------
-call plug#begin('~/.vim/plugged')
-  " Vim theme (https://github.com/patstockwell/vim-monokai-tasty)
-  Plug 'patstockwell/vim-monokai-tasty'
-  " ALE (https://github.com/dense-analysis/ale)
-  Plug 'dense-analysis/ale'
-  " Vim flake8 (https://github.com/nvie/vim-flake8)
-  Plug 'nvie/vim-flake8'
-  " Gitgutter (https://github.com/airblade/vim-gitgutter)
-  Plug 'airblade/vim-gitgutter'
-  " Lightline (https://github.com/itchyny/lightline.vim)
-  Plug 'itchyny/lightline.vim'
-  " Vim gitbranch (https://github.com/itchyny/vim-gitbranch)
-  Plug 'itchyny/vim-gitbranch'
-  " NERD Tree (https://github.com/preservim/nerdtree)
-  Plug 'preservim/nerdtree'
-  " Vim rainbow (https://github.com/frazrepo/vim-rainbow)
-  Plug 'frazrepo/vim-rainbow'
-  " Vim yaml (https://github.com/mrk21/yaml-vim)
-  Plug 'mrk21/yaml-vim'
-  " Vim diminactive (https://github.com/blueyed/vim-diminactive)
-  Plug 'blueyed/vim-diminactive'
-  " Vim Indent Guides (https://github.com/nathanaelkane/vim-indent-guides)
-  Plug 'nathanaelkane/vim-indent-guides'
-call plug#end()
-
-" Set theme
-silent! colorscheme vim-monokai-tasty
-if !has('gui_running')
-  set t_Co=256
-endif
-set background=dark
-highlight Normal ctermbg=232
-highlight nonText ctermbg=232
-
-" Vim rainbow settings
-let g:rainbow_active = 1
-
-" NERDTree settings
-nnoremap <silent> <expr> <C-o> g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
-let NERDTreeQuitOnOpen=1
-let NERDTreeShowHidden=1
-
-" Lightline settings
-set shortmess+=F " Disabled "filename" XXXL, XXXC
-set noshowcmd " Disable display of last command
-set noshowmode " Disable -- INSERT --
-set laststatus=2
-let g:lightline = {
-  \ 'colorscheme': 'wombat',
-  \ 'active': {
-  \   'left': [ [ 'mode', 'paste' ],
-  \             [ 'gitbranch', 'readonly', 'absolutepath', 'modified' ] ]
-  \ },
-  \ 'component_function': {
-  \   'gitbranch': 'gitbranch#name',
-  \ },
-  \ }
-
 " Python settings
 let python_highlight_all = 1
 au! BufNewFile,BufReadPost *.{py} set filetype=python foldmethod=indent
@@ -138,17 +95,67 @@ autocmd FileType python setlocal ts=4 sts=4 sw=4 expandtab
 au! BufNewFile,BufReadPost *.{yaml,yml} set filetype=yaml foldmethod=indent
 autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
 
-" Search highlight
-set hlsearch
-hi Search ctermbg=222
+" Need to install patched font:
+" https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/SourceCodePro
 
-" Highligh line in current window
-hi CursorLine ctermbg=234
-augroup CursorLine
-  au!
-  au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
-  au WinLeave * setlocal nocursorline
-augroup END
+" --------
+" Plugins
+" --------
+call plug#begin('~/.vim/plugged')
+  Plug 'patstockwell/vim-monokai-tasty'
+  Plug 'dense-analysis/ale'
+  Plug 'vim-airline/vim-airline'
+  Plug 'vim-airline/vim-airline-themes'
+  Plug 'preservim/nerdtree'
+  Plug 'Xuyuanp/nerdtree-git-plugin'
+  Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+  Plug 'nvie/vim-flake8'
+  Plug 'airblade/vim-gitgutter'
+  Plug 'tpope/vim-fugitive'
+  "Plug 'frazrepo/vim-rainbow'
+  Plug 'mrk21/yaml-vim'
+  Plug 'blueyed/vim-diminactive'
+  Plug 'nathanaelkane/vim-indent-guides'
+  Plug 'ryanoasis/vim-devicons'
+call plug#end()
+
+" Set theme
+silent! colorscheme vim-monokai-tasty
+if !has('gui_running')
+  set t_Co=256
+endif
+set background=dark
+hi Normal ctermbg=232
+hi nonText ctermbg=232
+
+" Airline config
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_theme='bubblegum'
+
+" Vim rainbow settings
+let g:rainbow_active = 1
+
+" NERDTree settings
+let NERDTreeQuitOnOpen=1
+let NERDTreeShowHidden=1
+let NERDTreeAutoDeleteBuffer = 1
+let NERDTreeDirArrows = 1
+let NERDTreeMinimalUI = 1
+hi NERDTreeDir ctermfg=LightGray cterm=bold
+nnoremap <silent> <expr> <C-o> g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
+nnoremap <silent> <Leader>v :NERDTreeFind<CR>
+"Start NERDTree when Vim is started without file arguments.
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | NERDTree | endif
+"Exit Vim if NERDTree is the only window remaining in the only tab.
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+"Remove / at the end of dir names
+augroup nerdtreehidecwd
+  autocmd!
+  autocmd FileType nerdtree syntax match NERDTreeDirSlash #/$# contained conceal containedin=NERDTreeDir
+  autocmd FileType nerdtree setlocal conceallevel=3
+augroup end
 
 " Vim diminactive settings
 hi ColorColumn ctermbg=234
@@ -162,3 +169,7 @@ let g:indent_guides_start_level = 2
 let g:indent_guides_guide_size = 1
 let g:indent_guides_auto_colors = 0
 hi IndentGuidesOdd ctermbg=236
+
+" Highligh line in current window
+set cursorline!
+hi CursorLine ctermbg=234
