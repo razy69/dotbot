@@ -69,6 +69,17 @@ require("blink.cmp").setup({
       treesitter_highlighting = true,
     },
   },
+  cmdline = {
+    completion = {
+      ghost_text = { enabled = false },
+      menu = { auto_show = true },
+      -- menu = {
+      --   auto_show = function(ctx)
+      --     return vim.fn.getcmdtype() ~= ":"
+      --   end
+      -- },
+    },
+  },
   sources = {
     default = function(ctx)
       local success, node = pcall(vim.treesitter.get_node)
@@ -98,12 +109,5 @@ require("blink.cmp").setup({
 
     ["<C-b>"] = { "scroll_documentation_up", "fallback" },
     ["<C-f>"] = { "scroll_documentation_down", "fallback" },
-  },
-  cmdline = {
-    keymap = {
-      preset = "enter",
-      ["<CR>"] = { "accept_and_enter", "fallback" },
-      ["<Tab>"] = { "select_accept_and_enter", "fallback" },
-    },
   },
 })

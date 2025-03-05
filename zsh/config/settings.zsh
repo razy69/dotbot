@@ -27,7 +27,11 @@ export LANG="en_US.UTF-8"
 export EDITOR="nvim"
 export MANPATH="/usr/local/man:${MANPATH}"
 export BAT_CONFIG_PATH="${HOME}/.config/bat/config"
-export GPG_TTY=$(tty)
+
+# GPG Agent
+gpg-connect-agent /bye &> /dev/null
+GPG_TTY=$(tty)
+export GPG_TTY
 
 autoload -U colors && colors
 typeset -U path
