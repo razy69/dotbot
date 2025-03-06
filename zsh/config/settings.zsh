@@ -28,10 +28,15 @@ export EDITOR="nvim"
 export MANPATH="/usr/local/man:${MANPATH}"
 export BAT_CONFIG_PATH="${HOME}/.config/bat/config"
 
-# GPG Agent
-gpg-connect-agent /bye &> /dev/null
-GPG_TTY=$(tty)
-export GPG_TTY
+# GPG or SSH Agent
+if command -v gpg-agent &> /dev/null; then
+  gpg-connect-agent /bye &> /dev/null
+  export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+  export GPG_TTY=$(tty)
+else
+  eval "$(ssh-agent -s)"
+  ssh-add
+fi
 
 autoload -U colors && colors
 typeset -U path
