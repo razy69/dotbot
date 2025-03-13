@@ -1,7 +1,9 @@
 --[[
   File: lsp_.lua
-  Description: Mason plugin configuration (with lspconfig)
-  See: https://github.com/williamboman/mason.nvim
+  Description: Configure LSP with lspconfig and install tools with Mason.
+  Link:
+    https://github.com/neovim/nvim-lspconfig
+    https://github.com/williamboman/mason.nvim
 ]]
 
 local servers = {

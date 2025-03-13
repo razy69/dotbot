@@ -1,7 +1,7 @@
 --[[
   File: fzf_lua_.lua
-  Description: Fuzzy finder
-  See: https://github.com/ibhagwan/fzf-lua
+  Description: Fuzzy finder.
+  Link: https://github.com/ibhagwan/fzf-lua
 ]]
 
 local fzf_lua = require("fzf-lua")

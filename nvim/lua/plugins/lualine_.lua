@@ -1,7 +1,7 @@
 --[[
   File: lualine_.lua
-  Description: Neovim statusline configuration
-  See: https://github.com/nvim-lualine/lualine.nvim
+  Description: Blazing fast and easy to configure Neovim statusline written in Lua.
+  Link: https://github.com/nvim-lualine/lualine.nvim
 ]]
 
 local utils = require("config.utils")
@@ -11,9 +11,12 @@ require("lualine").setup({
   icons_enabled = true,
   globalstatus = false,
   extensions = {
+    "fzf",
     "lazy",
     "mason",
     "neo-tree",
+    "nvim-dap-ui",
+    "quickfix",
     "trouble",
   },
   refresh = {

@@ -1,7 +1,7 @@
 --[[
   File: conform_.lua
-  Description: Configuration of conform.nvim
-  See: https://github.com/stevearc/conform.nvim
+  Description: Lightweight yet powerful formatter plugin for Neovim.
+  Link: https://github.com/stevearc/conform.nvim
 ]]
 
 local conform = require("conform")

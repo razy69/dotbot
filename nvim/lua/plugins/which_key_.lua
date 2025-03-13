@@ -1,7 +1,7 @@
 --[[
   File: which_key_.lua
-  Description: Keybindings helper
-  See: https://github.com/folke/which-key.nvim
+  Description: Helps you remember your Neovim keymaps, by showing available keybindings in a popup as you type.
+  Link: https://github.com/folke/which-key.nvim
 ]]
 
 -- Modes

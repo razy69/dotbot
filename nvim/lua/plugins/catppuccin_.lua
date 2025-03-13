@@ -1,7 +1,7 @@
 --[[
   File: catppuccin_.lua
-  Description: Configuration  of catppuccin
-  See: https://github.com/catppuccin/nvim
+  Description: Catppuccin theme for (Neo)vim.
+  Link: https://github.com/catppuccin/nvim
 ]]
 
 local palettes = require("catppuccin.palettes")
@@ -37,7 +37,7 @@ require("catppuccin").setup({
       alt_background = true,
     },
     blink_cmp = true,
-    diffview = false,
+    diffview = true,
     fidget = true,
     flash = true,
     fzf = true,

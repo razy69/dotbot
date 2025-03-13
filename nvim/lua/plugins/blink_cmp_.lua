@@ -1,7 +1,7 @@
 --[[
 	File: blink_cmp_.lua
-	Description: CMP plugin configuration (with lspconfig)
-  See: https://github.com/Saghen/blink.cmp
+	Description: Completion plugin with support for LSPs and external sources that updates on every keystroke with minimal overhead (0.5-4ms async).
+  Link: https://github.com/Saghen/blink.cmp
 ]]
 
 local utils = require("config.utils")

@@ -1,7 +1,7 @@
 --[[
   File: treesitter_.lua
-  Description: Configuration of tree-sitter
-  See: https://github.com/tree-sitter/tree-sitter
+  Description: Parser generator tool and an incremental parsing library.
+  Link: https://github.com/tree-sitter/tree-sitter
 ]]
 
 require("nvim-treesitter.configs").setup({

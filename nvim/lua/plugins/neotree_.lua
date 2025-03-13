@@ -1,7 +1,7 @@
 --[[
   File: neotree_.lua
-  Description: Configuration NeoTree
-  See: https://github.com/nvim-neo-tree/neo-tree.nvim
+  Description: Browse the file system and other tree like structures in whatever style suits you, including sidebars, floating windows, netrw split style, or all of them at once!
+  Link: https://github.com/nvim-neo-tree/neo-tree.nvim
 ]]
 
 local events = require("neo-tree.events")

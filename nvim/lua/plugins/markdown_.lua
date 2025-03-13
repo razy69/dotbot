@@ -1,7 +1,7 @@
 --[[
   File: markdown_.lua
   Description: Plugin to improve viewing Markdown files in Neovim
-  See: https://github.com/MeanderingProgrammer/render-markdown.nvim
+  Link: https://github.com/MeanderingProgrammer/render-markdown.nvim
 ]]
 
 require("render-markdown").setup({

@@ -1,7 +1,7 @@
 --[[
   File: noice_.lua
-  Description: Plugin that completely replaces the UI for messages, cmdline and the popupmenu
-  See: https://github.com/folke/noice.nvim
+  Description: Plugin that completely replaces the UI for messages, cmdline and the popupmenu.
+  Link: https://github.com/folke/noice.nvim
 ]]
 
 require("notify").setup({

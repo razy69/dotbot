@@ -1,7 +1,7 @@
 --[[
   File: gitsigns_.lua
-  Description: Configuration of gitsigns
-  See: https://github.com/lewis6991/gitsigns.nvim
+  Description: Deep buffer integration for Git.
+  Link: https://github.com/lewis6991/gitsigns.nvim
 ]]
 
 require("gitsigns").setup({

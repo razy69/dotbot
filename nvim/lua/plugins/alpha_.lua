@@ -1,6 +1,6 @@
 --[[
 	File: alpha_.lua
-	Description: Configuration of Alpha nvim
+	Description: Fast and fully programmable greeter for neovim.
 	Link: https://github.com/goolord/alpha-nvim
 ]]
 

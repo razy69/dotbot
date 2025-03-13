@@ -41,9 +41,7 @@ return {
     event = lazyFile,
     lazy = vim.fn.argc(-1) == 0,
     build = ":TSUpdate",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter-textobjects",
-    },
+    dependencies = { "nvim-treesitter/nvim-treesitter-textobjects" },
     config = function()
       require("plugins.treesitter_")
     end,
@@ -117,29 +115,17 @@ return {
   {
     "folke/trouble.nvim",
     cmd = "Trouble",
-    opts = {
-      modes = {
-        symbols = {
-          win = {
-            type = "split",
-            relative = "win",
-            position = "right",
-            size = 0.3,
-            pinned = true,
-            focus = false,
-          },
-        },
-      },
-    },
+    config = function()
+      require("plugins.trouble_")
+    end
   },
 
   -- VSCode like winbar
+  -- TODO: replace plugin, archived on Jan 9, 2025.
   {
     "utilyre/barbecue.nvim",
     event = lazyFile,
-    dependencies = {
-      "SmiteshP/nvim-navic",
-    },
+    dependencies = { "SmiteshP/nvim-navic" },
     config = function()
       require("plugins.barbecue_")
     end,
@@ -184,62 +170,13 @@ return {
             "leoluz/nvim-dap-go",
             "andythigpen/nvim-coverage",
             "uga-rosa/utf8.nvim",
-            opts = {},
           },
         },
         branch = "main",
       },
     },
-    opts = function(_, opts)
-      opts.adapters = opts.adapters or {}
-      opts.adapters["neotest-golang"] = {
-        sanitize_output = true,
-        go_test_args = {
-          "-v",
-          "-count=1",
-          "-coverprofile=" .. vim.fn.getcwd() .. "/coverage.out",
-        },
-      }
-    end,
-    config = function(_, opts)
-      if opts.adapters then
-        local adapters = {}
-        for name, config in pairs(opts.adapters or {}) do
-          if type(name) == "number" then
-            if type(config) == "string" then
-              config = require(config)
-            end
-            adapters[#adapters + 1] = config
-          elseif config ~= false then
-            local adapter = require(name)
-            if type(config) == "table" and not vim.tbl_isempty(config) then
-              local meta = getmetatable(adapter)
-              if adapter.setup then
-                adapter.setup(config)
-              elseif adapter.adapter then
-                adapter.adapter(config)
-                adapter = adapter.adapter
-              elseif meta and meta.__call then
-                adapter(config)
-              else
-                error("Adapter " .. name .. " does not support setup")
-              end
-            end
-            adapters[#adapters + 1] = adapter
-          end
-        end
-        opts.adapters = adapters
-      end
-
-      require("dap-go").setup()
-      require("coverage").setup({
-        auto_reload = true,
-        signs = {
-          covered = { text = "┋" },
-          uncovered = { text = "┋" },
-        }
-      })
-      require("neotest").setup(opts)
+    config = function()
+      require("plugins.neotest_")
     end
   },
   {
@@ -253,30 +190,15 @@ return {
       "nvim-neotest/nvim-nio",
       "mfussenegger/nvim-dap",
     },
-    opts = {},
-    config = function(_, opts)
-      -- setup dap config by VsCode launch.json file
-      -- require("dap.ext.vscode").load_launchjs()
-      local dap = require("dap")
-      local dapui = require("dapui")
-      dapui.setup(opts)
-      dap.listeners.after.event_initialized["dapui_config"] = function()
-        dapui.open({})
-      end
-      dap.listeners.before.event_terminated["dapui_config"] = function()
-        dapui.close({})
-      end
-      dap.listeners.before.event_exited["dapui_config"] = function()
-        dapui.close({})
-      end
+    config = function()
+      require("plugins.nvim_dap_ui_")
     end,
   },
   {
     "theHamsta/nvim-dap-virtual-text",
-    opts = {},
   },
 
-  -- Git Signs
+  -- Git signs
   {
     "lewis6991/gitsigns.nvim",
     event = "VeryLazy",
@@ -285,99 +207,13 @@ return {
     end,
   },
 
-  -- Git diffview
-  {
-    "sindrets/diffview.nvim",
-    cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewToggleFiles", "DiffviewFocusFiles" },
-  },
-
-  -- Git tool
-  {
-    "TimUntersberger/neogit",
-    cmd = "Neogit",
-    config = function()
-      require("neogit").setup({
-        kind = "split", -- opens neogit in a split
-        signs = {
-          -- { CLOSED, OPENED }
-          section = { "", "", },
-          item = { "", "", },
-          hunk = { "", "" },
-        },
-        integrations = { diffview = true }, -- adds integration with diffview.nvim
-      })
-    end,
-  },
-
-  {
-    "isakbm/gitgraph.nvim",
-    event = "VeryLazy",
-    dependencies = { "sindrets/diffview.nvim" },
-    opts = {
-      hooks = {
-        -- Check diff of a commit
-        on_select_commit = function(commit)
-          vim.notify("DiffviewOpen " .. commit.hash .. "^!")
-          vim.cmd(":DiffviewOpen " .. commit.hash .. "^!")
-        end,
-        -- Check diff from commit a -> commit b
-        on_select_range_commit = function(from, to)
-          vim.notify("DiffviewOpen " .. from.hash .. "~1.." .. to.hash)
-          vim.cmd(":DiffviewOpen " .. from.hash .. "~1.." .. to.hash)
-        end,
-      },
-      symbols = {
-        merge_commit = '',
-        commit = '',
-        merge_commit_end = '',
-        commit_end = '',
-
-        -- Advanced symbols
-        GVER = '',
-        GHOR = '',
-        GCLD = '',
-        GCRD = '╭',
-        GCLU = '',
-        GCRU = '',
-        GLRU = '',
-        GLRD = '',
-        GLUD = '',
-        GRUD = '',
-        GFORKU = '',
-        GFORKD = '',
-        GRUDCD = '',
-        GRUDCU = '',
-        GLUDCD = '',
-        GLUDCU = '',
-        GLRDCL = '',
-        GLRDCR = '',
-        GLRUCL = '',
-        GLRUCR = '',
-      },
-    },
-  },
-
   -- Indent Guide
   {
     "lukas-reineke/indent-blankline.nvim",
     event = lazyFile,
     main = "ibl",
-    opts = {},
     config = function()
-      require("ibl").setup({
-        indent = { char = "│" },
-        scope = { enabled = false },
-        exclude = {
-          filetypes = {
-            "help",
-            "alpha",
-            "neo-tree",
-            "lazy",
-            "mason",
-            "notify",
-          },
-        },
-      })
+      require("plugins.ibl_")
     end
   },
 
@@ -410,7 +246,6 @@ return {
   {
     "nacro90/numb.nvim",
     event = lazyFile,
-    opts = {},
   },
 
   -- Markdown
@@ -418,9 +253,7 @@ return {
     "MeanderingProgrammer/markdown.nvim",
     name = "render-markdown",
     ft = "markdown",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-    },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
       require("plugins.markdown_")
     end,
@@ -430,9 +263,7 @@ return {
   {
     "OXY2DEV/helpview.nvim",
     ft = "help",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter"
-    },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
   },
 
   -- Todo comments
@@ -490,7 +321,6 @@ return {
     specs = {
       { "nvim-tree/nvim-web-devicons", enabled = false, optional = true },
     },
-    opts = {},
     init = function() -- Override nvim-web-devicons
       package.preload["nvim-web-devicons"] = function()
         require("mini.icons").mock_nvim_web_devicons()
@@ -502,16 +332,13 @@ return {
   -- UI for Nvim notification
   {
     "j-hui/fidget.nvim",
-    opts = {},
-    config = function()
-      require("fidget").setup {
-        notification = {
-          window = {
-            winblend = 0,
-          },
-        }
+    opts = {
+      notification = {
+        window = {
+          winblend = 0,
+        },
       }
-    end
+    },
   },
 
   -- Highlight color
@@ -519,9 +346,7 @@ return {
     "norcalli/nvim-colorizer.lua",
     event = lazyFile,
     init = function()
-      require("colorizer").setup {
-        "css", "javascript", "html", "tmux",
-      }
+      require("colorizer").setup { "css", "javascript", "html", "tmux" }
     end
   },
 
@@ -552,7 +377,6 @@ return {
   {
     "folke/persistence.nvim",
     event = { "BufReadPre" }, -- this will only start session saving when an actual file was opened
-    opts = {},
   },
 
   -- Keybindings Helper
