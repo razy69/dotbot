@@ -15,7 +15,6 @@ require("lualine").setup({
     "lazy",
     "mason",
     "neo-tree",
-    "nvim-dap-ui",
     "quickfix",
     "trouble",
   },

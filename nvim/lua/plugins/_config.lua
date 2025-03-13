@@ -153,51 +153,6 @@ return {
     end,
   },
 
-  -- Dap & Tests
-  {
-    "nvim-neotest/neotest",
-    event = "VeryLazy",
-    dependencies = {
-      "nvim-neotest/nvim-nio",
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-      "nvim-neotest/neotest-plenary",
-      "nvim-neotest/neotest-vim-test",
-      {
-        "fredrikaverpil/neotest-golang",
-        dependencies = {
-          {
-            "leoluz/nvim-dap-go",
-            "andythigpen/nvim-coverage",
-            "uga-rosa/utf8.nvim",
-          },
-        },
-        branch = "main",
-      },
-    },
-    config = function()
-      require("plugins.neotest_")
-    end
-  },
-  {
-    "mfussenegger/nvim-dap",
-    event = "VeryLazy",
-  },
-  {
-    "rcarriga/nvim-dap-ui",
-    event = "VeryLazy",
-    dependencies = {
-      "nvim-neotest/nvim-nio",
-      "mfussenegger/nvim-dap",
-    },
-    config = function()
-      require("plugins.nvim_dap_ui_")
-    end,
-  },
-  {
-    "theHamsta/nvim-dap-virtual-text",
-  },
-
   -- Git signs
   {
     "lewis6991/gitsigns.nvim",
@@ -332,13 +287,15 @@ return {
   -- UI for Nvim notification
   {
     "j-hui/fidget.nvim",
-    opts = {
-      notification = {
-        window = {
-          winblend = 0,
-        },
-      }
-    },
+    config = function()
+      require("fidget").setup({
+        notification = {
+          window = {
+            winblend = 0,
+          },
+        }
+      })
+    end
   },
 
   -- Highlight color
