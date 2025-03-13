@@ -35,7 +35,7 @@ require("noice").setup({
 
   lsp = {
     progress = {
-      enabled = false,
+      enabled = true,
       view = "mini",
     },
     override = {
@@ -53,6 +53,11 @@ require("noice").setup({
         trigger = false,
       },
     },
+    message = {
+      -- Messages shown by lsp servers
+      enabled = true,
+      view = "mini",
+    }
   },
 
   cmdline = {
@@ -66,30 +71,30 @@ require("noice").setup({
   },
 
   routes = {
+    -- Redirect to mini
+    { filter = { find = "E162" },                                       view = "mini" },
     {
-      filter = { event = "notify", find = "No information available", }, -- Suppress 'No information available' popup message
-      opts = { skip = true },
-    },
-    { -- hide `written` message
-      filter = {
-        event = "msg_show",
-        kind = "",
-        find = "written",
-      },
-      opts = { skip = true },
-    },
-    { -- send annoying msgs to mini
       filter = {
         event = "msg_show",
         any = {
+          -- { find = "written",          kind = "" },
           { find = "; after #%d+" },
           { find = "; before #%d+" },
           { find = "fewer lines" },
+          { find = "No signature help" },
         },
       },
       view = "mini",
     },
-    { -- route long messages to split
+    -- Route long messages to split
+    {
+      filter = {
+        event = "notify",
+        min_height = 15
+      },
+      view = "split",
+    },
+    {
       filter = {
         event = "msg_show",
         ["not"] = {
@@ -99,6 +104,12 @@ require("noice").setup({
       },
       view = "mini",
     },
+    -- Disable messages
+    { filter = { event = "notify", find = "No information available" }, opts = { skip = true } },
+    { filter = { event = "emsg", find = "E23" },                        opts = { skip = true } },
+    { filter = { event = "emsg", find = "E20" },                        opts = { skip = true } },
+    { filter = { find = "E37" },                                        opts = { skip = true } },
+    -- { filter = { event = "msg_show", kind = "" },                       opts = { skip = true } },
   },
 
   cmdline_popup = {
@@ -138,7 +149,7 @@ require("noice").setup({
     },
     mini = {
       win_options = {
-        winblend = 100
+        winblend = 0
       }
     },
     cmdline_popup = {
@@ -162,8 +173,6 @@ require("noice").setup({
     view_error = "notify",
     view_warn = "notify",
     view_history = "messages",
-    view_search = false,
+    view_search = "virtualtext",
   },
-
-  health = { checker = true },
 })

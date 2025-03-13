@@ -284,20 +284,6 @@ return {
     end,
   },
 
-  -- UI for Nvim notification
-  {
-    "j-hui/fidget.nvim",
-    config = function()
-      require("fidget").setup({
-        notification = {
-          window = {
-            winblend = 0,
-          },
-        }
-      })
-    end
-  },
-
   -- Highlight color
   {
     "norcalli/nvim-colorizer.lua",
