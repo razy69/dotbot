@@ -36,7 +36,7 @@ require("blink.cmp").setup({
   end,
   completion = {
     keyword = {
-      range = "full",
+      range = "prefix",
     },
     list = {
       max_items = 50,
@@ -54,7 +54,6 @@ require("blink.cmp").setup({
     menu = {
       border = "rounded",
       draw = {
-        treesitter = { "lsp" },
         columns = {
           { "label",     "label_description", gap = 2 },
           { "kind_icon", "kind",              "source_name", gap = 1 },
@@ -62,22 +61,10 @@ require("blink.cmp").setup({
       },
     },
   },
-  signature = {
-    enabled = true,
-    window = {
-      border = "rounded",
-      treesitter_highlighting = true,
-    },
-  },
   cmdline = {
     completion = {
       ghost_text = { enabled = false },
       menu = { auto_show = true },
-      -- menu = {
-      --   auto_show = function(ctx)
-      --     return vim.fn.getcmdtype() ~= ":"
-      --   end
-      -- },
     },
   },
   sources = {

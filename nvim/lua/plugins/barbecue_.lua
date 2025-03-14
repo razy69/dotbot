@@ -11,6 +11,7 @@ require("barbecue").setup({
   create_autocmd = false,
   show_dirname = true,
   show_basename = true,
+  context_follow_icon_color = true,
   exclude_filetypes = { "neo-tree", "alpha" }
 })
 

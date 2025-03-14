@@ -53,7 +53,7 @@ wk.add({
   { "<C-tp>",       "<cmd>tabp<cr>",             desc = "Go to next tab",                  mode = "n" },
   { "<leader>w",    "<cmd>w<cr>",                desc = "Save buffer",                     mode = "n" },
   { "<leader>qq",   "<cmd>confirm q<cr>",        desc = "Quit buffer",                     mode = "n" },
-  { "<leader>QQ",   "<cmd>confirm qall<cr>",     desc = "Quit all buffers",                mode = "n" },
+  { "<leader>qa",   "<cmd>confirm qall<cr>",     desc = "Quit all buffers",                mode = "n" },
   { "<leader><bs>", "za<cr>",                    desc = "Fold/Unfold code",                mode = "n" },
   { "<leader>bg",   "<cmd>BackgroundToggle<cr>", desc = "Toggle background light/dark",    mode = "n" },
   { "<leader>qf",   "<cmd>copen<cr>",            desc = "Open quickfix",                   mode = "n" },

@@ -41,7 +41,6 @@ return {
     event = lazyFile,
     lazy = vim.fn.argc(-1) == 0,
     build = ":TSUpdate",
-    dependencies = { "nvim-treesitter/nvim-treesitter-textobjects" },
     config = function()
       require("plugins.treesitter_")
     end,
@@ -142,6 +141,7 @@ return {
     "m-demare/hlargs.nvim",
     event = lazyFile,
     dependencies = { "nvim-treesitter" },
+    opts = {},
   },
 
   -- Highlighting Words
@@ -201,6 +201,7 @@ return {
   {
     "nacro90/numb.nvim",
     event = lazyFile,
+    opts = {},
   },
 
   -- Markdown
@@ -319,7 +320,8 @@ return {
   -- Session
   {
     "folke/persistence.nvim",
-    event = { "BufReadPre" }, -- this will only start session saving when an actual file was opened
+    event = { "BufReadPre" },                          -- this will only start session saving when an actual file was opened
+    opts = {},
   },
 
   -- Keybindings Helper

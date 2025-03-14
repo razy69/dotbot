@@ -11,7 +11,7 @@ vim.opt.timeoutlen = 300 -- Mapping timeout
 
 -- Code Folding
 function myfoldtext()
-  return vim.fn.getline(vim.v.foldstart) .. ' ... ' .. vim.fn.getline(vim.v.foldend):gsub("^%s*", "")
+  return ' 󰘍 ' .. vim.fn.getline(vim.v.foldstart) .. ' ... ' .. vim.fn.getline(vim.v.foldend):gsub("^%s*", "") .. ' 󰉸 ' .. (vim.v.foldend - vim.v.foldstart + 1)  .. ' lines'
 end
 
 vim.opt.fillchars:append({ fold = " " })
@@ -107,8 +107,8 @@ vim.opt.encoding = "utf-8"
 vim.opt.autowrite = false
 vim.opt.autoread = false
 vim.opt.undolevels = 1000
-vim.opt.updatetime = 100
-vim.g.bigfile_size = 1024 * 1024 * 10 -- 10 MB
+vim.opt.updatetime = 200
+vim.g.bigfile_size = 1024 * 1024 * 30 -- 30 MB
 
 -- Wildmenu
 vim.opt.wildmenu = true
@@ -129,6 +129,9 @@ vim.opt.gdefault = true
 -- Window
 vim.opt.splitbelow = true -- Put new windows below current
 vim.opt.splitright = true -- Put new vertical splits to right
+
+-- Session
+vim.opt.sessionoptions = "blank,buffers,curdir,folds,help,winpos,winsize,resize,terminal"
 
 -- Diagnostics
 vim.diagnostic.config({
