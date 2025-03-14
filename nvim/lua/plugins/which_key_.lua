@@ -81,11 +81,12 @@ end
 local fzf_lua = utils.prequire("fzf-lua")
 if fzf_lua then
   wk.add({
-    { "<leader>O",  function() fzf_lua.oldfiles() end,                         desc = "Show recent files",       mode = "n" },
-    { "<leader>o",  function() fzf_lua.files() end,                            desc = "Search for a file",       mode = "n" },
-    { "<leader>i",  function() fzf_lua.jumps() end,                            desc = "Go to previous location", mode = "n" },
-    { "<leader>gr", function() fzf_lua.live_grep({ multiprocess = true }) end, desc = "Find string in project",  mode = "n" },
-    { "<leader>b",  function() fzf_lua.buffers() end,                          desc = "Show all buffers",        mode = "n" },
+    { "<leader>O",    function() fzf_lua.oldfiles() end,                         desc = "Show recent files",       mode = "n" },
+    { "<leader>o",    function() fzf_lua.files() end,                            desc = "Search for a file",       mode = "n" },
+    { "<leader>i",    function() fzf_lua.jumps() end,                            desc = "Go to previous location", mode = "n" },
+    { "<leader>gr",   function() fzf_lua.live_grep({ multiprocess = true }) end, desc = "Find string in project",  mode = "n" },
+    { "<leader>b",    function() fzf_lua.buffers() end,                          desc = "Show all buffers",        mode = "n" },
+    { "<leader>todo", "<cmd>TodoFzf<cr>",                                        desc = "Todo things",             mode = "n" },
   })
 end
 
@@ -101,8 +102,8 @@ end
 local noice = utils.prequire("noice")
 if noice then
   wk.add({
-    { "<leader>nl", function() noice.cmd("last") end,    desc = "Last Noice message",    mode = "n" },
-    { "<leader>nh", function() noice.cmd("history") end, desc = "Noice message history", mode = "n" },
+    { "<leader>nl", function() noice.cmd("last") end, desc = "Last Noice message",    mode = "n" },
+    { "<leader>nh", function() noice.cmd("fzf") end,  desc = "Noice message history", mode = "n" },
   })
 end
 
