@@ -5,14 +5,11 @@
 ]]
 
 local palettes = require("catppuccin.palettes")
-local colors = (vim.o.background == "dark") and palettes.get_palette("frappe") or palettes.get_palette("latte")
+local flavor = (vim.o.background == "dark") and "frappe" or "latte"
+local colors = palettes.get_palette(flavor)
 
 require("catppuccin").setup({
-  flavour = "frappe", -- latte, frappe, macchiato, mocha
-  background = {      -- :h background
-    light = "latte",
-    dark = "frappe",
-  },
+  flavour = flavor,
   transparent_background = false, -- disables setting the background color.
   show_end_of_buffer = true,      -- shows the "~" characters after the end of buffers
   term_colors = true,             -- sets terminal colors (e.g. `g:terminal_color_0`)
@@ -88,6 +85,7 @@ require("catppuccin").setup({
       BlinkCmpSignatureHelpActiveParameter = { fg = colors.mauve },
       FloatBorder = { fg = colors.blue, bg = colors.base },
       GitSignsCurrentLineBlame = { fg = colors.sapphire },
+      IBLIndentGuide1 = { fg = colors.surface1 },
       NoiceMini = { bg = colors.base },
       NormalFloat = { fg = colors.text, bg = colors.base },
       WhichKey = { fg = colors.yellow },
