@@ -16,6 +16,7 @@ local servers = {
   "docker_compose_language_service",
   -- Golang
   "gopls",
+  "golangci_lint_ls",
   -- Python
   "ruff",
   "jedi_language_server",
@@ -26,6 +27,7 @@ local servers = {
   "yamlls",
   "jsonls",
   "html",
+  "perlnavigator",
 }
 
 local utils = require("config.utils")

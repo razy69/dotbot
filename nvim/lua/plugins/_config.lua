@@ -46,6 +46,99 @@ return {
     end,
   },
 
+  -- Debugger
+  {
+    "rcarriga/nvim-dap-ui",
+    event = { "VeryLazy" },
+    dependencies = {
+      "nvim-neotest/nvim-nio",
+      "mfussenegger/nvim-dap",
+    },
+    opts = {},
+    config = function(_, opts)
+      -- setup dap config by VsCode launch.json file
+      -- require("dap.ext.vscode").load_launchjs()
+      local dap = require("dap")
+      local dapui = require("dapui")
+      dapui.setup(opts)
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open({})
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close({})
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close({})
+      end
+    end,
+  },
+
+  -- Test
+  {
+    "nvim-neotest/neotest",
+    event = { "VeryLazy" },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "antoinemadec/FixCursorHold.nvim",
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-neotest/nvim-nio",
+      "nvim-neotest/neotest-plenary",
+      "nvim-neotest/neotest-vim-test",
+      {
+        "fredrikaverpil/neotest-golang",
+        dependencies = {
+          {
+            "leoluz/nvim-dap-go",
+            opts = {},
+          },
+        },
+        branch = "main",
+      },
+    },
+    opts = function(_, opts)
+      opts.adapters = opts.adapters or {}
+      opts.adapters["neotest-golang"] = {
+        go_test_args = {
+          "-v",
+          "-race",
+          "-coverprofile=" .. vim.fn.getcwd() .. "/coverage.out",
+        },
+      }
+    end,
+    config = function(_, opts)
+      if opts.adapters then
+        local adapters = {}
+        for name, config in pairs(opts.adapters or {}) do
+          if type(name) == "number" then
+            if type(config) == "string" then
+              config = require(config)
+            end
+            adapters[#adapters + 1] = config
+          elseif config ~= false then
+            local adapter = require(name)
+            if type(config) == "table" and not vim.tbl_isempty(config) then
+              local meta = getmetatable(adapter)
+              if adapter.setup then
+                adapter.setup(config)
+              elseif adapter.adapter then
+                adapter.adapter(config)
+                adapter = adapter.adapter
+              elseif meta and meta.__call then
+                adapter(config)
+              else
+                error("Adapter " .. name .. " does not support setup")
+              end
+            end
+            adapters[#adapters + 1] = adapter
+          end
+        end
+        opts.adapters = adapters
+      end
+
+      require("neotest").setup(opts)
+    end,
+  },
+
   -- Formatter
   {
     "stevearc/conform.nvim",
@@ -320,7 +413,7 @@ return {
   -- Session
   {
     "folke/persistence.nvim",
-    event = { "BufReadPre" },                          -- this will only start session saving when an actual file was opened
+    event = { "BufReadPre" }, -- this will only start session saving when an actual file was opened
     opts = {},
   },
 

@@ -122,3 +122,53 @@ if neotree then
     { "<leader>e", function() neotree.execute({ toggle = true }) end, desc = "Toggle NeoTree", mode = { "n" } },
   })
 end
+
+
+local dap = utils.prequire("dap")
+if dap then
+  wk.add({
+    { "<leader>db", function() dap.toggle_breakpoint() end,                                    desc = "toggle [d]ebug [b]reakpoint",     mode = { "n" } },
+    { "<leader>dB", function() dap.set_breakpoint(vim.fn.input("Breakpoint condition: ")) end, desc = "[d]ebug [B]reakpoint",            mode = { "n" } },
+    { "<leader>dc", function() dap.continue() end,                                             desc = "[d]ebug [c]ontinue (start here)", mode = { "n" } },
+    { "<leader>dC", function() dap.run_to_cursor() end,                                        desc = "[d]ebug [C]ursor",                mode = { "n" } },
+    { "<leader>dg", function() dap.goto_() end,                                                desc = "[d]ebug [g]o to line",            mode = { "n" } },
+    { "<leader>do", function() dap.step_over() end,                                            desc = "[d]ebug step [o]ver",             mode = { "n" } },
+    { "<leader>dO", function() dap.step_out() end,                                             desc = "[d]ebug step [O]ut",              mode = { "n" } },
+    { "<leader>di", function() dap.step_into() end,                                            desc = "[d]ebug [i]nto",                  mode = { "n" } },
+    { "<leader>dj", function() dap.down() end,                                                 desc = "[d]ebug [j]ump down",             mode = { "n" } },
+    { "<leader>dk", function() dap.up() end,                                                   desc = "[d]ebug [k]ump up",               mode = { "n" } },
+    { "<leader>dl", function() dap.run_last() end,                                             desc = "[d]ebug [l]ast",                  mode = { "n" } },
+    { "<leader>dp", function() dap.pause() end,                                                desc = "[d]ebug [p]ause",                 mode = { "n" } },
+    { "<leader>dr", function() dap.repl.toggle() end,                                          desc = "[d]ebug [r]epl",                  mode = { "n" } },
+    { "<leader>dR", function() dap.clear_breakpoints() end,                                    desc = "[d]ebug [R]emove breakpoints",    mode = { "n" } },
+    { "<leader>ds", function() dap.session() end,                                              desc = "[d]ebug [s]ession",               mode = { "n" } },
+    { "<leader>dt", function() dap.terminate() end,                                            desc = "[d]ebug [t]erminate",             mode = { "n" } },
+    { "<leader>dw", function() require("dap.ui.widgets").hover() end,                          desc = "[d]ebug [w]idgets",               mode = { "n" } },
+  })
+end
+
+local dapui = utils.prequire("dapui")
+if dapui then
+  wk.add({
+    { "<leader>du", function() dapui.toggle({}) end, desc = "[d]ap [u]i",   mode = { "n" } },
+    { "<leader>de", function() dapui.eval() end,     desc = "[d]ap [e]val", mode = { "n" } },
+  })
+end
+
+local neotest = utils.prequire("neotest")
+if neotest then
+  wk.add({
+    { "<leader>ta", function() neotest.run.attach() end,                                      desc = "[t]est [a]ttach",       mode = { "n" } },
+    { "<leader>tf", function() neotest.run.run(vim.fn.expand("%")) end,                       desc = "[t]est run [f]ile",     mode = { "n" } },
+    { "<leader>tA", function() neotest.run.run(vim.uv.cwd()) end,                             desc = "[t]est [A]ll files",    mode = { "n" } },
+    { "<leader>tS", function() neotest.run.run({ suite = true }) end,                         desc = "[t]est [S]uite",        mode = { "n" } },
+    { "<leader>tn", function() neotest.run.run() end,                                         desc = "[t]est [n]earest",      mode = { "n" } },
+    { "<leader>tl", function() neotest.run.run_last() end,                                    desc = "[t]est [l]ast",         mode = { "n" } },
+    { "<leader>ts", function() neotest.summary.toggle() end,                                  desc = "[t]est [s]ummary",      mode = { "n" } },
+    { "<leader>to", function() neotest.output.open({ enter = true, auto_close = true }) end,  desc = "[t]est [o]utput",       mode = { "n" } },
+    { "<leader>tO", function() neotest.output_panel.toggle() end,                             desc = "[t]est [O]utput panel", mode = { "n" } },
+    { "<leader>tt", function() neotest.run.stop() end,                                        desc = "[t]est [t]erminate",    mode = { "n" } },
+    { "<leader>td", function() neotest.run.run({ suite = false, strategy = "dap" }) end,      desc = "Debug nearest test",    mode = { "n" } },
+    { "<leader>tD", function() neotest.run.run({ vim.fn.expand("%"), strategy = "dap" }) end, desc = "Debug current file",    mode = { "n" } },
+  })
+end
