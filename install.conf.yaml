@@ -1,4 +1,8 @@
 ---
+- shell:
+    -
+      command: git submodule update --init --recursive
+      description: Installing submodules
 - defaults:
     link:
       create: true
@@ -6,10 +10,12 @@
       relative: true
 - create:
     - ~/bin
+    - ~/notes
     - ~/.config
+    - ~/.config/bat
+    - ~/.config/delta/themes
     - ~/.vim
     - ~/.zsh/completions
-    - ~/notes
 - clean:
     ~/:
       force: true
@@ -42,10 +48,10 @@
       path: bat/themes/catppuccin/themes
     ~/.config/delta/themes/catppuccin.gitconfig:
       path: delta/themes/catppuccin/catppuccin.gitconfig
-    ~/.config/ghostty/config:
-      path: ghostty/config
-    ~/.config/k9s/config.yaml:
-      path: k9s/config.yaml
+    ~/.config/ghostty:
+      path: ghostty
+    ~/.config/k9s:
+      path: k9s
     ~/.config/k9s/skins:
       path: k9s/themes/catppuccin/dist
     ~/.vim/colors:
@@ -54,13 +60,10 @@
       path: vim/vimrc
 - shell:
     -
-      command: git submodule update --init --recursive
-      description: Installing submodules
-    -
       command: '
         for bin in bat catimg delta erd exa fd git tmux nvim rg zsh; do
           if ! command -v "$bin" &> /dev/null; then
-            echo -e "\033[1;33mx $bin is not installed\033[0m";
+            echo "\033[1;33mx $bin is not installed\033[0m";
           fi;
         done'
       description: Checking installed binaries
