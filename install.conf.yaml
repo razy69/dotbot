@@ -66,29 +66,6 @@
       description: Checking installed binaries
       stdout: true
     -
-      command: '
-        if ! command -v asdf &> /dev/null; then
-          asdf_release="v0.16.4"
-          asdf_tar="asdf.tar.gz"
-          case $(uname -a) in
-            Darwin*) osname="darwin" ;;
-            Linux*)  osname="linux" ;;
-            *)       osname="unknown" ;;
-          esac
-          case $(arch) in
-            arm64)  archname="arm64" ;;
-            x86_64) archname="amd64" ;;
-            *)      archname="386" ;;
-          esac
-          curl -L "https://github.com/asdf-vm/asdf/releases/download/${asdf_release}/asdf-${asdf_release}-${osname}-${archname}.tar.gz" -o "${HOME}/bin/${asdf_tar}"
-          tar -xvf "${HOME}/bin/${asdf_tar}" -C "${HOME}/bin/"
-          rm -f "${HOME}/bin/${asdf_tar}"
-        else
-          echo -e "\033[1;32masdf is installed\033[0m";
-        fi'
-      description: Install ASDF
-      stdout: true
-    -
       command: ~/.tmux/plugins/tpm/bin/install_plugins
       description: Install tmux plugins
     -

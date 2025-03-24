@@ -21,13 +21,11 @@ source "${ZSH}/config/plugins.zsh"
 # Completion
 source "${ZSH}/config/completions.zsh"
 
-# ASDF
-export ASDF_DATA_DIR="${HOME}/.asdf"
+# GO
 export GOPATH="${HOME}/go"
 
 # Path
 path=(
-  ${ASDF_DATA_DIR}/shims
   ${GOPATH}/bin
   ${NVIM}/mason/bin
   ${HOME}/bin
