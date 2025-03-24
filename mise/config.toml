@@ -1,0 +1,17 @@
+[settings]
+activate_aggressive = true
+paranoid = true
+python_compile = true
+
+[tools]
+fzf = "latest"
+go = "latest"
+k9s = "latest"
+kubectl = "latest"
+nodejs = "lts"
+neovim = "latest"
+perl = "latest"
+python = ["3.10", "3.11", "3.12"]
+restish = "latest"
+rust = "latest"
+terraform = "latest"

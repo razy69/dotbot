@@ -40,6 +40,8 @@
       path: tmux/tmux.conf
     ~/.tmux:
       path: tmux/tmux
+    ~/.config/mise:
+      path: mise
     ~/.config/nvim:
       path: nvim
     ~/.config/bat/config:
