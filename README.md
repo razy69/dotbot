@@ -67,6 +67,7 @@ tmux
 ```bash
 $ git clone https://github.com/razy69/dotbot ~/.dotbot && cd ~/.dotbot
 $ ./install
+$ ~/.tmux/plugins/tpm/bin/install_plugins  # TMUX setup
 ```
 
 It will also install/setup asdf (https://github.com/asdf-vm/asdf).
