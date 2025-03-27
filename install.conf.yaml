@@ -54,8 +54,6 @@
       path: ghostty
     ~/.config/k9s:
       path: k9s
-    ~/.config/k9s/skins:
-      path: k9s/themes/catppuccin/dist
     ~/.vim/colors:
       path: vim/colors
     ~/.vimrc:
@@ -63,7 +61,7 @@
 - shell:
     -
       command: '
-        for bin in bat catimg delta erd exa fd git tmux nvim rg zsh; do
+        for bin in bat delta erd exa fd git tmux nvim rg zsh; do
           if ! command -v "$bin" &> /dev/null; then
             echo "\033[1;33mx $bin is not installed\033[0m";
           fi;

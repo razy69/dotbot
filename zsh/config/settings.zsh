@@ -27,6 +27,7 @@ export LANG="en_US.UTF-8"
 export EDITOR="nvim"
 export MANPATH="/usr/local/man:${MANPATH}"
 export BAT_CONFIG_PATH="${HOME}/.config/bat/config"
+export K9S_CONFIG_DIR="${HOME}/.config/k9s"
 
 # GPG or SSH Agent
 if command -v gpg-agent &> /dev/null; then

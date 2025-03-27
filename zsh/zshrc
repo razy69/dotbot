@@ -21,13 +21,8 @@ source "${ZSH}/config/plugins.zsh"
 # Completion
 source "${ZSH}/config/completions.zsh"
 
-# GO
-export GOPATH="${HOME}/go"
-
 # Path
 path=(
-  ${GOPATH}/bin
-  ${NVIM}/mason/bin
   ${HOME}/bin
   ${HOME}/.local/bin
   $path
@@ -39,6 +34,9 @@ source "${ZSH}/config/aliases.zsh"
 
 # Functions
 source "${ZSH}/config/functions.zsh"
+
+# Mise
+(( $+commands[mise] )) && eval "$(mise activate zsh)"
 
 # Work
 [[ ! -f "${ZSH}/config/work.zsh" ]] || source "${ZSH}/config/work.zsh"

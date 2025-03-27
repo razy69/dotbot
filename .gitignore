@@ -7,3 +7,8 @@ tmux/tmux/resurrect
 
 # Nvim swap files
 *.zwc
+
+# K9S
+k9s/benchmarks
+k9s/clusters
+k9s/screen-dumps
