@@ -311,8 +311,7 @@ return {
   -- Help view
   {
     "OXY2DEV/helpview.nvim",
-    ft = "help",
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    lazy = false,
   },
 
   -- Todo comments

@@ -8,6 +8,7 @@ function _fix_cursor() {
 }
 precmd_functions+=(_fix_cursor)
 
+
 # Tmux env vars
 function update_environment_from_tmux() {
   if [ -n "${TMUX}" ]; then

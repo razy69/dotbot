@@ -5,22 +5,21 @@
 ]]
 
 require("notify").setup({
-  stages = "static", -- fade_in_slide_out, fade, slide, static
+  stages = "slide", -- fade_in_slide_out, fade, slide, static
   render = "default",
-  timeout = 1200,
+  timeout = 3000,
   minimum_width = 50,
   icons = { ERROR = "", WARN = "", INFO = "", DEBUG = "", TRACE = "" },
   level = vim.log.levels.INFO,
-  fps = 5,
-  background_colour = "#000000",
+  fps = 120,
   max_height = function()
     return math.floor(vim.o.lines * 0.75)
   end,
   max_width = function()
-    return math.floor(vim.o.columns * 0.75)
+    return math.floor(vim.o.columns * 0.60)
   end,
   on_open = function(win)
-    vim.api.nvim_win_set_config(win, { zindex = 100 })
+    vim.api.nvim_win_set_config(win, { zindex = 100, focusable = false })
   end,
 })
 
@@ -29,7 +28,6 @@ require("noice").setup({
     bottom_search = true,         -- use a classic bottom cmdline for search
     command_palette = true,       -- position the cmdline and popupmenu together
     long_message_to_split = true, -- long messages will be sent to a split
-    inc_rename = true,            -- enables an input dialog for inc-rename.nvim
     lsp_doc_border = true,        -- add a border to hover docs and signature help
   },
 
@@ -41,10 +39,10 @@ require("noice").setup({
     override = {
       ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
       ["vim.lsp.util.stylize_markdown"] = true,
-      ["cmp.entry.get_documentation"] = true,
     },
     hover = {
       enabled = true,
+      silent = true,
     },
     signature = {
       enabled = true,
@@ -71,45 +69,44 @@ require("noice").setup({
   },
 
   routes = {
+    -- Kind:
+    -- "" (empty)	Unknown (consider a feature-request: |bugs|)
+    -- "confirm"	|confirm()| or |:confirm| dialog
+    -- "confirm_sub"	|:substitute| confirm dialog |:s_c|
+    -- "emsg"		Error (|errors|, internal error, |:throw|, …)
+    -- "echo"		|:echo| message
+    -- "echomsg"	|:echomsg| message
+    -- "echoerr"	|:echoerr| message
+    -- "lua_error"	Error in |:lua| code
+    -- "rpc_error"	Error response from |rpcrequest()|
+    -- "return_prompt"	|press-enter| prompt after a multiple messages
+    -- "quickfix"	Quickfix navigation message
+    -- "search_count"	Search count message ("S" flag of 'shortmess')
+    -- "wmsg"		Warning ("search hit BOTTOM", |W10|, …)
+
     -- Redirect to mini
-    { filter = { find = "E162" },                                       view = "mini" },
     {
+      view = "notify",
       filter = {
         event = "msg_show",
+        kind = "",
         any = {
-          -- { find = "written",          kind = "" },
-          { find = "; after #%d+" },
-          { find = "; before #%d+" },
+          -- { find = "; after #%d+" },
+          -- { find = "; before #%d+" },
           { find = "fewer lines" },
           { find = "No signature help" },
+          { find = "written" },
         },
       },
-      view = "mini",
     },
-    -- Route long messages to split
-    {
-      filter = {
-        event = "notify",
-        min_height = 15
-      },
-      view = "split",
-    },
+    -- Disable
     {
       filter = {
         event = "msg_show",
-        ["not"] = {
-          kind = { "confirm", "confirm_sub", "return_prompt", "quickfix", "search_count" },
-        },
-        blocking = true,
+        kind = "search_count",
       },
-      view = "mini",
+      opts = { skip = true },
     },
-    -- Disable messages
-    { filter = { event = "notify", find = "No information available" }, opts = { skip = true } },
-    { filter = { event = "emsg", find = "E23" },                        opts = { skip = true } },
-    { filter = { event = "emsg", find = "E20" },                        opts = { skip = true } },
-    { filter = { find = "E37" },                                        opts = { skip = true } },
-    -- { filter = { event = "msg_show", kind = "" },                       opts = { skip = true } },
   },
 
   cmdline_popup = {
@@ -125,7 +122,7 @@ require("noice").setup({
 
   popupmenu = {
     enabled = true,  -- enables the Noice popupmenu UI
-    backend = "cmp", -- backend to use to show regular cmdline completions
+    backend = "nui", -- backend to use to show regular cmdline completions
     relative = "editor",
     position = {
       row = 8,
@@ -136,9 +133,6 @@ require("noice").setup({
       height = 10,
     },
     border = "rounded",
-    win_options = {
-      winhighlight = { Normal = "Normal", FloatBorder = "DiagnosticInfo" },
-    },
   },
 
   views = {

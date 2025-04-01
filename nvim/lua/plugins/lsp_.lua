@@ -45,10 +45,6 @@ local default_capabilities = vim.tbl_deep_extend(
       },
     },
     textDocument = {
-			foldingRange = {
-				dynamicRegistration = false,
-				lineFoldingOnly = true,
-			},
 			completion = {
 				completionItem = {
 					snippetSupport = true,

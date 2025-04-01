@@ -1,6 +1,6 @@
 [settings]
 activate_aggressive = true
-paranoid = true
+paranoid = false
 python_compile = true
 
 [tools]

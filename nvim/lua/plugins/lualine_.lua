@@ -5,6 +5,10 @@
 ]]
 
 local utils = require("config.utils")
+local trouble = utils.prequire("trouble")
+if trouble then
+  vim.g.trouble_lualine = true -- Show the current document symbols location from Trouble in lualine
+end
 
 require("lualine").setup({
   theme = "catppuccin",
@@ -58,7 +62,6 @@ require("lualine").setup({
         update_in_insert = false,
         always_visible = false,
         on_click = function()
-          local trouble = require("trouble")
           if not trouble then
             return
           end
@@ -110,7 +113,7 @@ require("lualine").setup({
       },
       {
         function()
-          local lsps = vim.lsp.get_active_clients({ bufnr = vim.fn.bufnr() })
+          local lsps = vim.lsp.get_clients({ bufnr = vim.fn.bufnr() })
           if lsps and #lsps > 0 then
             local lsp_names = {}
             for _, lsp in ipairs(lsps) do
