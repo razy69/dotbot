@@ -38,5 +38,8 @@ source "${ZSH}/config/functions.zsh"
 # Mise
 (( $+commands[mise] )) && eval "$(mise activate zsh)"
 
+# Fzf
+(( $+commands[fzf] )) && eval "$(fzf --zsh)"
+
 # Work
 [[ ! -f "${ZSH}/config/work.zsh" ]] || source "${ZSH}/config/work.zsh"

@@ -53,3 +53,48 @@ function tmux_kill() {
 
   tmux -L "${TMUX_ENV}" kill-server
 }
+
+
+# FZF
+_fzf_comprun() {
+  local command=$1
+  shift
+
+  case "$command" in
+    cd)           fzf "$@" --preview 'exa -T --icons {}' ;;
+    *)            fzf "$@" ;;
+  esac
+}
+
+function gr() {
+  # Search in file (grep), show preview and enter is edit with neovim 
+  RG_PREFIX="rg --column --line-number --no-heading --color=always --smart-case "
+  INITIAL_QUERY="${*:-}"
+  fzf --delimiter=':' \
+      --prompt='Ripgrep: ' \
+      --disabled \
+      --query "$INITIAL_QUERY" \
+      --color='hl:-1:underline,hl+:-1:underline:reverse' \
+      --preview 'bat --color=always {1} --highlight-line {2}' \
+      --preview-label='[ Preview ]' \
+      --preview-window=cycle \
+      --preview-window '+{2}+3/3,~3' \
+      --bind "start:reload:$RG_PREFIX {q}" \
+      --bind "change:reload:sleep 0.1; $RG_PREFIX {q} || true" \
+      --bind 'enter:become(nvim {1} +{2})'
+}
+
+
+function fz() {
+  # Search for files or directory, show preview (bat or exa) and enter is edit with neovim
+  fd --hidden --exclude '.git' --type file |
+  fzf --prompt='Files: ' \
+      --header='CTRL-T: Switch between Files/Directories | CTRL+C or ESC to exit' \
+      --delimiter=':' \
+      --bind='ctrl-t:transform:[[ ! $FZF_PROMPT =~ Files ]] &&
+              echo "change-prompt(Files: )+reload(fd --hidden --exclude \".git\" --type file)+transform-preview-label(echo [ File Preview ])" ||
+              echo "change-prompt(Directories: )+reload(fd --hidden --exclude \".git\" --type directory)+transform-preview-label(echo [ Directory Stats ])"' \
+      --preview='[[ $FZF_PROMPT =~ Files ]] && bat --color=always {} || exa -ahHilgUmuS --octal-permissions --git --icons --long -F {}' \
+      --preview-label='[ File Preview ]' \
+      --bind='enter:become(nvim {1} +{2})'
+}
