@@ -33,7 +33,6 @@ export FZF_CTRL_R_OPTS="--prompt='History: ' --preview='echo {} | bat --color=al
 export FZF_DEFAULT_OPTS=" \
 --ansi \
 --layout=reverse \
---border=horizontal \
 --prompt='Search: ' \
 --header='CTRL-C or ESC to exit' \
 --info=inline \
@@ -42,7 +41,7 @@ export FZF_DEFAULT_OPTS=" \
 --color=marker:#babbf1,fg+:#c6d0f5,prompt:#ca9ee6,hl+:#e78284 \
 --color=selected-bg:#51576d \
 --color=border:#414559,label:#c6d0f5 \
---bind=ctrl-w:preview-up,ctrl-s:preview-down,ctrl-i:,ctrl-k:"
+--bind=ctrl-w:preview-up,ctrl-s:preview-down,ctrl-i:preview-half-page-up,ctrl-k:preview-half-page-down,ctrl-u:preview-top,ctrl-o:preview-bottom"
 
 # GPG or SSH Agent
 if command -v gpg-agent &> /dev/null; then
