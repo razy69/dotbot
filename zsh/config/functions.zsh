@@ -93,7 +93,6 @@ function gr() {
       --bind 'enter:become(nvim {1} +{2})'
 }
 
-
 function fz() {
   # Search for files or directory, show preview (bat or exa) and enter is edit with neovim
   fd --hidden --exclude '.git' --type file |

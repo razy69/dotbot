@@ -12,14 +12,8 @@ source "${ZSH}/config/bindings.zsh"
 export SPACESHIP_CONFIG="${ZSH}/config/spaceship.zsh"
 source "${ZSH}/plugins/spaceship/spaceship.zsh"
 
-# Plugins
-source "${ZSH}/config/plugins.zsh"
-
 # Secrets
 [[ ! -f "${ZSH}/config/secrets.zsh" ]] || source "${ZSH}/config/secrets.zsh"
-
-# Completion
-source "${ZSH}/config/completions.zsh"
 
 # Path
 path=(
@@ -43,3 +37,9 @@ source "${ZSH}/config/functions.zsh"
 
 # Work
 [[ ! -f "${ZSH}/config/work.zsh" ]] || source "${ZSH}/config/work.zsh"
+
+# Completion
+source "${ZSH}/config/completions.zsh"
+
+# Plugins
+source "${ZSH}/config/plugins.zsh"

@@ -29,7 +29,7 @@ export MANPATH="/usr/local/man:${MANPATH}"
 export BAT_CONFIG_PATH="${HOME}/.config/bat/config"
 export K9S_CONFIG_DIR="${HOME}/.config/k9s"
 export FZF_DEFAULT_COMMAND="fd --hidden --exclude '.git'"
-export FZF_CTRL_R_OPTS="--prompt='History: ' --preview='echo {} | bat --color=always -l zsh -p --decorations never' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
+export FZF_CTRL_R_OPTS="--prompt='History: ' --preview='echo {} | bat --color=always -l zsh -p --decorations never' --preview-window down:3:hidden:wrap --bind 'ctrl-/:toggle-preview'"
 export FZF_DEFAULT_OPTS=" \
 --ansi \
 --layout=reverse \
