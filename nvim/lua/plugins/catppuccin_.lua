@@ -4,9 +4,9 @@
   Link: https://github.com/catppuccin/nvim
 ]]
 
-local palettes = require("catppuccin.palettes")
-local flavor = (vim.o.background == "dark") and "frappe" or "latte"
-local colors = palettes.get_palette(flavor)
+local utils = require("config.utils")
+local flavor = utils.get_flavor()
+local colors = utils.get_palette()
 
 require("catppuccin").setup({
   flavour = flavor,

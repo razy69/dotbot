@@ -7,6 +7,8 @@
 local fzf_lua = require("fzf-lua")
 local fzf_lua_actions = require("fzf-lua.actions")
 local autocmd = require("config.autocmd")
+local utils = require("config.utils")
+local hlargs = utils.prequire("hlargs")
 
 fzf_lua.setup({
   "fzf-native",
@@ -197,5 +199,18 @@ vim.api.nvim_create_autocmd("LspAttach", {
         buffer = ev.buf,
       }
     )
+
+    -- If a language server with semantic token capabilities is attached to a buffer (credit to @perrin4869)
+    -- if hlargs then
+    --   if not (ev.data and ev.data.client_id) then
+    --     return
+    --   end
+    --
+    --   local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    --   local caps = client.server_capabilities
+    --   if caps.semanticTokensProvider and caps.semanticTokensProvider.full then
+    --     hlargs.disable_buf(ev.buf)
+    --   end
+    -- end
   end
 })

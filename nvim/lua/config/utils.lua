@@ -19,4 +19,14 @@ function M.prequire(m)
   return err
 end
 
+function M.get_flavor()
+  return (vim.o.background == "dark") and "frappe" or "latte"
+end
+
+function M.get_palette()
+  local palettes = require("catppuccin.palettes")
+  local flavor = M.get_flavor()
+  return palettes.get_palette(flavor)
+end
+
 return M

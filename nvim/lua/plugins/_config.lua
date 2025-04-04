@@ -233,8 +233,17 @@ return {
   {
     "m-demare/hlargs.nvim",
     event = lazyFile,
-    dependencies = { "nvim-treesitter" },
-    opts = {},
+    config = function()
+      local utils = require("config.utils")
+      local colors = utils.get_palette()
+
+      require("hlargs").setup({
+        color = colors.maroon,
+        extras = {
+          unused_args = { fg = colors.overlay0 },
+        },
+      })
+    end
   },
 
   -- Highlighting Words
@@ -322,11 +331,27 @@ return {
     opts = {
       highlight = {
         -- vimgrep regex, supporting the pattern TODO(name):
-        pattern = [[.*<((KEYWORDS)%(\(.{-1,}\))?):]],
+        pattern = [[\c.*<((KEYWORDS)%(\(.{-1,}\))?):]],
+        comments_only = true,
+      },
+      keywords = {
+        DEPRECATED = {
+          icon = "󱒿 ",
+          color = "warning",
+          alt = { "Deprecated", "deprecated" },
+        },
       },
       search = {
-        -- ripgrep regex, supporting the pattern TODO(name):
-        pattern = [[\b(KEYWORDS)(\(\w*\))*:]],
+        pattern = [[\b(KEYWORDS)(\(\w*\))?*:]],
+        command = "rg",
+        args = {
+          "--color=never",
+          "--ignore-case",
+          "--no-heading",
+          "--with-filename",
+          "--line-number",
+          "--column",
+        },
       },
     },
   },
