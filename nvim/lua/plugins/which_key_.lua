@@ -172,3 +172,10 @@ if neotest then
     { "<leader>tD", function() neotest.run.run({ vim.fn.expand("%"), strategy = "dap" }) end, desc = "Debug current file",    mode = { "n" } },
   })
 end
+
+local inc_rename = utils.prequire("inc_rename")
+if inc_rename then
+  wk.add({
+    { "<leader>rn", "<cmd>IncRename<cr>", desc = "[r]e[n]ame ", mode = { "n" } },
+  })
+end

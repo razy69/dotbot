@@ -12,7 +12,6 @@ vim.opt.laststatus = 0
 vim.opt.path:remove("/usr/include")
 vim.opt.path:append("**")
 vim.opt.splitkeep = "screen"
-vim.opt.shortmess = "filnxtToOF"
 vim.opt.showtabline = 0
 vim.opt.diffopt:append("linematch:60")
 vim.opt.lazyredraw = false
@@ -132,7 +131,8 @@ vim.g.bigfile_size = 1024 * 1024 * 30 -- 30 MB
 -- Wildmenu
 vim.opt.wildmenu = true
 vim.opt.wildmode = "longest:full,full"
-vim.opt.wildignore = "**/.git/*,**/node_modules/*,.hg,.svn,*~,*.png,*.jpg,*.gif,*.settings,Thumbs.db,*.min.js,*.swp,publish/*,intermediate/*,*.o,*.hi,Zend,vendor,*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite"
+vim.opt.wildignore =
+"**/.git/*,**/node_modules/*,.hg,.svn,*~,*.png,*.jpg,*.gif,*.settings,Thumbs.db,*.min.js,*.swp,publish/*,intermediate/*,*.o,*.hi,Zend,vendor,*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite"
 vim.opt.wildoptions = { "pum" }
 
 -- Search

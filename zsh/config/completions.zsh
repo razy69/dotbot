@@ -41,6 +41,7 @@ if command -v fzf 2>&1 >/dev/null; then
   # switch group using `<` and `>`
   zstyle ':fzf-tab:*' switch-group '<' '>'
   zstyle ':fzf-tab:*' fzf-bindings 'ctrl-i:preview-half-page-up' 'tab:down'
+  zstyle ':fzf-tab:*' show-group brief
 fi
 
 _comp_options+=(globdots)

@@ -192,7 +192,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     -- Renames all references to the symbol under the cursor.
     vim.keymap.set(
       "n",
-      "<leader>rn",
+      "<leader>Rn",
       vim.lsp.buf.rename,
       {
         desc = "LSP Rename references",

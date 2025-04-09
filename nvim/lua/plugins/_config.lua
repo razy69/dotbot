@@ -239,9 +239,6 @@ return {
 
       require("hlargs").setup({
         color = colors.maroon,
-        extras = {
-          unused_args = { fg = colors.overlay0 },
-        },
       })
     end
   },
@@ -315,12 +312,6 @@ return {
     config = function()
       require("plugins.markdown_")
     end,
-  },
-
-  -- Help view
-  {
-    "OXY2DEV/helpview.nvim",
-    lazy = false,
   },
 
   -- Todo comments
@@ -441,6 +432,14 @@ return {
     opts = {},
   },
 
+  -- Rename utils
+  {
+    "smjonas/inc-rename.nvim",
+    config = function()
+      require("inc_rename").setup()
+    end,
+  },
+
   -- Keybindings Helper
   {
     "folke/which-key.nvim",
@@ -453,10 +452,8 @@ return {
   -- Colorscheme
   {
     "catppuccin/nvim",
-    priority = 1000,
     config = function()
       require("plugins.catppuccin_")
     end,
   },
-
 }
