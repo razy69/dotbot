@@ -178,17 +178,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
       }
     )
 
-    -- Displays signature information about the symbol under the cursor in a floating window.
-    vim.keymap.set(
-      "n",
-      "<C-k>",
-      vim.lsp.buf.signature_help,
-      {
-        desc = "LSP Signature help",
-        buffer = ev.buf,
-      }
-    )
-
     -- Renames all references to the symbol under the cursor.
     vim.keymap.set(
       "n",

@@ -179,3 +179,20 @@ if inc_rename then
     { "<leader>rn", "<cmd>IncRename<cr>", desc = "[r]e[n]ame ", mode = { "n" } },
   })
 end
+
+local move = utils.prequire("move")
+if move then
+  wk.add({
+    { "<C-i>",      "<cmd>MoveLine(-1)<cr>",   desc = "Moves line up",                        mode = { "n" } },
+    { "<C-k>",      "<cmd>MoveLine(1)<cr>",    desc = "Moves line down",                      mode = { "n" } },
+    { "<C-j>",      "<cmd>MoveHChar(-1)<cr>",  desc = "Moves char under cursor left",         mode = { "n" } },
+    { "<C-l>",      "<cmd>MoveHChar(1)<cr>",   desc = "Moves char under cursor right",        mode = { "n" } },
+    { "<leader>wf", "<cmd>MoveWord(1)<cr>",    desc = "Transpose word under cursor backward", mode = { "n" } },
+    { "<leader>wb", "<cmd>MoveWord(-1)<cr>",   desc = "Transpose word under cursor forward",  mode = { "n" } },
+
+    { "<C-i>",      "<cmd>MoveBlock(-1)<cr>",  desc = "Moves selected block of text up",      mode = { "v" } },
+    { "<C-k>",      "<cmd>MoveBlock(1)<cr>",   desc = "Moves selected block of text down",    mode = { "v" } },
+    { "<C-j>",      "<cmd>MoveHBlock(-1)<cr>", desc = "Moves visual area left",               mode = { "v" } },
+    { "<C-l>",      "<cmd>MoveHBlock(1)<cr>",  desc = "Moves visual area right",              mode = { "v" } },
+  })
+end

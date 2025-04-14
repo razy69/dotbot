@@ -34,6 +34,12 @@ return {
       require("plugins.lsp_")
     end,
   },
+  {
+    "zeioth/garbage-day.nvim",
+    event = { "VeryLazy" },
+    dependencies = "neovim/nvim-lspconfig",
+    opts = {},
+  },
 
   -- TreeSitter
   {
@@ -173,6 +179,29 @@ return {
     end
   },
 
+  -- Bool
+  {
+    "nat-418/boole.nvim",
+    config = function()
+      require("boole").setup({
+        mappings = {
+          increment = "<C-a>",
+          decrement = "<C-x>",
+        },
+      })
+    end
+  },
+
+  -- Undotree
+  {
+    "jiaoshijie/undotree",
+    dependencies = "nvim-lua/plenary.nvim",
+    config = true,
+    keys = { -- load the plugin only when using it's keybinding:
+      { "<leader>u", "<cmd>lua require('undotree').toggle()<cr>" },
+    },
+  },
+
   -- Statusbar
   {
     "nvim-lualine/lualine.nvim",
@@ -214,6 +243,7 @@ return {
 
   -- VSCode like winbar
   -- TODO: replace plugin, archived on Jan 9, 2025.
+  -- Check LSPSaga (have breadcrumbs)
   {
     "utilyre/barbecue.nvim",
     event = lazyFile,
@@ -346,6 +376,14 @@ return {
       },
     },
   },
+  {
+    "numToStr/Comment.nvim",
+    opts = {},
+  },
+  {
+    "JoosepAlviste/nvim-ts-context-commentstring",
+    opts = {},
+  },
 
   -- Code documentation
   {
@@ -438,6 +476,29 @@ return {
     config = function()
       require("inc_rename").setup()
     end,
+  },
+
+  -- Move line
+  {
+    "fedepujol/move.nvim",
+    config = function()
+      require("move").setup({
+        line = {
+          enable = true, -- Enables line movement
+          indent = true  -- Toggles indentation
+        },
+        block = {
+          enable = true, -- Enables block movement
+          indent = true  -- Toggles indentation
+        },
+        word = {
+          enable = true, -- Enables word movement
+        },
+        char = {
+          enable = true -- Enables char movement
+        }
+      })
+    end
   },
 
   -- Keybindings Helper

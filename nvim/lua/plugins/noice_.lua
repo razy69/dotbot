@@ -65,6 +65,53 @@ require("noice").setup({
     },
   },
 
+  cmdline_popup = {
+    position = {
+      row = 5,
+      col = "50%",
+    },
+    size = {
+      width = 60,
+      height = "auto",
+    },
+  },
+
+  popupmenu = {
+    enabled = true,  -- enables the Noice popupmenu UI
+    backend = "nui", -- backend to use to show regular cmdline completions
+    relative = "editor",
+    position = {
+      row = 8,
+      col = "50%",
+    },
+    size = {
+      width = 60,
+      height = 10,
+    },
+    border = "rounded",
+  },
+
+  views = {
+    split = {
+      win_options = { wrap = false },
+      size = 16,
+      close = { keys = { "q", "<CR>", "<Esc>" } },
+    },
+    mini = {
+      win_options = {
+        winblend = 0
+      }
+    },
+    popupmenu = {
+      win_options = {
+        winblend = 0
+      }
+    },
+    popup = {
+      win_options = { wrap = false },
+    },
+  },
+
   routes = {
     --   Kind:
     --   "" (empty)	Unknown (consider a feature-request: |bugs|)
