@@ -42,7 +42,7 @@ require("blink.cmp").setup({
       max_items = 50,
       selection = {
         preselect = false,
-        auto_insert = true,
+        auto_insert = false,
       },
     },
     documentation = {
@@ -68,7 +68,7 @@ require("blink.cmp").setup({
     },
   },
   sources = {
-    default = function(ctx)
+    default = function(_)
       local success, node = pcall(vim.treesitter.get_node)
       if success and node and vim.tbl_contains({ "comment", "line_comment", "block_comment" }, node:type()) then
         return { "buffer", "path" }
@@ -80,7 +80,7 @@ require("blink.cmp").setup({
   snippets = snippets_opts,
   keymap = {
     ["<C-q>"] = { "hide", "fallback" },
-    ["<CR>"] = { "select_and_accept", "fallback" },
+    ["<CR>"] = { "accept", "fallback" },
     ["<C-Tab>"] = {
       function(cmp)
         if cmp.snippet_active() then

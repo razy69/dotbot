@@ -45,12 +45,12 @@ local default_capabilities = vim.tbl_deep_extend(
       },
     },
     textDocument = {
-			completion = {
-				completionItem = {
-					snippetSupport = true,
-				},
-			},
-		},
+      completion = {
+        completionItem = {
+          snippetSupport = true,
+        },
+      },
+    },
   }
 )
 
@@ -70,30 +70,9 @@ require("mason-lspconfig").setup({
   automatic_installation = true,
 })
 
-
-local navic = utils.prequire("nvim-navic")
-if navic then
-  navic.setup({
-    lsp = {
-      auto_attach = true,
-      preference = servers,
-    },
-    highlight = true,
-    depth_limit = 5,
-    lazy_update_context = true,
-  })
-end
-
-local navic_on_attach = function(client, bufnr)
-  if navic and client.server_capabilities["documentSymbolProvider"] then
-    navic.attach(client, bufnr)
-  end
-end
-
 local lspconfig = require("lspconfig")
 for _, lsp in ipairs(servers) do
-  lspconfig[lsp].setup{
-    on_attach = navic_on_attach,
+  lspconfig[lsp].setup {
     capabilities = default_capabilities,
   }
 end

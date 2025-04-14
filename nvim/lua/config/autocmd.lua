@@ -179,11 +179,6 @@ vim.api.nvim_create_autocmd("FileType", {
       vim.cmd("DisableHLchunk")
     end
 
-    local barbecue = utils.prequire("barbecue.ui")
-    if barbecue then
-      barbecue.toggle(false)
-    end
-
     local ts_config = utils.prequire("nvim-treesitter.configs")
     if ts_config then
       for _, mod_name in ipairs(ts_config.available_modules()) do

@@ -91,11 +91,6 @@ vim.api.nvim_create_autocmd({ "BufEnter", "VimEnter" }, {
     if illuminate then
       illuminate.invisible_buf()
     end
-
-    local barbecue = utils.prequire("barbecue.ui")
-    if barbecue then
-      barbecue.toggle(false)
-    end
   end,
 })
 
@@ -122,11 +117,6 @@ vim.api.nvim_create_autocmd({ "BufLeave" }, {
     local illuminate = utils.prequire("illuminate")
     if illuminate then
       illuminate.visible_buf()
-    end
-
-    local barbecue = utils.prequire("barbecue.ui")
-    if barbecue then
-      barbecue.toggle(true)
     end
   end,
 })

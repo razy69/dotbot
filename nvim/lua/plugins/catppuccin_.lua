@@ -27,12 +27,6 @@ require("catppuccin").setup({
   no_underline = true, -- Force no underline
   integrations = {
     alpha = true,
-    barbecue = {
-      dim_dirname = true, -- directory name is dimmed by default
-      bold_basename = true,
-      dim_context = false,
-      alt_background = true,
-    },
     blink_cmp = true,
     flash = true,
     fzf = true,
@@ -46,6 +40,7 @@ require("catppuccin").setup({
       colored_indent_levels = true,
     },
     lsp_trouble = true,
+    lsp_saga = true,
     markdown = true,
     mason = true,
     neotree = true,
@@ -56,10 +51,6 @@ require("catppuccin").setup({
       inlay_hints = {
         background = true,
       },
-    },
-    navic = {
-      enabled = true,
-      custom_bg = "NONE", -- "lualine" will set background to mantle
     },
     nvim_surround = true,
     rainbow_delimiters = true,
