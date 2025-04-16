@@ -14,3 +14,6 @@ source "${ZSH}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
 # Fast Syntax Highlighting
 source "${ZSH}/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
+
+# Zsh-z jump
+source "${ZSH}/plugins/zsh-z/zsh-z.plugin.zsh"

@@ -2,7 +2,7 @@
 # Completions
 ##
 
-zstyle ':completion:::::default' menu yes select
+zstyle ':completion:*' menu select
 zstyle ':completion:*' rehash true
 zstyle ':completion:*' completer _expand _complete _ignored _match _correct _approximate _extensions
 zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
@@ -42,6 +42,9 @@ if command -v fzf 2>&1 >/dev/null; then
   zstyle ':fzf-tab:*' switch-group '<' '>'
   zstyle ':fzf-tab:*' fzf-bindings 'ctrl-i:preview-half-page-up' 'tab:down'
   zstyle ':fzf-tab:*' show-group brief
+
+  # Do not complete with fzf
+  # zstyle ':fzf-tab:complete:zshz:*' disabled-on any
 fi
 
 _comp_options+=(globdots)
