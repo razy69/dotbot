@@ -34,6 +34,12 @@ require("blink.cmp").setup({
         and vim.bo.buftype ~= "prompt"
         and vim.b.completion ~= false
   end,
+  signature = {
+    enabled = true,
+    window = {
+      border = "rounded",
+    },
+  },
   completion = {
     keyword = {
       range = "prefix",
@@ -41,7 +47,9 @@ require("blink.cmp").setup({
     list = {
       max_items = 50,
       selection = {
-        preselect = false,
+        preselect = function(_)
+          return not require("blink.cmp").snippet_active({ direction = 1 })
+        end,
         auto_insert = false,
       },
     },
@@ -59,6 +67,10 @@ require("blink.cmp").setup({
           { "kind_icon", "kind",              "source_name", gap = 1 },
         },
       },
+    },
+    ghost_text = {
+      enabled = true,
+      show_with_selection = true,
     },
   },
   cmdline = {
@@ -81,16 +93,18 @@ require("blink.cmp").setup({
   keymap = {
     ["<C-q>"] = { "hide", "fallback" },
     ["<CR>"] = { "accept", "fallback" },
-    ["<C-Tab>"] = {
+    ["<Tab>"] = {
       function(cmp)
         if cmp.snippet_active() then
           return cmp.accept()
+        else
+          return cmp.select_and_accept()
         end
       end,
       "snippet_forward",
       "fallback",
     },
-    ["<C-S-Tab>"] = { "snippet_backward", "fallback" },
+    ["<S-Tab>"] = { "snippet_backward", "fallback" },
     ["<C-p>"] = { "select_prev", "fallback" },
     ["<C-n>"] = { "select_next", "fallback" },
 
