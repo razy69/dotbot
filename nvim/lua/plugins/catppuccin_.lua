@@ -26,7 +26,6 @@ require("catppuccin").setup({
   no_bold = false,     -- Force no bold
   no_underline = true, -- Force no underline
   integrations = {
-    alpha = true,
     blink_cmp = true,
     flash = true,
     fzf = true,
@@ -35,17 +34,13 @@ require("catppuccin").setup({
       enabled = true,
       lsp = false,
     },
-    indent_blankline = {
-      enabled = true,
-      colored_indent_levels = true,
-    },
     lsp_trouble = true,
     lsp_saga = true,
     markdown = true,
     mason = true,
     neotree = true,
     noice = true,
-    notify = true,
+    notifier = true,
     native_lsp = {
       enabled = true,
       inlay_hints = {
@@ -54,7 +49,9 @@ require("catppuccin").setup({
     },
     nvim_surround = true,
     rainbow_delimiters = true,
-    render_markdown = true,
+    snacks = {
+      enabled = false,
+    },
     treesitter = true,
     which_key = true,
   },
@@ -76,9 +73,10 @@ require("catppuccin").setup({
       BlinkCmpSignatureHelpActiveParameter = { fg = colors.mauve },
       FloatBorder = { fg = colors.blue, bg = colors.base },
       GitSignsCurrentLineBlame = { fg = colors.sapphire },
-      IBLIndentGuide1 = { fg = colors.surface1 },
       NoiceMini = { bg = colors.base },
       NormalFloat = { fg = colors.text, bg = colors.base },
+      SnacksIndent = { fg = colors.surface1 },
+      SnacksIndentScope = { fg = colors.overlay1 },
       WhichKey = { fg = colors.yellow },
       WhichKeySeparator = { fg = colors.pink },
       WhichKeyValue = { fg = colors.subtext1 },

@@ -68,10 +68,6 @@ require("blink.cmp").setup({
         },
       },
     },
-    ghost_text = {
-      enabled = true,
-      show_with_selection = true,
-    },
   },
   cmdline = {
     completion = {

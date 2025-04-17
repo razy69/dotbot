@@ -31,7 +31,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   end,
 })
 
--- Color override highlights
+-- Colorize EOL space 
 vim.api.nvim_create_autocmd("InsertEnter", {
   desc = "Disable EoLSpace highlight and match rule",
   group = highlight_group,
@@ -149,58 +149,6 @@ vim.api.nvim_create_autocmd("FileType", {
   end
 })
 
--- Disable some features for big files.
-vim.api.nvim_create_autocmd("FileType", {
-  group = filetype_group,
-  pattern = "bigfile",
-  callback = function(event)
-    vim.opt.syntax = "off"
-    vim.opt.cursorline = false
-    vim.opt.cursorcolumn = false
-    vim.opt.list = false
-    vim.opt.wrap = false
-    vim.opt.swapfile = false
-    vim.opt.foldmethod = "manual"
-    vim.opt.undolevels = -1
-    vim.opt.undoreload = 0
-    vim.b.minianimate_disable = true
-
-    vim.cmd("syntax clear")
-    vim.cmd("LspStop")
-    vim.cmd("NoMatchParen")
-
-    local illuminate = utils.prequire("illuminate")
-    if illuminate then
-      illuminate.toggle()
-    end
-
-    local hlchunk = utils.prequire("hlchunk")
-    if hlchunk then
-      vim.cmd("DisableHLchunk")
-    end
-
-    local ts_config = utils.prequire("nvim-treesitter.configs")
-    if ts_config then
-      for _, mod_name in ipairs(ts_config.available_modules()) do
-        vim.cmd("TSDisable " .. mod_name)
-      end
-    end
-
-    local lualine = utils.prequire("lualine")
-    if lualine then
-      lualine.hide()
-    end
-
-    vim.schedule(
-      function()
-        if vim.api.nvim_buf_is_valid(event.buf) then
-          vim.bo[event.buf].syntax = vim.filetype.match({ buf = event.buf }) or ""
-        end
-      end
-    )
-  end,
-})
-
 -- Close some filetypes with <q>
 vim.api.nvim_create_autocmd("FileType", {
   group = M.augroup("close_with_q"),
@@ -292,16 +240,5 @@ vim.api.nvim_create_autocmd("CursorMoved", {
     end
   end
 })
-
--- Prefer LSP folding if client supports it
--- vim.api.nvim_create_autocmd("LspAttach", {
---   callback = function(args)
---     local client = vim.lsp.get_client_by_id(args.data.client_id)
---     if client:supports_method("textDocument/foldingRange") then
---       local win = vim.api.nvim_get_current_win()
---       vim.wo[win][0].foldexpr = "v:lua.vim.lsp.foldexpr()"
---     end
---   end,
--- })
 
 return M

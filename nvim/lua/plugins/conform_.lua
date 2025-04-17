@@ -5,8 +5,6 @@
 ]]
 
 local conform = require("conform")
-local utils = require("config.utils")
-local notify = utils.prequire("notify")
 
 conform.setup({
   default_format_opts = {
@@ -48,11 +46,9 @@ vim.api.nvim_create_user_command(
       }
     end
 
-    if notify then
-      notify("Formatting buffer..", "info", {
-        title = "Conform.nvim",
-      })
-    end
+    vim.notify("Formatting buffer..", "info", {
+      title = "Conform.nvim",
+    })
 
     conform.format({
       async = true,

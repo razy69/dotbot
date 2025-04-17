@@ -80,21 +80,21 @@ return {
     "folke/noice.nvim",
     dependencies = {
       "MunifTanjim/nui.nvim",
-      "rcarriga/nvim-notify",
+      -- "rcarriga/nvim-notify",
     },
     config = function()
       require("plugins.noice_")
     end,
   },
 
-  -- Quickfix
+  -- Snacks
   {
-    "kevinhwang91/nvim-bqf",
-    ft = "qf",
+    "folke/snacks.nvim",
+    priority = 1000,
+    lazy = false,
+    opts = {},
     config = function()
-      require("bqf").setup({
-        func_map = { vsplit = "s" },
-      })
+      require("plugins.snacks_")
     end
   },
 
@@ -198,16 +198,6 @@ return {
     end,
   },
 
-  -- Indent Guide
-  {
-    "lukas-reineke/indent-blankline.nvim",
-    event = lazyFile,
-    main = "ibl",
-    config = function()
-      require("plugins.ibl_")
-    end
-  },
-
   -- Split/join code blocks
   {
     "Wansmer/treesj",
@@ -243,6 +233,7 @@ return {
   -- Markdown
   {
     "MeanderingProgrammer/markdown.nvim",
+    enabled = true,
     name = "render-markdown",
     ft = "markdown",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
@@ -251,7 +242,7 @@ return {
     end,
   },
 
-  -- Todo comments
+  -- Comments
   {
     "folke/todo-comments.nvim",
     event = lazyFile,
@@ -269,22 +260,13 @@ return {
     opts = {},
   },
 
-  -- Code documentation
+  -- Code Annotation
   {
     "danymat/neogen",
     event = lazyFile,
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
       require("plugins.neogen_")
-    end,
-  },
-
-  -- Startup menu
-  {
-    "goolord/alpha-nvim",
-    event = { "VimEnter" },
-    config = function()
-      require("plugins.alpha_")
     end,
   },
 
@@ -352,14 +334,6 @@ return {
     "folke/persistence.nvim",
     event = { "BufReadPre" }, -- this will only start session saving when an actual file was opened
     opts = {},
-  },
-
-  -- Rename utils
-  {
-    "smjonas/inc-rename.nvim",
-    config = function()
-      require("inc_rename").setup()
-    end,
   },
 
   -- Move line

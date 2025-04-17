@@ -4,30 +4,11 @@
   Link: https://github.com/folke/noice.nvim
 ]]
 
-require("notify").setup({
-  stages = "static", -- fade_in_slide_out, fade, slide, static
-  render = "default",
-  timeout = 3000,
-  minimum_width = 50,
-  icons = { ERROR = "", WARN = "", INFO = "", DEBUG = "", TRACE = "" },
-  level = vim.log.levels.INFO,
-  max_height = function()
-    return math.floor(vim.o.lines * 0.75)
-  end,
-  max_width = function()
-    return math.floor(vim.o.columns * 0.60)
-  end,
-  on_open = function(win)
-    vim.api.nvim_win_set_config(win, { zindex = 100, focusable = false })
-  end,
-})
-
 require("noice").setup({
   presets = {
     bottom_search = true,         -- use a classic bottom cmdline for search
     command_palette = true,       -- position the cmdline and popupmenu together
     long_message_to_split = true, -- long messages will be sent to a split
-    inc_rename = true,            -- enables an input dialog for inc-rename.nvim
     lsp_doc_border = true,        -- add a border to hover docs and signature help
   },
 

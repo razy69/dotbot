@@ -47,7 +47,7 @@ vim.opt.winminwidth = 5
 -- vim.opt.winborder = "rounded"
 vim.g.no_gitrebase_maps = 1 -- See share/nvim/runtime/ftplugin/gitrebase.vim
 vim.g.no_man_maps = 1       -- See share/nvim/runtime/ftplugin/man.vim
--- vim.g.health = { style = "float" }
+vim.g.health = { style = "float" }
 vim.g.editorconfig = false
 vim.g.autoformat = false
 vim.g.markdown_recommended_style = 0
@@ -83,7 +83,7 @@ vim.opt.tabstop = 2        -- 1 tab equal 2 spaces
 vim.opt.softtabstop = 2    -- When hitting <BS>, pretend like a tab is removed, even if spaces
 vim.opt.smartindent = true -- Turn on smart indentation. See in the docs for more info
 vim.opt.smarttab = true    -- Handle tabs more intelligently
-vim.opt.fillchars = { fold = " ", foldopen = "", foldsep = " ", foldclose = "", eob = " " }
+-- vim.opt.fillchars = { fold = " ", foldopen = "", foldsep = " ", foldclose = "", eob = " " }
 
 -- Cursor
 vim.opt.cursorline = true -- Highlight current cursorline
@@ -95,15 +95,15 @@ vim.opt.mouse = "a"
 vim.opt.clipboard:append { "unnamed", "unnamedplus" }
 
 -- StatusColumn
-local fc = vim.opt.fillchars:get()
-local function get_fold(lnum)
-  if vim.fn.foldlevel(lnum) <= vim.fn.foldlevel(lnum - 1) then return ' ' end
-  return vim.fn.foldclosed(lnum) == -1 and fc.foldopen or fc.foldclose
-end
-_G.get_statuscol = function()
-  return "%s" .. get_fold(vim.v.lnum) .. " %l "
-end
-vim.opt.statuscolumn = "%!v:lua.get_statuscol()"
+-- local fc = vim.opt.fillchars:get()
+-- local function get_fold(lnum)
+--   if vim.fn.foldlevel(lnum) <= vim.fn.foldlevel(lnum - 1) then return ' ' end
+--   return vim.fn.foldclosed(lnum) == -1 and fc.foldopen or fc.foldclose
+-- end
+-- _G.get_statuscol = function()
+--   return "%s" .. get_fold(vim.v.lnum) .. " %l "
+-- end
+-- vim.opt.statuscolumn = "%!v:lua.get_statuscol()"
 vim.opt.signcolumn = "yes"
 
 -- Disable python/perl/ruby/node providers
@@ -126,7 +126,6 @@ vim.opt.autowrite = false
 vim.opt.autoread = false
 vim.opt.undolevels = 1000
 vim.opt.updatetime = 100
-vim.g.bigfile_size = 1024 * 1024 * 30 -- 30 MB
 
 -- Wildmenu
 vim.opt.wildmenu = true
