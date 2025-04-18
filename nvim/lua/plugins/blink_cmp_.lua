@@ -34,6 +34,14 @@ require("blink.cmp").setup({
         and vim.bo.buftype ~= "prompt"
         and vim.b.completion ~= false
   end,
+  fuzzy = {
+    -- exact matches are always prioritized
+    sorts = {
+      "exact",
+      "score",
+      "sort_text",
+    },
+  },
   signature = {
     enabled = true,
     window = {
@@ -66,13 +74,43 @@ require("blink.cmp").setup({
           { "label",     "label_description", gap = 2 },
           { "kind_icon", "kind",              "source_name", gap = 1 },
         },
+        components = {
+          kind_icon = {
+            text = function(ctx)
+              local kind_icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
+              return kind_icon
+            end,
+            -- (optional) use highlights from mini.icons
+            highlight = function(ctx)
+              local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
+              return hl
+            end,
+          },
+          kind = {
+            -- (optional) use highlights from mini.icons
+            highlight = function(ctx)
+              local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
+              return hl
+            end,
+          },
+        },
       },
     },
   },
   cmdline = {
     completion = {
-      ghost_text = { enabled = false },
-      menu = { auto_show = true },
+      menu = {
+        -- show the menu only when writing commands
+        auto_show = function(_)
+          return vim.fn.getcmdtype() == ":"
+        end,
+      },
+      ghost_text = { enabled = true },
+    },
+    keymap = {
+      ["<CR>"] = { "accept_and_enter", "fallback" },
+      -- recommended, as the default keymap will only show and select the next item
+      ["<Tab>"] = { "show", "accept" },
     },
   },
   sources = {
@@ -84,6 +122,22 @@ require("blink.cmp").setup({
         return { "lsp", "path", "snippets", "buffer" }
       end
     end,
+    providers = {
+      cmdline = {
+        min_keyword_length = function(ctx)
+          -- when typing a command, only show when the keyword is 3 characters or longer
+          if ctx.mode == "cmdline" and string.find(ctx.line, " ") == nil then return 3 end
+          return 0
+        end
+      },
+      path = {
+        opts = {
+          get_cwd = function(_)
+            return vim.fn.getcwd()
+          end,
+        },
+      },
+    },
   },
   snippets = snippets_opts,
   keymap = {
