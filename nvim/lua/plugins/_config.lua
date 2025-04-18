@@ -344,6 +344,14 @@ return {
     end
   },
 
+  -- Detect file indentation
+  {
+    "NMAC427/guess-indent.nvim",
+    config = function()
+      require("guess-indent").setup({})
+    end
+  },
+
   -- Keybindings Helper
   {
     "folke/which-key.nvim",
