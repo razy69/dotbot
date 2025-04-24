@@ -31,7 +31,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   end,
 })
 
--- Colorize EOL space 
+-- Colorize EOL space
 vim.api.nvim_create_autocmd("InsertEnter", {
   desc = "Disable EoLSpace highlight and match rule",
   group = highlight_group,
@@ -239,6 +239,37 @@ vim.api.nvim_create_autocmd("CursorMoved", {
       vim.schedule(function() vim.cmd("nohlsearch") end)
     end
   end
+})
+
+-- Enable builtin syntax for specified FileType (if no treesitter support)
+local syntax_group = M.augroup("syntax")
+vim.api.nvim_create_autocmd("FileType", {
+  group = syntax_group,
+  pattern = { "gitsendemail", "conf", "editorconfig", "qf", "checkhealth", "less" },
+  callback = function(event)
+    vim.bo[event.buf].syntax = vim.bo[event.buf].filetype
+  end,
+})
+
+-- Disable LSP Inlay Hints in Insert mode
+local lsp_inlay_hints_group = M.augroup("lsp_inlay_hints")
+vim.api.nvim_create_autocmd("InsertEnter", {
+  group = lsp_inlay_hints_group,
+  pattern = "*",
+  callback = function(event)
+    vim.schedule(function()
+      vim.lsp.inlay_hint.enable(false, { bufnr = event.buf })
+    end)
+  end,
+})
+vim.api.nvim_create_autocmd("InsertLeave", {
+  group = lsp_inlay_hints_group,
+  pattern = "*",
+  callback = function(event)
+    vim.schedule(function()
+      vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+    end)
+  end,
 })
 
 return M
