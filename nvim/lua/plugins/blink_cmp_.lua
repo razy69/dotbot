@@ -55,9 +55,7 @@ require("blink.cmp").setup({
     list = {
       max_items = 50,
       selection = {
-        preselect = function(_)
-          return not require("blink.cmp").snippet_active({ direction = 1 })
-        end,
+        preselect = false,
         auto_insert = false,
       },
     },
@@ -105,7 +103,11 @@ require("blink.cmp").setup({
           return vim.fn.getcmdtype() == ":"
         end,
       },
-      ghost_text = { enabled = true },
+      ghost_text = {
+        enabled = function(_)
+          return vim.fn.getcmdtype() == ":"
+        end,
+      },
     },
     keymap = {
       ["<CR>"] = { "accept_and_enter", "fallback" },
