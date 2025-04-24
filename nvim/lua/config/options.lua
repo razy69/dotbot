@@ -5,9 +5,10 @@
 
 -- General
 vim.cmd("match EoLSpace /\\s\\+$/")
-vim.opt.completeopt = "menu,menuone,noselect"
+vim.cmd.syntax("manual") -- Disable builtin syntax (use treesitter instead, but autocmd for FileType not supported by treesitter)
+vim.opt.synmaxcol = 500  -- limits how much of a long horizontal line is highlighted by nvim’s syntax engine
 vim.opt.fillchars = { fold = " ", foldopen = "", foldsep = " ", foldclose = "", eob = " " }
-vim.opt.fixeol = true -- Turn off appending new line in the end of a file
+vim.opt.fixeol = true    -- Turn off appending new line in the end of a file
 vim.opt.laststatus = 0
 vim.opt.path:remove("/usr/include")
 vim.opt.path:append("**")
@@ -15,10 +16,10 @@ vim.opt.splitkeep = "screen"
 vim.opt.showtabline = 0
 vim.opt.diffopt:append("linematch:60")
 vim.opt.lazyredraw = false
-vim.opt.winblend = 0
+vim.opt.winblend = 0          -- Enables pseudo-transparency for a floating window (0 for fully opaque window)
 vim.opt.cmdheight = 0         -- Set cmdline height
 vim.opt.pumheight = 10        -- Limit height of popupmenu
-vim.opt.pumblend = 10
+vim.opt.pumblend = 10         -- Enables pseudo-transparency for the popup-menu (0 for fully opaque window)
 vim.opt.number = true         -- Enable line number
 vim.opt.wrap = true           -- Enable line wrap
 vim.opt.showcmd = false       -- Disable display of last command
@@ -44,10 +45,8 @@ vim.opt.sidescrolloff = 8
 vim.opt.jumpoptions = "view"
 vim.opt.formatoptions = "jcroqlnt"
 vim.opt.winminwidth = 5
--- vim.opt.winborder = "rounded"
 vim.g.no_gitrebase_maps = 1 -- See share/nvim/runtime/ftplugin/gitrebase.vim
 vim.g.no_man_maps = 1       -- See share/nvim/runtime/ftplugin/man.vim
-vim.g.health = { style = "float" }
 vim.g.editorconfig = false
 vim.g.autoformat = false
 vim.g.markdown_recommended_style = 0
@@ -68,10 +67,9 @@ end
 vim.opt.foldtext = "v:lua.get_fold_text()"
 vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-vim.opt.foldcolumn = "1"
 vim.opt.foldlevel = 99
 vim.opt.foldlevelstart = 99
-vim.opt.foldnestmax = 4
+vim.opt.foldcolumn = "0"
 vim.opt.foldenable = true
 
 -- Tabs
@@ -83,7 +81,6 @@ vim.opt.tabstop = 2        -- 1 tab equal 2 spaces
 vim.opt.softtabstop = 2    -- When hitting <BS>, pretend like a tab is removed, even if spaces
 vim.opt.smartindent = true -- Turn on smart indentation. See in the docs for more info
 vim.opt.smarttab = true    -- Handle tabs more intelligently
--- vim.opt.fillchars = { fold = " ", foldopen = "", foldsep = " ", foldclose = "", eob = " " }
 
 -- Cursor
 vim.opt.cursorline = true -- Highlight current cursorline
@@ -93,18 +90,6 @@ vim.opt.mouse = "a"
 
 -- Clipboard
 vim.opt.clipboard:append { "unnamed", "unnamedplus" }
-
--- StatusColumn
--- local fc = vim.opt.fillchars:get()
--- local function get_fold(lnum)
---   if vim.fn.foldlevel(lnum) <= vim.fn.foldlevel(lnum - 1) then return ' ' end
---   return vim.fn.foldclosed(lnum) == -1 and fc.foldopen or fc.foldclose
--- end
--- _G.get_statuscol = function()
---   return "%s" .. get_fold(vim.v.lnum) .. " %l "
--- end
--- vim.opt.statuscolumn = "%!v:lua.get_statuscol()"
-vim.opt.signcolumn = "yes"
 
 -- Disable python/perl/ruby/node providers
 vim.g.loaded_python3_provider = 0

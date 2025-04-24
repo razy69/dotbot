@@ -36,11 +36,15 @@ require("snacks").setup({
       enabled = false,
     },
   },
-  input = { enabled = false },
   notifier = { enabled = true },
   quickfile = { enabled = true },
   rename = { enabled = true },
   scratch = { enabled = true },
   scroll = { enabled = true },
-  statuscolumn = { enabled = true },
+  statuscolumn = {
+    enabled = true,
+    left = { "sign" },
+    right = { "git" },
+    refresh = 25,
+  },
 })
