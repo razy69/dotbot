@@ -54,7 +54,7 @@ vim.g.yaml_indent_multiline_scalar = 1
 
 -- Timeout
 vim.opt.ttimeout = true
-vim.opt.ttimeoutlen = 10 -- Key code timeout
+vim.opt.ttimeoutlen = 200 -- Key code timeout
 vim.opt.timeout = true
 vim.opt.timeoutlen = 300 -- Mapping timeout
 
