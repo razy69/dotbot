@@ -31,7 +31,7 @@ window-padding-balance = false
 
 macos-titlebar-style = native
 macos-window-shadow = true
-macos-auto-secure-input = true
+macos-auto-secure-input = false
 macos-secure-input-indication = true
 
 resize-overlay = always

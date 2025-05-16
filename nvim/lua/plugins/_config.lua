@@ -64,6 +64,64 @@ return {
     end,
   },
 
+  -- Debugger
+  {
+    "rcarriga/nvim-dap-ui",
+    event = { "VeryLazy" },
+    dependencies = {
+      "mfussenegger/nvim-dap",
+      "nvim-neotest/nvim-nio",
+    },
+    opts = {},
+    config = function(_, opts)
+      local dap = require("dap")
+      local dapui = require("dapui")
+      dapui.setup(opts)
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open({})
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close({})
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close({})
+      end
+    end,
+  },
+  {
+    "theHamsta/nvim-dap-virtual-text",
+    opts = {},
+  },
+
+  -- Test
+  {
+    "nvim-neotest/neotest",
+    event = { "VeryLazy" },
+    dependencies = {
+      "nvim-neotest/nvim-nio",
+      "nvim-lua/plenary.nvim",
+      "antoinemadec/FixCursorHold.nvim",
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-neotest/neotest-plenary",
+      "nvim-neotest/neotest-vim-test",
+      {
+        "fredrikaverpil/neotest-golang",
+        dependencies = {
+          "leoluz/nvim-dap-go",
+          opts = {},
+        },
+      },
+    },
+    config = function()
+      local neotest_golang_opts = {}
+      require("neotest").setup({
+        adapters = {
+          require("neotest-golang")(neotest_golang_opts),
+        },
+      })
+    end,
+  },
+
   -- Formatter
   {
     "stevearc/conform.nvim",
