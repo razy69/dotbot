@@ -3,7 +3,7 @@
   Description: Configure LSP, capabilities, commands, keymap, diagnostics..
 ]]
 
-local utils = require("config.utils")
+local utils = require("utilities.module")
 
 
 -- Capabilities
@@ -15,6 +15,9 @@ local capabilities = vim.tbl_deep_extend(
   blink and blink.get_lsp_capabilities() or {},
   {
     workspace = {
+      didChangeWatchedFiles = {
+        dynamicRegistration = true,
+      },
       fileOperations = {
         didRename = true,
         willRename = true,
@@ -25,6 +28,10 @@ local capabilities = vim.tbl_deep_extend(
         completionItem = {
           snippetSupport = true,
         },
+      },
+      foldingRange = {
+        dynamicRegistration = true,
+        lineFoldingOnly = true,
       },
       semanticTokens = {
         multilineTokenSupport = true,
@@ -37,16 +44,24 @@ local capabilities = vim.tbl_deep_extend(
 -- Config
 vim.lsp.config("*", {
   capabilities = capabilities,
+  root_markers = { ".git" },
+  on_attach = function(client, bufnr)
+    local workspace_diag = utils.prequire("workspace-diagnostics")
+    -- Workspace diagnostic
+    if workspace_diag then
+      workspace_diag.populate_workspace_diagnostics(client, bufnr)
+    end
+  end
 })
 
 
 -- Autocmd
-local autocmd = require("config.autocmd")
+local autocmd_utils = require("utilities.autocmd")
 local fzf_lua = utils.prequire("fzf-lua")
 local fzf_lua_actions = utils.prequire("fzf-lua.actions")
-local hlargs = utils.prequire("hlargs")
+-- local hlargs = utils.prequire("hlargs")
 
-local autocmd_lsp_group = autocmd.augroup("Lsp")
+local autocmd_lsp_group = autocmd_utils.augroup("Lsp")
 
 vim.api.nvim_create_autocmd("LspAttach", {
   group = autocmd_lsp_group,
@@ -57,13 +72,29 @@ vim.api.nvim_create_autocmd("LspAttach", {
       return
     end
 
-    -- If a language server with semantic token capabilities is attached to a buffer (credit to @perrin4869)
-    if hlargs then
-      local caps = client.server_capabilities
-      if caps.semanticTokensProvider and caps.semanticTokensProvider.full then
-        hlargs.disable_buf(bufnr)
-      end
+    -- Use lsp fold method
+    if client:supports_method("textDocument/foldingRange") then
+      local win = vim.api.nvim_get_current_win()
+      vim.wo[win][0].foldexpr = "v:lua.vim.lsp.foldexpr()"
     end
+
+    -- Inlay hints
+    -- if client:supports_method("textDocument/inlayHint") then
+    --   vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+    -- end
+
+    if client:supports_method("definitionProvider") then
+      vim.bo[bufnr].tagfunc = "v:lua.vim.lsp.tagfunc"
+    end
+
+    client.server_capabilities.semanticTokensProvider = nil
+    -- If a language server with semantic token capabilities is attached to a buffer (credit to @perrin4869)
+    -- if hlargs then
+    --   local caps = client.server_capabilities
+    --   if caps and caps.semanticTokensProvider and caps.semanticTokensProvider.full then
+    --     hlargs.disable_buf(bufnr)
+    --   end
+    -- end
 
     if fzf_lua and fzf_lua_actions then
       -- Jumps to the declaration of the symbol under the cursor.
@@ -221,11 +252,7 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
   group = autocmd_lsp_group,
   pattern = "*",
   callback = function()
-    vim.iter(vim.lsp.get_clients()):each(
-      function(client)
-        client:stop()
-      end
-    )
+    vim.lsp.stop_client(vim.lsp.get_clients())
   end,
 })
 
@@ -290,15 +317,18 @@ vim.diagnostic.config({
 
 
 -- Commands
+
+-- Start
 vim.api.nvim_create_user_command("LspStart", function()
   vim.cmd.e()
 end, { desc = "Starts LSP clients in the current buffer" })
 
+-- Stop
 vim.api.nvim_create_user_command("LspStop", function(opts)
   for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
     if opts.args == "" or opts.args == client.name then
       client:stop(true)
-      vim.notify(client.name .. ": stopped")
+      vim.notify(client.name .. ": stopped", vim.log.levels.INFO)
     end
   end
 end, {
@@ -314,6 +344,7 @@ end, {
   end,
 })
 
+-- Restart
 vim.api.nvim_create_user_command("LspRestart", function()
   local detach_clients = {}
   for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
@@ -324,7 +355,7 @@ vim.api.nvim_create_user_command("LspRestart", function()
   end
   local timer = vim.uv.new_timer()
   if not timer then
-    return vim.notify("Servers are stopped but havent been restarted")
+    return vim.notify("Servers are stopped but havent been restarted", vim.log.levels.WARN)
   end
   timer:start(
     100,
@@ -336,7 +367,7 @@ vim.api.nvim_create_user_command("LspRestart", function()
           for _, buf in ipairs(client[2]) do
             vim.lsp.buf_attach_client(buf, client_id)
           end
-          vim.notify(name .. ": restarted")
+          vim.notify(name .. ": restarted", vim.log.levels.INFO)
         end
         detach_clients[name] = nil
       end
@@ -349,12 +380,14 @@ end, {
   desc = "Restart all the language client(s) attached to the current buffer",
 })
 
+-- Log
 vim.api.nvim_create_user_command("LspLog", function()
   vim.cmd.vsplit(vim.lsp.log.get_filename())
 end, {
   desc = "Get all the lsp logs",
 })
 
+-- Info
 vim.api.nvim_create_user_command("LspInfo", function()
   vim.cmd("silent checkhealth vim.lsp")
 end, {

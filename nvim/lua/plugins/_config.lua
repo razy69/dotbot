@@ -7,9 +7,23 @@
 local lazyFile = { "BufReadPost", "BufNewFile", "BufWritePre" }
 
 return {
+  -- LuaLS config for neovim
+  {
+    "folke/lazydev.nvim",
+    ft = "lua", -- only load on lua files
+    opts = {
+      library = {
+        -- See the configuration section for more details
+        -- Load luvit types when the `vim.uv` word is found
+        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      },
+    },
+  },
+
   -- Manage external editor tooling
   {
     "mason-org/mason-lspconfig.nvim",
+    lazy = false,
     opts = {},
     dependencies = {
       { "mason-org/mason.nvim", opts = {} },
@@ -37,7 +51,6 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     event = lazyFile,
-    lazy = vim.fn.argc(-1) == 0,
     build = ":TSUpdate",
     config = function()
       require("plugins.treesitter_")
@@ -49,27 +62,55 @@ return {
     "rcarriga/nvim-dap-ui",
     event = { "VeryLazy" },
     dependencies = {
-      "mfussenegger/nvim-dap",
       "nvim-neotest/nvim-nio",
+      "mfussenegger/nvim-dap",
     },
-    opts = {},
-    config = function(_, opts)
+    config = function()
       local dap = require("dap")
       local dapui = require("dapui")
-      dapui.setup(opts)
-      dap.listeners.after.event_initialized["dapui_config"] = function()
-        dapui.open({})
+
+      dap.set_log_level("TRACE")
+      dapui.setup({})
+
+      dap.listeners.before.attach.dapui_config = function()
+        dapui.open()
       end
-      dap.listeners.before.event_terminated["dapui_config"] = function()
-        dapui.close({})
+      dap.listeners.before.launch.dapui_config = function()
+        dapui.open()
       end
-      dap.listeners.before.event_exited["dapui_config"] = function()
-        dapui.close({})
+
+      dap.listeners.before.event_terminated.dapui_config = function()
+        dapui.close()
+      end
+      dap.listeners.before.event_exited.dapui_config = function()
+        dapui.close()
       end
     end,
   },
   {
+    "leoluz/nvim-dap-go",
+    ft = "go",
+    dependencies = { "mfussenegger/nvim-dap" },
+    config = function()
+      require("dap-go").setup({
+        delve = {
+          detached = false,
+        },
+      })
+    end,
+  },
+  {
+    "mfussenegger/nvim-dap-python",
+    ft = "python",
+    dependencies = { "mfussenegger/nvim-dap" },
+    opts = {},
+    config = function()
+      require("dap-python").setup("uv")
+    end,
+  },
+  {
     "theHamsta/nvim-dap-virtual-text",
+    event = { "VeryLazy" },
     opts = {},
   },
 
@@ -84,16 +125,24 @@ return {
       "nvim-treesitter/nvim-treesitter",
       "nvim-neotest/neotest-plenary",
       "nvim-neotest/neotest-vim-test",
+      "andythigpen/nvim-coverage", -- Added dependency
       {
         "fredrikaverpil/neotest-golang",
         dependencies = {
           "leoluz/nvim-dap-go",
-          opts = {},
         },
       },
     },
     config = function()
-      local neotest_golang_opts = {}
+      local neotest_golang_opts = { -- Specify configuration
+        runner = "go",
+        go_test_args = {
+          "-v",
+          "-race",
+          "-count=1",
+          "-coverprofile=" .. vim.fn.getcwd() .. "/.coverage",
+        },
+      }
       require("neotest").setup({
         adapters = {
           require("neotest-golang")(neotest_golang_opts),
@@ -105,6 +154,7 @@ return {
   -- Formatter
   {
     "stevearc/conform.nvim",
+    event = lazyFile,
     keys = {
       { "<leader>f", "<cmd>Format<cr>", desc = "Format buffer", mode = "n" },
     },
@@ -116,9 +166,9 @@ return {
   -- UI
   {
     "folke/noice.nvim",
+    lazy = false,
     dependencies = {
       "MunifTanjim/nui.nvim",
-      -- "rcarriga/nvim-notify",
     },
     config = function()
       require("plugins.noice_")
@@ -139,6 +189,7 @@ return {
   -- Bool
   {
     "nat-418/boole.nvim",
+    event = { "VeryLazy" },
     config = function()
       require("boole").setup({
         mappings = {
@@ -162,6 +213,7 @@ return {
   -- Statusbar
   {
     "nvim-lualine/lualine.nvim",
+    event = lazyFile,
     config = function()
       require("plugins.lualine_")
     end,
@@ -170,7 +222,7 @@ return {
   -- Fuzzy finder
   {
     "ibhagwan/fzf-lua",
-    cmd = "FzfLua",
+    cmd = { "FzfLua" },
     config = function()
       require("plugins.fzf_lua_")
     end,
@@ -179,6 +231,7 @@ return {
   -- File explorer
   {
     "nvim-neo-tree/neo-tree.nvim",
+    lazy = false,
     branch = "v3.x",
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -189,13 +242,16 @@ return {
     end,
   },
 
-  -- Trouble
+  -- Diagnostics
   {
     "folke/trouble.nvim",
-    cmd = "Trouble",
+    cmd = { "Trouble" },
     config = function()
       require("plugins.trouble_")
     end
+  },
+  {
+    "artemave/workspace-diagnostics.nvim",
   },
 
   -- Rainbow delimiters
@@ -209,7 +265,7 @@ return {
     "m-demare/hlargs.nvim",
     event = lazyFile,
     config = function()
-      local utils = require("config.utils")
+      local utils = require("utilities.catpuccin")
       local colors = utils.get_palette()
 
       require("hlargs").setup({
@@ -230,7 +286,7 @@ return {
   -- Git signs
   {
     "lewis6991/gitsigns.nvim",
-    event = "VeryLazy",
+    event = { "VeryLazy" },
     config = function()
       require("plugins.gitsigns_")
     end,
@@ -271,9 +327,8 @@ return {
   -- Markdown
   {
     "MeanderingProgrammer/markdown.nvim",
-    enabled = true,
     name = "render-markdown",
-    ft = "markdown",
+    ft = { "markdown" },
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
       require("plugins.markdown_")
@@ -291,10 +346,12 @@ return {
   },
   {
     "numToStr/Comment.nvim",
+    event = lazyFile,
     opts = {},
   },
   {
     "JoosepAlviste/nvim-ts-context-commentstring",
+    event = lazyFile,
     opts = {},
   },
 
@@ -377,6 +434,7 @@ return {
   -- Move line
   {
     "fedepujol/move.nvim",
+    event = lazyFile,
     config = function()
       require("plugins.move_")
     end
@@ -385,6 +443,7 @@ return {
   -- Detect file indentation
   {
     "NMAC427/guess-indent.nvim",
+    event = lazyFile,
     config = function()
       require("guess-indent").setup({})
     end
@@ -402,6 +461,8 @@ return {
   -- Colorscheme
   {
     "catppuccin/nvim",
+    lazy = false,
+    priority = 10000,
     config = function()
       require("plugins.catppuccin_")
     end,

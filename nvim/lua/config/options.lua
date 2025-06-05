@@ -4,7 +4,11 @@
 ]]
 
 -- General
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
 vim.cmd.syntax("manual") -- Disable builtin syntax (use treesitter instead, but autocmd for FileType not supported by treesitter)
+vim.opt.completeopt = {}
 vim.opt.synmaxcol = 500  -- limits how much of a long horizontal line is highlighted by nvim’s syntax engine
 vim.opt.fillchars = { fold = " ", foldopen = "", foldsep = " ", foldclose = "", eob = " " }
 vim.opt.fixeol = true    -- Turn off appending new line in the end of a file

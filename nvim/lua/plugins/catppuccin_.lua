@@ -4,7 +4,7 @@
   Link: https://github.com/catppuccin/nvim
 ]]
 
-local utils = require("config.utils")
+local utils = require("utilities.catpuccin")
 local flavor = utils.get_flavor()
 local colors = utils.get_palette()
 
@@ -27,30 +27,22 @@ require("catppuccin").setup({
   no_underline = true, -- Force no underline
   integrations = {
     blink_cmp = true,
+    dap = true,
+    dap_ui = true,
     flash = true,
     fzf = true,
     gitsigns = true,
-    illuminate = {
-      enabled = true,
-      lsp = false,
-    },
+    illuminate = { enabled = true, lsp = false },
     lsp_trouble = true,
-    markdown = true,
     mason = true,
+    native_lsp = { enabled = true, inlay_hints = { background = true } },
+    neotest = true,
     neotree = true,
     noice = true,
-    notifier = true,
-    native_lsp = {
-      enabled = true,
-      inlay_hints = {
-        background = true,
-      },
-    },
     nvim_surround = true,
     rainbow_delimiters = true,
-    snacks = {
-      enabled = false,
-    },
+    render_markdown = true,
+    snacks = { enabled = true },
     treesitter = true,
     which_key = true,
   },
@@ -58,30 +50,48 @@ require("catppuccin").setup({
     enable = true,
     additional_vim_regex_highlighting = false,
   },
-  highlight_overrides = {
-    all = {
-      BlinkCmpKind = { fg = colors.blue },
-      BlinkCmpSource = { fg = colors.lavender },
-      BlinkCmpMenu = { fg = colors.text, bg = colors.base },
-      BlinkCmpMenuBorder = { fg = colors.blue, bg = colors.base },
-      BlinkCmpDoc = { fg = colors.text, bg = colors.base },
-      BlinkCmpDocSeparator = { fg = colors.pink, bg = colors.base },
-      BlinkCmpDocBorder = { fg = colors.blue, bg = colors.base },
-      BlinkCmpSignatureHelp = { fg = colors.text, bg = colors.base },
-      BlinkCmpSignatureHelpBorder = { fg = colors.blue, bg = colors.base },
-      BlinkCmpSignatureHelpActiveParameter = { fg = colors.mauve },
-      FloatBorder = { fg = colors.blue, bg = colors.base },
-      GitSignsCurrentLineBlame = { fg = colors.sapphire },
-      NoiceMini = { bg = colors.base },
-      NormalFloat = { fg = colors.text, bg = colors.base },
-      SnacksIndent = { fg = colors.surface1 },
-      SnacksIndentScope = { fg = colors.overlay1 },
-      WhichKey = { fg = colors.yellow },
-      WhichKeySeparator = { fg = colors.pink },
-      WhichKeyValue = { fg = colors.subtext1 },
-      WhichKeyDesc = { fg = colors.text },
-    },
+  custom_highlights = {
+    BlinkCmpDoc = { fg = colors.text, bg = colors.base },
+    BlinkCmpDocBorder = { fg = colors.blue, bg = colors.base },
+    BlinkCmpDocSeparator = { fg = colors.pink, bg = colors.base },
+    BlinkCmpKind = { fg = colors.blue },
+    BlinkCmpMenu = { fg = colors.text, bg = colors.base },
+    BlinkCmpMenuBorder = { fg = colors.blue, bg = colors.base },
+    BlinkCmpSignatureHelp = { fg = colors.text, bg = colors.base },
+    BlinkCmpSignatureHelpActiveParameter = { fg = colors.mauve },
+    BlinkCmpSignatureHelpBorder = { fg = colors.blue, bg = colors.base },
+    BlinkCmpSource = { fg = colors.lavender },
+    FloatBorder = { fg = colors.blue, bg = colors.base },
+    GitSignsCurrentLineBlame = { fg = colors.sapphire },
+    NoiceMini = { bg = colors.base },
+    NormalFloat = { fg = colors.text, bg = colors.base },
+    SnacksIndent = { fg = colors.surface1 },
+    SnacksIndentScope = { fg = colors.overlay1 },
+    WhichKey = { fg = colors.yellow },
+    WhichKeyDesc = { fg = colors.text },
+    WhichKeySeparator = { fg = colors.pink },
+    WhichKeyValue = { fg = colors.subtext1 },
   },
 })
 
+-- Apply colorscheme
 vim.cmd("colorscheme catppuccin")
+
+-- Change colorscheme dark/white mode
+vim.api.nvim_create_user_command(
+  "BackgroundToggle",
+  function()
+    vim.o.background = (vim.o.background == "dark") and "light" or "dark"
+    -- Unload/Reload plugins to apply palettes colors
+    package.loaded["plugins.catppuccin_"] = nil
+    package.loaded["catppuccin"] = nil
+    require("plugins.catppuccin_")
+  end,
+  { range = true }
+)
+
+-- Dap UI signs
+local sign = vim.fn.sign_define
+sign("DapBreakpoint", { text = "●", texthl = "DapBreakpoint", linehl = "", numhl = "" })
+sign("DapBreakpointCondition", { text = "●", texthl = "DapBreakpointCondition", linehl = "", numhl = "" })
+sign("DapLogPoint", { text = "◆", texthl = "DapLogPoint", linehl = "", numhl = "" })

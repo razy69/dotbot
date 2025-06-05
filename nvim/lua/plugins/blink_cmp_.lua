@@ -4,7 +4,7 @@
   Link: https://github.com/Saghen/blink.cmp
 ]]
 
-local utils = require("config.utils")
+local utils = require("utilities.module")
 local luasnip = utils.prequire("luasnip")
 local snippets_opts = {}
 if luasnip then
@@ -100,30 +100,30 @@ require("blink.cmp").setup({
       menu = {
         -- show the menu only when writing commands
         auto_show = function(_)
-          return vim.fn.getcmdtype() == ":"
+          return vim.fn.getcmdtype() == ":" or vim.fn.getcmdtype() == "@"
         end,
       },
       ghost_text = {
-        enabled = function(_)
+        enabled = function()
           return vim.fn.getcmdtype() == ":"
         end,
       },
     },
     keymap = {
-      ["<CR>"] = { "accept_and_enter", "fallback" },
       ["<Tab>"] = { "show", "accept" },
+      ["<C-q>"] = { "hide", "accept" },
       ["<C-p>"] = { "select_prev", "fallback" },
       ["<C-n>"] = { "select_next", "fallback" },
 
     },
   },
   sources = {
-    default = function(_)
+    default = function()
       local success, node = pcall(vim.treesitter.get_node)
       if success and node and vim.tbl_contains({ "comment", "line_comment", "block_comment" }, node:type()) then
         return { "buffer", "path" }
       else
-        return { "lsp", "path", "snippets", "buffer" }
+        return { "lazydev", "lsp", "path", "snippets", "buffer" }
       end
     end,
     providers = {
@@ -140,6 +140,12 @@ require("blink.cmp").setup({
             return vim.fn.getcwd()
           end,
         },
+      },
+      lazydev = {
+        name = "LazyDev",
+        module = "lazydev.integrations.blink",
+        -- make lazydev completions top priority (see `:h blink.cmp`)
+        score_offset = 100,
       },
     },
   },
@@ -165,3 +171,4 @@ require("blink.cmp").setup({
     ["<C-f>"] = { "scroll_documentation_down", "fallback" },
   },
 })
+

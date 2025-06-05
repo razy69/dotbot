@@ -4,7 +4,7 @@
   Link: https://github.com/nvim-lualine/lualine.nvim
 ]]
 
-local utils = require("config.utils")
+local utils = require("utilities.module")
 local trouble = utils.prequire("trouble")
 if trouble then
   vim.g.trouble_lualine = true -- Show the current document symbols location from Trouble in lualine
@@ -19,6 +19,7 @@ require("lualine").setup({
     "lazy",
     "mason",
     "neo-tree",
+    "nvim-dap-ui",
     "quickfix",
     "trouble",
   },
@@ -98,7 +99,7 @@ require("lualine").setup({
           local filetype = vim.bo.filetype
           local icon = mini_icons.get(
             "filetype",
-            vim.api.nvim_buf_get_option(0, "filetype")
+            vim.api.nvim_get_option_value("filetype", { buf = 0 })
           ) .. " " or ""
           local text = icon .. filetype
           return string.format("%s", text)

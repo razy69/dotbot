@@ -3,16 +3,11 @@
   Description: Custom Autocmd.
 ]]
 
-local M = {}
-local utils = require("config.utils")
-
--- Helper to ceate augroup (from LazyVim)
-function M.augroup(name)
-  return vim.api.nvim_create_augroup("razyvim_" .. name, { clear = true })
-end
+local utils = require("utilities.module")
+local autocmd_utils = require("utilities.autocmd")
 
 -- Check if we need to reload the file when it changed
-local checktime_group = M.augroup("checktime")
+local checktime_group = autocmd_utils.augroup("checktime")
 vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
   group = checktime_group,
   callback = function()
@@ -23,7 +18,7 @@ vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
 })
 
 -- Highlight on yank
-local highlight_group = M.augroup("highlight")
+local highlight_group = autocmd_utils.augroup("highlight")
 vim.api.nvim_create_autocmd("TextYankPost", {
   group = highlight_group,
   callback = function()
@@ -32,7 +27,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 })
 
 -- Resize splits if window got resized
-local window_group = M.augroup("window")
+local window_group = autocmd_utils.augroup("window")
 vim.api.nvim_create_autocmd("VimResized", {
   group = window_group,
   callback = function()
@@ -58,14 +53,14 @@ vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
 })
 
 vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
-  group = M.augroup("auto_cursorline_hide"),
+  group = autocmd_utils.augroup("auto_cursorline_hide"),
   callback = function()
     vim.opt_local.cursorline = false
   end,
 })
 
 -- Go to last loc when opening a buffer, see ":h last-position-jump"
-local buffer_group = M.augroup("buffer")
+local buffer_group = autocmd_utils.augroup("buffer")
 vim.api.nvim_create_autocmd({ "BufWinEnter", "FileType" }, {
   group = buffer_group,
   pattern = { "*" },
@@ -106,7 +101,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 })
 
 -- Wrap and check for spell in text filetypes
-local filetype_group = M.augroup("filetype")
+local filetype_group = autocmd_utils.augroup("filetype")
 vim.api.nvim_create_autocmd("FileType", {
   group = filetype_group,
   pattern = { "text", "plaintex", "typst", "gitcommit", "markdown" },
@@ -118,7 +113,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- Close some filetypes with <q>
 vim.api.nvim_create_autocmd("FileType", {
-  group = M.augroup("close_with_q"),
+  group = autocmd_utils.augroup("close_with_q"),
   pattern = {
     "PlenaryTestPopup",
     "help",
@@ -149,14 +144,14 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- Unlist quickfix buffers
 vim.api.nvim_create_autocmd("FileType", {
-  group = M.augroup("quickfix"),
+  group = autocmd_utils.augroup("quickfix"),
   pattern = "qf",
   callback = function() vim.opt_local.buflisted = false end,
 })
 
 -- Auto create dir when saving a file, in case some intermediate directory does not exist
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
-  group = M.augroup("auto_create_dir"),
+  group = autocmd_utils.augroup("auto_create_dir"),
   callback = function(event)
     if event.match:match("^%w%w+:[\\/][\\/]") then
       return
@@ -168,14 +163,14 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 
 -- Don't auto comment new line
 vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
-  group = M.augroup("useful"),
+  group = autocmd_utils.augroup("useful"),
   callback = function()
     vim.cmd("set formatoptions-=cro")
   end,
 })
 
 -- Enable builtin syntax for specified FileType (if no treesitter support)
-local syntax_group = M.augroup("syntax")
+local syntax_group = autocmd_utils.augroup("syntax")
 vim.api.nvim_create_autocmd("FileType", {
   group = syntax_group,
   pattern = { "gitsendemail", "conf", "editorconfig", "qf", "checkhealth", "less" },
@@ -183,5 +178,3 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.bo[event.buf].syntax = vim.bo[event.buf].filetype
   end,
 })
-
-return M

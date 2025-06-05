@@ -17,13 +17,17 @@ require("mason").setup({
 
 -- Define Lsp server binaries to install based on Lsp config filenames
 local servers = {}
-for _, file in ipairs(vim.fn.readdir(vim.fn.stdpath("config") .. "/lsp", [[v:val =~ "\.lua$"]])) do
-  local server = file:gsub("%.lua$", "")
-  table.insert(servers, server)
+local lsp_configs_dir = vim.fn.stdpath("config") .. "/lsp"
+for _, file in ipairs(vim.fn.readdir(lsp_configs_dir)) do
+  if file:match("%.lua$") then
+    local server = file:gsub("%.lua$", "")
+    table.insert(servers, server)
+  end
 end
 
 -- Install LSP Servers
 require("mason-lspconfig").setup({
-  ensure_installed = servers,
   automatic_installation = true,
+  automatic_enable = true,
+  ensure_installed = servers,
 })

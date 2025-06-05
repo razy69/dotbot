@@ -4,12 +4,6 @@
   See: https://github.com/folke/lazy.nvim
 ]]
 
--- Loading lazy.nvim so that mappings are correct.
--- This is also a good place to setup other settings (vim.opt)
--- Make sure to setup `mapleader` and `maplocalleader` before
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
-
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -50,18 +44,10 @@ require("lazy").setup({
   performance = {
     rtp = {
       disabled_plugins = {
-        "editorconfig",
         "netrw",
         "netrwPlugin",
         "netrwSettings",
         "netrwFileHandlers",
-        "2html_plugin",
-        "rrhelper",
-        "spellfile_plugin",
-        "spellfile",
-        "tutor",
-        "rplugin",
-        "tohtml",
       },
     },
   },

@@ -13,5 +13,7 @@ return {
     ".git",
   }),
   single_file_support = true,
-  settings = {},
+  settings = {
+    organizeImports = true,
+  },
 }

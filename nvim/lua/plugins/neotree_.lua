@@ -77,9 +77,9 @@ require("neo-tree").setup {
       nowait = true,
     },
     mappings = {
-      ["fi"] = function() vim.api.nvim_exec("Neotree focus filesystem left", true) end,
-      ["bu"] = function() vim.api.nvim_exec("Neotree focus buffers left", true) end,
-      ["gi"] = function() vim.api.nvim_exec("Neotree focus git_status left", true) end,
+      ["fi"] = function() vim.api.nvim_exec2("Neotree focus filesystem left", { output = true }) end,
+      ["bu"] = function() vim.api.nvim_exec2("Neotree focus buffers left", { output = true }) end,
+      ["gi"] = function() vim.api.nvim_exec2("Neotree focus git_status left", { output = true }) end,
       ["b"] = "noop",
     },
   },

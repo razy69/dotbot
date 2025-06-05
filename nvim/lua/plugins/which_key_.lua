@@ -17,7 +17,7 @@
 --  c	Command-line
 --  t	Terminal-Job
 
-local utils = require("config.utils")
+local utils = require("utilities.module")
 local wk = require("which-key")
 
 -- Disable Exising Bindings
@@ -96,6 +96,22 @@ if trouble then
     { "<leader>xx", "<cmd>Trouble diagnostics toggle focus=true<cr>",   desc = "Diagnostics (Trouble)",        mode = "n" },
     { "<leader>xX", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Buffer Diagnostics (Trouble)", mode = "n" },
     { "<leader>xs", "<cmd>Trouble symbols toggle<cr>",                  desc = "Symbols (Trouble)",            mode = "n" },
+  })
+end
+
+local workspace_diag = utils.prequire("workspace-diagnostics")
+if workspace_diag then
+  wk.add({
+    {
+      "<leader>xr",
+      function()
+        for _, client in ipairs(vim.lsp.get_clients()) do
+          workspace_diag.populate_workspace_diagnostics(client, 0)
+        end
+      end,
+      desc = "Refresh workspace diagnostices",
+      mode = "n",
+    },
   })
 end
 

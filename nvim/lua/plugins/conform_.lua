@@ -46,7 +46,7 @@ vim.api.nvim_create_user_command(
       }
     end
 
-    vim.notify("Formatting buffer..", "info", {
+    vim.notify("Formatting buffer..", vim.log.levels.INFO, {
       title = "Conform.nvim",
     })
 

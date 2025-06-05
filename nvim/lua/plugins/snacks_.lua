@@ -36,6 +36,7 @@ require("snacks").setup({
       enabled = false,
     },
   },
+  input = { enabled = true },
   notifier = { enabled = true },
   quickfile = { enabled = true },
   rename = { enabled = true },
