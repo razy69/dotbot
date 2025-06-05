@@ -32,6 +32,10 @@ require("lazy").setup({
   spec = {
     { import = "plugins._config" }, -- Plugins list
   },
+  change_detection = {
+    enabled = true,
+    notify = true,
+  },
   checker = { enabled = true },
   ui = {
     border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
@@ -51,9 +55,7 @@ require("lazy").setup({
         "netrwPlugin",
         "netrwSettings",
         "netrwFileHandlers",
-        "getscript",
         "2html_plugin",
-        "logipat",
         "rrhelper",
         "spellfile_plugin",
         "spellfile",

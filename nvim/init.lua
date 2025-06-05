@@ -17,3 +17,6 @@ require("config.commands")
 
 -- Plugins
 require("config.lazy_bootstrap")
+
+-- LSP
+require("config.lsp")

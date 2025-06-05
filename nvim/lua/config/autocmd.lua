@@ -1,6 +1,6 @@
 --[[
   File: autocmd.lua
-  Description: Setup autocmd
+  Description: Custom Autocmd.
 ]]
 
 local M = {}
@@ -31,25 +31,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   end,
 })
 
--- Colorize EOL space
-vim.api.nvim_create_autocmd("InsertEnter", {
-  desc = "Disable EoLSpace highlight and match rule",
-  group = highlight_group,
-  callback = function()
-    vim.cmd("highlight clear EoLSpace")
-  end,
-})
-vim.api.nvim_create_autocmd("InsertLeave", {
-  desc = "Enable EoLSpace highlight and match rule",
-  group = highlight_group,
-  callback = function()
-    if (vim.bo.filetype == "neo-tree") then
-      return
-    end
-    vim.cmd("highlight EoLSpace ctermbg=238 guibg=#cb214e")
-  end,
-})
-
 -- Resize splits if window got resized
 local window_group = M.augroup("window")
 vim.api.nvim_create_autocmd("VimResized", {
@@ -75,6 +56,7 @@ vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
     end
   end,
 })
+
 vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
   group = M.augroup("auto_cursorline_hide"),
   callback = function()
@@ -132,21 +114,6 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.wrap = true
     vim.opt_local.spell = true
   end,
-})
-
--- Python setup tabs
-vim.api.nvim_create_autocmd("FileType", {
-  desc = "Configure Nvim for Python",
-  group = filetype_group,
-  pattern = { "*.py" },
-  callback = function()
-    vim.opt.tabstop = 4
-    vim.opt.softtabstop = 4
-    vim.opt.shiftwidth = 4
-    vim.opt.expandtab = true
-    vim.opt.autoindent = true
-    vim.opt.fileformat = "unix"
-  end
 })
 
 -- Close some filetypes with <q>
@@ -207,40 +174,6 @@ vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
   end,
 })
 
--- Toggles the search highlight automatically
-local hl_search_group = M.augroup("hl_search")
-vim.api.nvim_create_autocmd("InsertEnter", {
-  group = hl_search_group,
-  callback = function()
-    vim.schedule(function() vim.cmd("nohlsearch") end)
-  end
-})
-
-vim.api.nvim_create_autocmd("CursorMoved", {
-  group = hl_search_group,
-  callback = function()
-    -- No bloat lua adpatation of: https://github.com/romainl/vim-cool
-    local view, rpos = vim.fn.winsaveview(), vim.fn.getpos(".")
-    -- Move the cursor to a position where (whereas in active search) pressing `n`
-    -- brings us to the original cursor position, in a forward search / that means
-    -- one column before the match, in a backward search ? we move one col forward
-    vim.cmd(string.format("silent! keepjumps go%s",
-      (vim.fn.line2byte(view.lnum) + view.col + 1 - (vim.v.searchforward == 1 and 2 or 0))))
-    -- Attempt to goto next match, if we're in an active search cursor position
-    -- should be equal to original cursor position
-    local ok, _ = pcall(vim.cmd, "silent! keepjumps norm! n")
-    local insearch = ok and (function()
-      local npos = vim.fn.getpos(".")
-      return npos[2] == rpos[2] and npos[3] == rpos[3]
-    end)()
-    -- restore original view and position
-    vim.fn.winrestview(view)
-    if not insearch then
-      vim.schedule(function() vim.cmd("nohlsearch") end)
-    end
-  end
-})
-
 -- Enable builtin syntax for specified FileType (if no treesitter support)
 local syntax_group = M.augroup("syntax")
 vim.api.nvim_create_autocmd("FileType", {
@@ -248,27 +181,6 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = { "gitsendemail", "conf", "editorconfig", "qf", "checkhealth", "less" },
   callback = function(event)
     vim.bo[event.buf].syntax = vim.bo[event.buf].filetype
-  end,
-})
-
--- Disable LSP Inlay Hints in Insert mode
-local lsp_inlay_hints_group = M.augroup("lsp_inlay_hints")
-vim.api.nvim_create_autocmd("InsertEnter", {
-  group = lsp_inlay_hints_group,
-  pattern = "*",
-  callback = function(event)
-    vim.schedule(function()
-      vim.lsp.inlay_hint.enable(false, { bufnr = event.buf })
-    end)
-  end,
-})
-vim.api.nvim_create_autocmd("InsertLeave", {
-  group = lsp_inlay_hints_group,
-  pattern = "*",
-  callback = function(event)
-    vim.schedule(function()
-      vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
-    end)
   end,
 })
 

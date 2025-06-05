@@ -35,7 +35,6 @@ require("catppuccin").setup({
       lsp = false,
     },
     lsp_trouble = true,
-    lsp_saga = true,
     markdown = true,
     mason = true,
     neotree = true,

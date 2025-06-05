@@ -7,6 +7,18 @@
 local lazyFile = { "BufReadPost", "BufNewFile", "BufWritePre" }
 
 return {
+  -- Manage external editor tooling
+  {
+    "mason-org/mason-lspconfig.nvim",
+    opts = {},
+    dependencies = {
+      { "mason-org/mason.nvim", opts = {} },
+    },
+    config = function()
+      require("plugins.mason_")
+    end
+  },
+
   -- Completions
   {
     "saghen/blink.cmp",
@@ -19,38 +31,6 @@ return {
     config = function()
       require("plugins.blink_cmp_")
     end,
-  },
-
-  -- LSP
-  {
-    "neovim/nvim-lspconfig",
-    event = lazyFile,
-    dependencies = {
-      "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim",
-      "saghen/blink.cmp",
-    },
-    config = function()
-      require("plugins.lsp_")
-    end,
-  },
-  {
-    "zeioth/garbage-day.nvim",
-    event = { "VeryLazy" },
-    dependencies = "neovim/nvim-lspconfig",
-    opts = {},
-  },
-  {
-    "nvimdev/lspsaga.nvim",
-    event = { "LspAttach" },
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-      "nvim-tree/nvim-web-devicons",
-      "catppuccin/nvim",
-    },
-    config = function()
-      require("plugins.lsp_saga_")
-    end
   },
 
   -- TreeSitter

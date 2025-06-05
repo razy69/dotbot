@@ -1,10 +1,9 @@
 --[[
   File: options.lua
-  Description: Nvim options configuration
+  Description: Options configuration.
 ]]
 
 -- General
-vim.cmd("match EoLSpace /\\s\\+$/")
 vim.cmd.syntax("manual") -- Disable builtin syntax (use treesitter instead, but autocmd for FileType not supported by treesitter)
 vim.opt.synmaxcol = 500  -- limits how much of a long horizontal line is highlighted by nvim’s syntax engine
 vim.opt.fillchars = { fold = " ", foldopen = "", foldsep = " ", foldclose = "", eob = " " }
@@ -56,7 +55,7 @@ vim.g.yaml_indent_multiline_scalar = 1
 vim.opt.ttimeout = true
 vim.opt.ttimeoutlen = 200 -- Key code timeout
 vim.opt.timeout = true
-vim.opt.timeoutlen = 300 -- Mapping timeout
+vim.opt.timeoutlen = 300  -- Mapping timeout
 
 -- Code Folding
 _G.get_fold_text = function()
@@ -91,7 +90,7 @@ vim.opt.mouse = "a"
 -- Clipboard
 vim.opt.clipboard:append { "unnamed", "unnamedplus" }
 
--- Disable python/perl/ruby/node providers
+-- Disable builtin providers
 vim.g.loaded_python3_provider = 0
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0
@@ -113,11 +112,7 @@ vim.opt.undolevels = 1000
 vim.opt.updatetime = 100
 
 -- Wildmenu
-vim.opt.wildmenu = true
-vim.opt.wildmode = "longest:full,full"
-vim.opt.wildignore =
-"**/.git/*,**/node_modules/*,.hg,.svn,*~,*.png,*.jpg,*.gif,*.settings,Thumbs.db,*.min.js,*.swp,publish/*,intermediate/*,*.o,*.hi,Zend,vendor,*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite"
-vim.opt.wildoptions = { "pum" }
+vim.opt.wildmenu = false
 
 -- Search
 vim.opt.ignorecase = true  -- Ignore case if all characters in lower case
@@ -134,61 +129,3 @@ vim.opt.splitright = true -- Put new vertical splits to right
 
 -- Session
 vim.opt.sessionoptions = { "blank", "buffers", "curdir", "folds", "help", "winpos", "winsize", "resize", "terminal" }
-
--- Diagnostics
-vim.diagnostic.config({
-  severity_sort = true,
-  underline = false,
-  update_in_insert = false,
-  virtual_box = true,
-  virtual_text = {
-    spacing = 4,
-    prefix = "▎",
-    source = "if_many",
-    format = function(diagnostic)
-      return string.format(
-        "%s (%s: %s)",
-        diagnostic.message,
-        diagnostic.source,
-        diagnostic.code
-      )
-    end,
-  },
-  float = {
-    border = "none",
-    format = function(diagnostic)
-      return string.format(
-        "%s (%s: %s)",
-        diagnostic.message,
-        diagnostic.source,
-        diagnostic.code
-      )
-    end,
-  },
-  signs = {
-    text = {
-      [vim.diagnostic.severity.ERROR] = "",
-      [vim.diagnostic.severity.WARN] = "",
-      [vim.diagnostic.severity.INFO] = "",
-      [vim.diagnostic.severity.HINT] = "",
-    },
-    texthl = {
-      [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
-      [vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
-      [vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
-      [vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
-    },
-    linehl = {
-      [vim.diagnostic.severity.ERROR] = "",
-      [vim.diagnostic.severity.WARN] = "",
-      [vim.diagnostic.severity.INFO] = "",
-      [vim.diagnostic.severity.HINT] = "",
-    },
-    numhl = {
-      [vim.diagnostic.severity.ERROR] = "",
-      [vim.diagnostic.severity.WARN] = "",
-      [vim.diagnostic.severity.INFO] = "",
-      [vim.diagnostic.severity.HINT] = "",
-    },
-  },
-})

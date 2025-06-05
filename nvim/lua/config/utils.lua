@@ -1,6 +1,6 @@
 --[[
 	File: utils.lua
-	Description: Some usefule func
+	Description: Some usefull func.
 ]]
 
 local M = {}

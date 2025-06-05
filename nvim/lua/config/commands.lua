@@ -1,6 +1,6 @@
 --[[
   File: commands.lua
-  Description: Custom commands
+  Description: Custom Commands.
 ]]
 
 -- Change colorscheme dark/white mode

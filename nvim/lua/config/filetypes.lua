@@ -1,6 +1,6 @@
 --[[
   File: filetypes.lua
-  Description: Custom filetype configuration
+  Description: Custom filetype definition.
 ]]
 
 -- Define gitconfig ft for '.git/config'
