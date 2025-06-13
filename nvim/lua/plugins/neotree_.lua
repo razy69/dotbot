@@ -85,7 +85,10 @@ require("neo-tree").setup {
   },
   filesystem = {
     bind_to_cwd = true,
-    follow_current_file = { enabled = false },
+    follow_current_file = {
+      enabled = true,
+      leave_dirs_open = false,
+    },
     use_libuv_file_watcher = true,
     filtered_items = {
       hide_dotfiles = false,
@@ -95,6 +98,7 @@ require("neo-tree").setup {
   buffers = {
     follow_current_file = {
       enabled = true,
+      leave_dirs_open = false,
     },
     group_empty_dirs = false, -- when true, empty folders will be grouped together
     show_unloaded = false,

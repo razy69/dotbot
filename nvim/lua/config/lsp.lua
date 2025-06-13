@@ -45,13 +45,13 @@ local capabilities = vim.tbl_deep_extend(
 vim.lsp.config("*", {
   capabilities = capabilities,
   root_markers = { ".git" },
-  on_attach = function(client, bufnr)
-    local workspace_diag = utils.prequire("workspace-diagnostics")
-    -- Workspace diagnostic
-    if workspace_diag then
-      workspace_diag.populate_workspace_diagnostics(client, bufnr)
-    end
-  end
+  -- on_attach = function(client, bufnr)
+  --   local workspace_diag = utils.prequire("workspace-diagnostics")
+  --   -- Workspace diagnostic
+  --   if workspace_diag then
+  --     workspace_diag.populate_workspace_diagnostics(client, bufnr)
+  --   end
+  -- end
 })
 
 
