@@ -113,6 +113,8 @@ vim.opt.encoding = "utf-8"
 vim.opt.autowrite = false
 vim.opt.autoread = false
 vim.opt.undolevels = 1000
+vim.opt.undofile = true                                  -- Enable persistent undo
+vim.opt.undodir = vim.fn.expand("~/.cache/nvim/undodir") -- Set custom undo directory
 vim.opt.updatetime = 100
 
 -- Wildmenu

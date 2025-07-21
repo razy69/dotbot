@@ -111,19 +111,41 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Term
+local term_group = autocmd_utils.augroup("term")
+vim.api.nvim_create_autocmd("TermOpen", {
+  group = term_group,
+  pattern = "term://*",
+  callback = function(_)
+    if vim.opt.buftype:get() == "terminal" then
+      local set = vim.opt_local
+      set.number = false         -- Don't show numbers
+      set.relativenumber = false -- Don't show relativenumbers
+      set.scrolloff = 0          -- Don't scroll when at the top or bottom of the terminal buffer
+      vim.opt.filetype = "terminal"
+
+      vim.cmd.startinsert() -- Start in insert mode
+    end
+  end,
+})
+
 -- Close some filetypes with <q>
 vim.api.nvim_create_autocmd("FileType", {
   group = autocmd_utils.augroup("close_with_q"),
   pattern = {
     "PlenaryTestPopup",
-    "help",
-    "lspinfo",
-    "notify",
-    "qf",
-    "startuptime",
     "checkhealth",
     "gitsigns-blame",
+    "help",
+    "lspinfo",
     "man",
+    "neotest-output",
+    "neotest-output-panel",
+    "neotest-summary",
+    "notify",
+    "qf",
+    "query",
+    "startuptime",
   },
   callback = function(event)
     if not vim.api.nvim_buf_is_valid(event.buf) then return end
@@ -176,5 +198,26 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = { "gitsendemail", "conf", "editorconfig", "qf", "checkhealth", "less" },
   callback = function(event)
     vim.bo[event.buf].syntax = vim.bo[event.buf].filetype
+  end,
+})
+
+-- Fix scrolloff
+local scroll_group = autocmd_utils.augroup("scroll")
+vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "WinScrolled" }, {
+  desc = "Fix scrolloff when you are at the EOF",
+  group = scroll_group,
+  callback = function()
+    if vim.api.nvim_win_get_config(0).relative ~= "" then
+      return -- Ignore floating windows
+    end
+
+    local win_height = vim.fn.winheight(0)
+    local scrolloff = math.min(vim.o.scrolloff, math.floor(win_height / 2))
+    local visual_distance_to_eof = win_height - vim.fn.winline()
+
+    if visual_distance_to_eof < scrolloff then
+      local win_view = vim.fn.winsaveview()
+      vim.fn.winrestview({ topline = win_view.topline + scrolloff - visual_distance_to_eof })
+    end
   end,
 })

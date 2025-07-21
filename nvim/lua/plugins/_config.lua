@@ -20,6 +20,26 @@ return {
     },
   },
 
+  -- Terragrunt LS
+  {
+    "gruntwork-io/terragrunt-ls",
+    -- To use a local version of the Neovim plugin, you can use something like following:
+    -- dir = vim.fn.expand '~/repos/src/github.com/gruntwork-io/terragrunt-ls',
+    ft = "hcl",
+    config = function()
+      local terragrunt_ls = require("terragrunt-ls")
+      terragrunt_ls.setup({})
+      if terragrunt_ls.client then
+        vim.api.nvim_create_autocmd("FileType", {
+          pattern = "hcl",
+          callback = function()
+            vim.lsp.buf_attach_client(0, terragrunt_ls.client)
+          end,
+        })
+      end
+    end,
+  },
+
   -- Manage external editor tooling
   {
     "mason-org/mason-lspconfig.nvim",
@@ -27,6 +47,20 @@ return {
     opts = {},
     dependencies = {
       { "mason-org/mason.nvim", opts = {} },
+      {
+        "Bekaboo/dropbar.nvim",
+        -- optional, but required for fuzzy finder support
+        dependencies = {
+          "nvim-telescope/telescope-fzf-native.nvim",
+          build = "make"
+        },
+        config = function()
+          local dropbar_api = require("dropbar.api")
+          vim.keymap.set("n", ";", dropbar_api.pick, { desc = "Pick symbols in winbar" })
+          vim.keymap.set("n", ";p", dropbar_api.goto_context_start, { desc = "Go to start of current context" })
+          vim.keymap.set("n", ";n", dropbar_api.select_next_context, { desc = "Select next context" })
+        end
+      },
     },
     config = function()
       require("plugins.mason_")
@@ -69,7 +103,7 @@ return {
       local dap = require("dap")
       local dapui = require("dapui")
 
-      dap.set_log_level("TRACE")
+      dap.set_log_level("WARN")
       dapui.setup({})
 
       dap.listeners.before.attach.dapui_config = function()
@@ -163,6 +197,53 @@ return {
     end
   },
 
+  -- Undo Glow
+  {
+    "y3owk1n/undo-glow.nvim",
+    event = { "VeryLazy" },
+    config = function()
+      require("plugins.undo_glow_")
+    end
+  },
+
+  -- Improve clipboard
+  {
+    "EtiamNullam/deferred-clipboard.nvim",
+    config = function()
+      require("deferred-clipboard").setup {
+        lazy = true,
+        fallback = "unnamedplus", -- or your preferred setting for clipboard
+      }
+    end
+  },
+
+  -- Go
+  {
+    "ray-x/go.nvim",
+    dependencies = { -- optional packages
+      "ray-x/guihua.lua",
+      "neovim/nvim-lspconfig",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    opts = {
+      lsp_keymaps = false,
+    },
+    config = function(_, opts)
+      require("go").setup(opts)
+      local format_sync_grp = vim.api.nvim_create_augroup("GoFormat", {})
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        pattern = "*.go",
+        callback = function()
+          require("go.format").goimports()
+        end,
+        group = format_sync_grp,
+      })
+    end,
+    event = { "CmdlineEnter" },
+    ft = { "go", "gomod" },
+    build = ":lua require('go.install').update_all_sync()" -- if you need to install/update all binaries
+  },
+
   -- UI
   {
     "folke/noice.nvim",
@@ -202,13 +283,41 @@ return {
 
   -- Undotree
   {
-    "jiaoshijie/undotree",
-    dependencies = "nvim-lua/plenary.nvim",
-    config = true,
-    keys = { -- load the plugin only when using it's keybinding:
-      { "<leader>u", "<cmd>lua require('undotree').toggle()<cr>" },
+    "y3owk1n/time-machine.nvim",
+    cmd = {
+      "TimeMachineToggle",
+      "TimeMachinePurgeBuffer",
+      "TimeMachinePurgeAll",
+      "TimeMachineLogShow",
+      "TimeMachineLogClear",
+    },
+    opts = {},
+    keys = {
+      {
+        "<leader>wt",
+        "<cmd>TimeMachineToggle<cr>",
+        desc = "[W]ayback Time Machine [t]oggle",
+      },
+      {
+        "<leader>wp",
+        "<cmd>TimeMachinePurgeCurrent<cr>",
+        desc = "[W]ayback Time Machine [p]urge current",
+      },
+      {
+        "<leader>wP",
+        "<cmd>TimeMachinePurgeAll<cr>",
+        desc = "[W]ayback Time Machine [P]urge all",
+      },
+      {
+        "<leader>wl",
+        "<cmd>TimeMachineLogShow<cr>",
+        desc = "[W]ayback Time Machine Show [l]og",
+      },
     },
   },
+
+  -- Cursor
+  { "danilamihailov/beacon.nvim" },
 
   -- Statusbar
   {
@@ -431,13 +540,71 @@ return {
     opts = {},
   },
 
-  -- Move line
+  -- Code Action
   {
-    "fedepujol/move.nvim",
-    event = lazyFile,
+    "rachartier/tiny-code-action.nvim",
+    dependencies = {
+      { "nvim-lua/plenary.nvim" },
+      { "ibhagwan/fzf-lua" },
+    },
+    event = "LspAttach",
+    opts = {
+      backend = "delta",
+      picker = "select",
+    },
+  },
+
+  -- scrolloff
+  {
+    "Aasim-A/scrollEOF.nvim",
+    event = { "CursorMoved", "WinScrolled" },
+    opts = {},
+  },
+
+  -- Notes
+  {
+    "nvim-neorg/neorg",
+    dependencies = {
+      "benlubas/neorg-interim-ls",
+      "3rd/image.nvim",
+    },
+    lazy = false,  -- Disable lazy loading as some `lazy.nvim` distributions set `lazy = true` by default
+    version = "*", -- Pin Neorg to the latest stable release
     config = function()
-      require("plugins.move_")
-    end
+      require("plugins.neorg_")
+    end,
+  },
+
+  -- GPG
+  {
+    "benoror/gpg.nvim",
+    ft = { "gpg" },
+  },
+
+  -- HTTP client
+  {
+    "mistweaverco/kulala.nvim",
+    keys = {
+      { "<leader>Rs", desc = "Send request" },
+      { "<leader>Ra", desc = "Send all requests" },
+      { "<leader>Rb", desc = "Open scratchpad" },
+    },
+    ft = { "http", "rest" },
+    opts = {
+      global_keymaps = false,
+      global_keymaps_prefix = "<leader>R",
+      kulala_keymaps_prefix = "",
+    },
+  },
+
+  -- Super sort
+  {
+    "sQVe/sort.nvim",
+    config = function()
+      require("sort").setup({
+        -- Optional configuration overrides.
+      })
+    end,
   },
 
   -- Detect file indentation

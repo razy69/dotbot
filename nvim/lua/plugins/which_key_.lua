@@ -18,11 +18,26 @@
 --  t	Terminal-Job
 
 local utils = require("utilities.module")
+local win_utils = require("utilities.window")
 local wk = require("which-key")
 
 -- Disable Exising Bindings
 vim.api.nvim_set_keymap("i", "<C-n>", "<Nop>", { noremap = true })
 vim.api.nvim_set_keymap("i", "<C-p>", "<Nop>", { noremap = true })
+
+-- Special mapping
+vim.keymap.set(
+  "n",
+  "dd",
+  function()
+    if vim.api.nvim_get_current_line():match("^%s*$") then
+      return '\"_dd'
+    else
+      return "dd"
+    end
+  end,
+  { noremap = true, expr = true, desc = "Smart dd, do not override history if empty line" }
+)
 
 wk.setup({
   win = {
@@ -45,28 +60,32 @@ wk.setup({
 wk.add({
 
   -- Which-Key
-  { "<leader>`",    function() wk.show() end,    desc = "Show Keymap",                     mode = "n" },
+  { "<leader>`",    function() wk.show() end,                  desc = "Show Keymap",                     mode = "n" },
 
   -- VIM
-  { "<C-t>",        "<cmd>tabnew<cr>",           desc = "Open new tab",                    mode = "n" },
-  { "<C-tn>",       "<cmd>tabN<cr>",             desc = "Go to previous tab",              mode = "n" },
-  { "<C-tp>",       "<cmd>tabp<cr>",             desc = "Go to next tab",                  mode = "n" },
-  { "<leader>w",    "<cmd>w<cr>",                desc = "Save buffer",                     mode = "n" },
-  { "<leader>qq",   "<cmd>confirm q<cr>",        desc = "Quit buffer",                     mode = "n" },
-  { "<leader>qa",   "<cmd>confirm qall<cr>",     desc = "Quit all buffers",                mode = "n" },
-  { "<leader><bs>", "za<cr>",                    desc = "Fold/Unfold code",                mode = "n" },
-  { "<leader>bg",   "<cmd>BackgroundToggle<cr>", desc = "Toggle background light/dark",    mode = "n" },
-  { "<leader>qf",   "<cmd>copen<cr>",            desc = "Open quickfix",                   mode = "n" },
-  { "+",            "<C-a>",                     desc = "Increment Numbers",               mode = "n" },
-  { "-",            "<C-x>",                     desc = "Decrement Numbers",               mode = "n" },
-  { "+",            "<C-a>gv",                   desc = "Increment Numbers",               mode = "v" },
-  { "-",            "<C-x>gv",                   desc = "Decrement Numbers",               mode = "v" },
-  { "<leader>/",    ":%s/",                      desc = "Substitute",                      mode = "n" },
-  { "<leader>?",    ":%S/",                      desc = "Substitute (rev)",                mode = "n" },
-  { "<leader>/",    ":s/",                       desc = "Substitute",                      mode = "x" },
-  { "<leader>?",    ":S/",                       desc = "Substitute (rev)",                mode = "x" },
-  { "<bs>",         "^",                         desc = "Go to first non-blank character", mode = { "n", "v" } },
-  { "<bs><space>",  "$",                         desc = "Go to last character",            mode = { "n", "v" } },
+  { "<C-t>",        "<cmd>tabnew<cr>",                         desc = "Open new tab",                    mode = { "n" } },
+  { "<C-tn>",       "<cmd>tabN<cr>",                           desc = "Go to previous tab",              mode = { "n" } },
+  { "<C-tp>",       "<cmd>tabp<cr>",                           desc = "Go to next tab",                  mode = { "n" } },
+  { "<leader>w",    "<cmd>w<cr>",                              desc = "Save buffer",                     mode = { "n" } },
+  { "<leader>qq",   "<cmd>confirm q<cr>",                      desc = "Quit buffer",                     mode = { "n" } },
+  { "<leader>qa",   "<cmd>confirm qall<cr>",                   desc = "Quit all buffers",                mode = { "n" } },
+  { "<leader><bs>", "za<cr>",                                  desc = "Fold/Unfold code",                mode = { "n" } },
+  { "<leader>bg",   "<cmd>BackgroundToggle<cr>",               desc = "Toggle background light/dark",    mode = { "n" } },
+  { "<leader>qf",   "<cmd>copen<cr>",                          desc = "Open quickfix",                   mode = { "n" } },
+  { "+",            "<C-a>",                                   desc = "Increment Numbers",               mode = { "n" } },
+  { "-",            "<C-x>",                                   desc = "Decrement Numbers",               mode = { "n" } },
+  { "+",            "<C-a>gv",                                 desc = "Increment Numbers",               mode = { "v" } },
+  { "-",            "<C-x>gv",                                 desc = "Decrement Numbers",               mode = { "v" } },
+  { "<leader>/",    ":%s/",                                    desc = "Substitute",                      mode = { "n" } },
+  { "<leader>?",    ":%S/",                                    desc = "Substitute (rev)",                mode = { "n" } },
+  { "<leader>/",    ":s/",                                     desc = "Substitute",                      mode = { "x" } },
+  { "<leader>?",    ":S/",                                     desc = "Substitute (rev)",                mode = { "x" } },
+  { "<bs>",         "^",                                       desc = "Go to first non-blank character", mode = { "n", "v" } },
+  { "<bs><space>",  "$",                                       desc = "Go to last character",            mode = { "n", "v" } },
+  { "<C-S-Left>",   function() win_utils.resize_left(10) end,  mode = { "n" } },
+  { "<C-S-Right>",  function() win_utils.resize_right(10) end, mode = { "n" } },
+  { "<C-S-Up>",     function() win_utils.resize_up(5) end,     mode = { "n" } },
+  { "<C-S-Down>",   function() win_utils.resize_down(5) end,   mode = { "n" } },
 })
 
 local persistence = utils.prequire("persistence")
@@ -139,23 +158,6 @@ if neotree then
   })
 end
 
-local move = utils.prequire("move")
-if move then
-  wk.add({
-    { "<C-i>",      "<cmd>MoveLine(-1)<cr>",   desc = "Moves line up",                        mode = { "n" } },
-    { "<C-k>",      "<cmd>MoveLine(1)<cr>",    desc = "Moves line down",                      mode = { "n" } },
-    { "<C-j>",      "<cmd>MoveHChar(-1)<cr>",  desc = "Moves char under cursor left",         mode = { "n" } },
-    { "<C-l>",      "<cmd>MoveHChar(1)<cr>",   desc = "Moves char under cursor right",        mode = { "n" } },
-    { "<leader>wf", "<cmd>MoveWord(1)<cr>",    desc = "Transpose word under cursor backward", mode = { "n" } },
-    { "<leader>wb", "<cmd>MoveWord(-1)<cr>",   desc = "Transpose word under cursor forward",  mode = { "n" } },
-
-    { "<C-i>",      "<cmd>MoveBlock(-1)<cr>",  desc = "Moves selected block of text up",      mode = { "v" } },
-    { "<C-k>",      "<cmd>MoveBlock(1)<cr>",   desc = "Moves selected block of text down",    mode = { "v" } },
-    { "<C-j>",      "<cmd>MoveHBlock(-1)<cr>", desc = "Moves visual area left",               mode = { "v" } },
-    { "<C-l>",      "<cmd>MoveHBlock(1)<cr>",  desc = "Moves visual area right",              mode = { "v" } },
-  })
-end
-
 local dap = utils.prequire("dap")
 if dap then
   wk.add({
@@ -191,7 +193,7 @@ local neotest = utils.prequire("neotest")
 if neotest then
   wk.add({
     { "<leader>ta", function() neotest.run.attach() end,                                      desc = "[t]est [a]ttach",       mode = { "n" } },
-    { "<leader>tf", function() neotest.run.run(vim.fn.expand("%")) end,                       desc = "[t]est run [f]ile",     mode = { "n" } },
+    { "<leader>tf", function() neotest.run.run(vim.fn.expand("%")) end,               desc = "[t]est run [f]ile",     mode = { "n" } },
     { "<leader>tA", function() neotest.run.run(vim.uv.cwd()) end,                             desc = "[t]est [A]ll files",    mode = { "n" } },
     { "<leader>tS", function() neotest.run.run({ suite = true }) end,                         desc = "[t]est [S]uite",        mode = { "n" } },
     { "<leader>tn", function() neotest.run.run() end,                                         desc = "[t]est [n]earest",      mode = { "n" } },
@@ -202,5 +204,91 @@ if neotest then
     { "<leader>tt", function() neotest.run.stop() end,                                        desc = "[t]est [t]erminate",    mode = { "n" } },
     { "<leader>td", function() neotest.run.run({ suite = false, strategy = "dap" }) end,      desc = "Debug nearest test",    mode = { "n" } },
     { "<leader>tD", function() neotest.run.run({ vim.fn.expand("%"), strategy = "dap" }) end, desc = "Debug current file",    mode = { "n" } },
+  })
+end
+
+local neorg = utils.prequire("neorg")
+if neorg then
+  wk.add({
+    { "<leader>no", "<cmd>Neorg<cr>", desc = "Neorg", mode = "n" },
+  })
+end
+
+local code_action = utils.prequire("tiny-code-action")
+if code_action then
+  wk.add({
+    { "<leader>ca", function() code_action.code_action() end, desc = "LSP [C]ode [A]ction", mode = { "n" } },
+  })
+end
+
+local undo_glow = utils.prequire("undo-glow")
+if undo_glow then
+  wk.add({
+    { "u", function() undo_glow.undo() end,        desc = "Undo with highlight",        mode = { "n" } },
+    { "U", function() undo_glow.redo() end,        desc = "Redo with highlight",        mode = { "n" } },
+    { "p", function() undo_glow.paste_below() end, desc = "Paste below with highlight", mode = { "n" } },
+    { "P", function() undo_glow.paste_above() end, desc = "Paste above with highlight", mode = { "n" } },
+    {
+      "n",
+      function()
+        undo_glow.search_next({
+          animation = {
+            animation_type = "strobe",
+          },
+        })
+      end,
+      desc = "Search next with highlight",
+      mode = { "n" },
+    },
+    {
+      "N",
+      function()
+        undo_glow.search_prev({
+          animation = {
+            animation_type = "strobe",
+          },
+        })
+      end,
+      desc = "Search prev with highlight",
+      mode = { "n" },
+    },
+    {
+      "*",
+      function()
+        undo_glow.search_star({
+          animation = {
+            animation_type = "strobe",
+          },
+        })
+      end,
+      desc = "Search star with highlight",
+      mode = { "n" },
+    },
+    {
+      "#",
+      function()
+        undo_glow.search_hash({
+          animation = {
+            animation_type = "strobe",
+          },
+        })
+      end,
+      desc = "Search hash with highlight",
+      mode = { "n" },
+    },
+    {
+      "gc",
+      function() -- This is an implementation to preserve the cursor position
+        local pos = vim.fn.getpos(".")
+        vim.schedule(function()
+          vim.fn.setpos(".", pos)
+        end)
+        return undo_glow.comment()
+      end,
+      desc = "Toggle comment with highlight",
+      mode = { "n", "x" },
+    },
+    { "gc",  function() undo_glow.comment_textobject() end, desc = "Comment textobject with highlight",  mode = { "n" } },
+    { "gcc", function() undo_glow.comment_line() end,       desc = "Toggle comment line with highlight", mode = { "n" } },
   })
 end

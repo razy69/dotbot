@@ -129,8 +129,8 @@ require("blink.cmp").setup({
     providers = {
       cmdline = {
         min_keyword_length = function(ctx)
-          -- when typing a command, only show when the keyword is 3 characters or longer
-          if ctx.mode == "cmdline" and string.find(ctx.line, " ") == nil then return 3 end
+          -- when typing a command, only show when the keyword is 2 characters or longer
+          if ctx.mode == "cmdline" and string.find(ctx.line, " ") == nil then return 2 end
           return 0
         end
       },

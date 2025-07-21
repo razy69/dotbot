@@ -9,10 +9,27 @@ local fzf_lua = require("fzf-lua")
 fzf_lua.setup({
   "fzf-native",
   winopts = {
-    preview = { default = "bat" },
-    split = "belowright new" -- open in split right of current window
+    preview    = {
+      default = "bat",
+      wrap    = true,
+      winopts = {
+        signcolumn = "yes",
+      },
+    },
+    -- split = "belowright new" -- open in split right of current window
+    height     = 0.85, -- window height
+    width      = 0.80, -- window width
+    row        = 0.35, -- window row position (0=top, 1=bottom)
+    col        = 0.50, -- window col position (0=left, 1=right)
+    backdrop   = 70,   -- 0 is fully opaque, 100 is fully transparent
+    treesitter = {
+      enabled    = true,
+      fzf_colors = { ["hl"] = "-1:reverse", ["hl+"] = "-1:reverse" }
+    },
   },
-  fzf_opts = { ["--cycle"] = true },
+  fzf_opts = {
+    ["--cycle"] = true,
+  },
   grep = {
     resume         = true,                                         -- resume last search
     rg_opts        = "--sort-files --hidden --column --line-number --no-heading " ..

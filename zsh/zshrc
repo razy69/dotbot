@@ -35,11 +35,11 @@ source "${ZSH}/config/functions.zsh"
 # Fzf
 (( $+commands[fzf] )) && eval "$(fzf --zsh)"
 
-# Work
-[[ ! -f "${ZSH}/config/work.zsh" ]] || source "${ZSH}/config/work.zsh"
-
 # Completion
 source "${ZSH}/config/completions.zsh"
+
+# Work
+[[ ! -f "${ZSH}/config/work.zsh" ]] || source "${ZSH}/config/work.zsh"
 
 # Plugins
 source "${ZSH}/config/plugins.zsh"

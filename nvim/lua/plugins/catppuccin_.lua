@@ -29,6 +29,10 @@ require("catppuccin").setup({
     blink_cmp = true,
     dap = true,
     dap_ui = true,
+    dropbar = {
+      enabled = true,
+      color_mode = true,
+    },
     flash = true,
     fzf = true,
     gitsigns = true,

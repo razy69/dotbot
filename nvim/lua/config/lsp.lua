@@ -72,6 +72,8 @@ vim.api.nvim_create_autocmd("LspAttach", {
       return
     end
 
+    vim.lsp.set_log_level("off")
+
     -- Use lsp fold method
     if client:supports_method("textDocument/foldingRange") then
       local win = vim.api.nvim_get_current_win()
@@ -191,19 +193,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
         end,
         {
           desc = "LSP Implementations",
-          buffer = bufnr,
-        }
-      )
-
-      -- Selects a code action available at the current cursor position.
-      vim.keymap.set(
-        { "n", "v" },
-        "<leader>ca",
-        function()
-          fzf_lua.lsp_code_actions()
-        end,
-        {
-          desc = "LSP Code action",
           buffer = bufnr,
         }
       )

@@ -57,4 +57,4 @@ fpath=(
   $fpath
 )
 
-autoload -U compinit && compinit
+autoload -U +X compinit && compinit
