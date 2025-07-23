@@ -554,24 +554,51 @@ return {
     },
   },
 
-  -- scrolloff
-  {
-    "Aasim-A/scrollEOF.nvim",
-    event = { "CursorMoved", "WinScrolled" },
-    opts = {},
-  },
-
   -- Notes
   {
     "nvim-neorg/neorg",
     dependencies = {
-      "benlubas/neorg-interim-ls",
-      "3rd/image.nvim",
+      {
+        "benlubas/neorg-interim-ls",
+        lazy = true,
+      },
+      {
+        "3rd/image.nvim",
+        lazy = true,
+      },
     },
-    lazy = false,  -- Disable lazy loading as some `lazy.nvim` distributions set `lazy = true` by default
+    lazy = true,   -- Disable lazy loading as some `lazy.nvim` distributions set `lazy = true` by default
     version = "*", -- Pin Neorg to the latest stable release
     config = function()
       require("plugins.neorg_")
+    end,
+  },
+
+  -- Scratch
+  {
+    "LintaoAmons/scratch.nvim",
+    cmd = {
+      "Scratch",
+      "ScratchOpen",
+    },
+    config = function()
+      require("scratch").setup({
+        scratch_file_dir = vim.fn.stdpath("cache") .. "/scratch.nvim", -- where your scratch files will be put
+        window_cmd = "rightbelow vsplit",
+        use_telescope = false,
+        filetypes = { "lua", "sh", "go", "perl", "py", "txt", "md", "json", "yaml", "toml" },
+        filetype_details = {
+          go = {
+            requireDir = true,    -- true if each scratch file requires a new directory
+            filename = "main.go", -- the filename of the scratch file in the new directory
+            content = { "package main", "", "func main() {", "  ", "}" },
+            cursor = {
+              location = { 4, 2 },
+              insert_mode = true,
+            },
+          },
+        },
+      })
     end,
   },
 

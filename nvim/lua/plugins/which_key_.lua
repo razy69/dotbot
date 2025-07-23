@@ -193,7 +193,7 @@ local neotest = utils.prequire("neotest")
 if neotest then
   wk.add({
     { "<leader>ta", function() neotest.run.attach() end,                                      desc = "[t]est [a]ttach",       mode = { "n" } },
-    { "<leader>tf", function() neotest.run.run(vim.fn.expand("%")) end,               desc = "[t]est run [f]ile",     mode = { "n" } },
+    { "<leader>tf", function() neotest.run.run(vim.fn.expand("%")) end,                       desc = "[t]est run [f]ile",     mode = { "n" } },
     { "<leader>tA", function() neotest.run.run(vim.uv.cwd()) end,                             desc = "[t]est [A]ll files",    mode = { "n" } },
     { "<leader>tS", function() neotest.run.run({ suite = true }) end,                         desc = "[t]est [S]uite",        mode = { "n" } },
     { "<leader>tn", function() neotest.run.run() end,                                         desc = "[t]est [n]earest",      mode = { "n" } },
@@ -291,4 +291,35 @@ if undo_glow then
     { "gc",  function() undo_glow.comment_textobject() end, desc = "Comment textobject with highlight",  mode = { "n" } },
     { "gcc", function() undo_glow.comment_line() end,       desc = "Toggle comment line with highlight", mode = { "n" } },
   })
+end
+
+local scratch = utils.prequire("scratch")
+if scratch then
+  wk.add({
+    { "<leader>S", "<cmd>Scratch<cr>", desc = "New Scratch file", mode = { "n" } },
+  })
+  if fzf_lua then
+    wk.add({
+      {
+        "<leader>.",
+        function()
+          fzf_lua.files({
+            cwd = vim.fn.stdpath("cache") .. "/scratch.nvim",
+            cwd_prompt = false,
+            winopts = {
+              title = "Scratch Files",
+              title_flags = false,
+            },
+            keymap = {
+              fzf = {
+                ["ctrl-a"] = "select-all",
+              }
+            },
+          })
+        end,
+        desc = "List Scratch files",
+        mode = { "n" }
+      },
+    })
+  end
 end

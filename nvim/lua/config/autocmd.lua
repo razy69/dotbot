@@ -200,24 +200,3 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.bo[event.buf].syntax = vim.bo[event.buf].filetype
   end,
 })
-
--- Fix scrolloff
-local scroll_group = autocmd_utils.augroup("scroll")
-vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "WinScrolled" }, {
-  desc = "Fix scrolloff when you are at the EOF",
-  group = scroll_group,
-  callback = function()
-    if vim.api.nvim_win_get_config(0).relative ~= "" then
-      return -- Ignore floating windows
-    end
-
-    local win_height = vim.fn.winheight(0)
-    local scrolloff = math.min(vim.o.scrolloff, math.floor(win_height / 2))
-    local visual_distance_to_eof = win_height - vim.fn.winline()
-
-    if visual_distance_to_eof < scrolloff then
-      local win_view = vim.fn.winsaveview()
-      vim.fn.winrestview({ topline = win_view.topline + scrolloff - visual_distance_to_eof })
-    end
-  end,
-})

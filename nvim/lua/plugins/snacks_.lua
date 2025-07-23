@@ -49,7 +49,7 @@ require("snacks").setup({
   notifier = { enabled = true },
   quickfile = { enabled = true },
   rename = { enabled = true },
-  scratch = { enabled = true },
+  scratch = { enabled = false },
   scroll = { enabled = true },
   statuscolumn = {
     enabled = true,

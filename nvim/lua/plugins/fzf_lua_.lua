@@ -8,6 +8,7 @@ local fzf_lua = require("fzf-lua")
 
 fzf_lua.setup({
   "fzf-native",
+  file_icon_padding = " ",
   winopts = {
     preview    = {
       default = "bat",
@@ -29,6 +30,15 @@ fzf_lua.setup({
   },
   fzf_opts = {
     ["--cycle"] = true,
+  },
+  oldfiles = {
+    include_current_session = true,
+    stat_file = true, -- verify files exist on disk
+  },
+  previewers = {
+    builtin = {
+      syntax_limit_b = 1024 * 1000, -- 1MB
+    },
   },
   grep = {
     resume         = true,                                         -- resume last search
