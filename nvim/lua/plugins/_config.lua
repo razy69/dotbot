@@ -227,6 +227,7 @@ return {
     },
     opts = {
       lsp_keymaps = false,
+      lsp_inlay_hints = { enable = false },
     },
     config = function(_, opts)
       require("go").setup(opts)
@@ -322,10 +323,38 @@ return {
   -- Statusbar
   {
     "nvim-lualine/lualine.nvim",
-    event = lazyFile,
     config = function()
       require("plugins.lualine_")
     end,
+  },
+
+  -- Tabline
+  {
+    "akinsho/bufferline.nvim",
+    version = "*",
+    dependencies = "nvim-tree/nvim-web-devicons",
+    config = function()
+      local utils = require("utilities.catpuccin")
+      local palette = utils.get_palette()
+      require("bufferline").setup({
+        options = {
+          mode = "tabs",
+          show_buffer_close_icons = true,
+          show_buffer_icons = true,
+        },
+        highlights = require("catppuccin.groups.integrations.bufferline").get({
+          styles = { "bold" },
+          custom = {
+            palette = {
+              background = {
+                fg = palette.text,
+                bg = palette.base,
+              },
+            }
+          }
+        })
+      })
+    end
   },
 
   -- Fuzzy finder
@@ -600,6 +629,25 @@ return {
         },
       })
     end,
+  },
+
+  -- Type from JSON
+  {
+    "midoBB/nvim-quicktype",
+    cmd = "QuickType",
+    ft = {
+      "typescript",
+      "python",
+      "java",
+      "go",
+      "rust",
+      "cs",
+      "swift",
+      "elixir",
+      "kotlin",
+      "typescriptreact",
+      "dart",
+    },
   },
 
   -- GPG

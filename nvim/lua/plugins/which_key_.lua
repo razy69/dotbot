@@ -63,9 +63,6 @@ wk.add({
   { "<leader>`",    function() wk.show() end,                  desc = "Show Keymap",                     mode = "n" },
 
   -- VIM
-  { "<C-t>",        "<cmd>tabnew<cr>",                         desc = "Open new tab",                    mode = { "n" } },
-  { "<C-tn>",       "<cmd>tabN<cr>",                           desc = "Go to previous tab",              mode = { "n" } },
-  { "<C-tp>",       "<cmd>tabp<cr>",                           desc = "Go to next tab",                  mode = { "n" } },
   { "<leader>w",    "<cmd>w<cr>",                              desc = "Save buffer",                     mode = { "n" } },
   { "<leader>qq",   "<cmd>confirm q<cr>",                      desc = "Quit buffer",                     mode = { "n" } },
   { "<leader>qa",   "<cmd>confirm qall<cr>",                   desc = "Quit all buffers",                mode = { "n" } },
@@ -322,4 +319,14 @@ if scratch then
       },
     })
   end
+end
+
+local bufferline = utils.prequire("bufferline")
+if bufferline then
+  wk.add({
+    { "<C-N>", "<cmd>BufferLineCycleNext<cr>", desc = "BufferLine next tab", mode = { "n" } },
+    { "<C-P>", "<cmd>BufferLineCyclePrev<cr>", desc = "BufferLine prev tab", mode = { "n" } },
+    { "<C-t>", "<cmd>tabnew<cr>",              desc = "New tab",             mode = { "n" } },
+    { "<C-e>", "<cmd>new<cr>",                 desc = "New buffer",          mode = { "n" } },
+  })
 end

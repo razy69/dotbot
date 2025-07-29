@@ -15,7 +15,7 @@ require("snacks").setup({
         { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
         { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
         { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
-        { icon = " ", key = "o", desc = "Neorg", action = ":Neorg"},
+        { icon = " ", key = "o", desc = "Neorg", action = ":Neorg" },
         {
           icon = " ",
           key = "c",
@@ -53,8 +53,23 @@ require("snacks").setup({
   scroll = { enabled = true },
   statuscolumn = {
     enabled = true,
-    left = { "sign" },
-    right = { "git" },
-    refresh = 25,
+    left = { "mark", "sign" },
+    right = { "fold", "git" },
+    folds = {
+      open = false,
+      git_hl = false,
+    },
+    refresh = 50,
   },
 })
+
+-- https://www.reddit.com/r/neovim/comments/1hkpgar/a_per_project_shadafile/
+vim.opt.shadafile = (function() -- Per project shadafile
+  local data = tostring(vim.fn.stdpath("data"))
+  local git_root = require("snacks.git").get_root()
+  local cwd = git_root or vim.fn.getcwd()
+  local cwd_b64 = vim.base64.encode(cwd)
+  local file = vim.fs.joinpath(data, "project_shada", cwd_b64)
+  vim.fn.mkdir(vim.fs.dirname(file), "p")
+  return file
+end)()

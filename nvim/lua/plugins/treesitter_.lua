@@ -11,6 +11,9 @@ require("nvim-treesitter.configs").setup({
     enable = true,
     additional_vim_regex_highlighting = false,
   },
+  endwise = { enable = true },
+  autotag = { enable = true },
+  matchup = { enable = true },
   indent = {
     enable = true,
   },

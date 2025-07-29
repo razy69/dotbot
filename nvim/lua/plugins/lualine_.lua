@@ -24,9 +24,7 @@ require("lualine").setup({
     "trouble",
   },
   refresh = {
-    statusline = 500,
-    tabline = 1000,
-    winbar = 1000,
+    statusline = 100,
   },
   sections = {
     lualine_a = {
@@ -113,24 +111,21 @@ require("lualine").setup({
         end,
       },
       {
-        function()
-          local lsps = vim.lsp.get_clients({ bufnr = vim.fn.bufnr() })
-          if lsps and #lsps > 0 then
-            local lsp_names = {}
-            for _, lsp in ipairs(lsps) do
-              table.insert(lsp_names, lsp.name)
-            end
-            local names = table.concat(lsp_names, ", ")
-            if #names > 20 then
-              names = string.sub(names, 0, 18)
-              names = names .. ".."
-            end
-            return string.format("LSP: %s", names)
-          end
-        end,
+        "lsp_status",
+        icon = "", -- f013
+        symbols = {
+          -- Standard unicode symbols to cycle through for LSP progress:
+          spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" },
+          -- Standard unicode symbol for when LSP is done:
+          done = "✓",
+          -- Delimiter inserted between LSP names:
+          separator = " ",
+        },
+        -- List of LSP names to ignore (e.g., `null-ls`):
+        ignore_lsp = {},
         on_click = function()
           vim.api.nvim_command("LspInfo")
-        end,
+        end
       },
     },
     lualine_y = {
@@ -138,7 +133,7 @@ require("lualine").setup({
       { "progress" },
     },
     lualine_z = {
-      { "location" }
+      { "location" },
     },
   },
   inactive_sections = {

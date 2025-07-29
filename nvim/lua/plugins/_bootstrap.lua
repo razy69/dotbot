@@ -4,6 +4,11 @@
   See: https://github.com/folke/lazy.nvim
 ]]
 
+-- Define Leader Key before lazy.nvim
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+vim.opt.termguicolors = true
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then

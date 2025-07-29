@@ -10,3 +10,9 @@ vim.filetype.add({
     ["gitconfig"] = "gitconfig",
   },
 })
+
+vim.filetype.add({
+  extension = {
+    gpg = "gpg"
+  },
+})

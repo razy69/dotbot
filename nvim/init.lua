@@ -10,14 +10,14 @@
 -- vim.opt
 require("config.options")
 
+-- lazy plugins
+require("plugins._bootstrap")
+
 -- custom filetypes
 require("config.filetypes")
 
 -- autocmd
 require("config.autocmd")
-
--- lazy plugins
-require("plugins._bootstrap")
 
 -- treesitter
 require("config.treesitter")
