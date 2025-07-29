@@ -13,5 +13,6 @@ alias gp="git pull --rebase"
 
 alias ccat="bat -p --paging=never"
 alias tree="erd"
-alias ll="exa -ahlgUu --octal-permissions --icons"
+alias ll="exa -FmahlUgu --octal-permissions --git --icons --long -F"
+alias la="exa -RTFmahlUgu --octal-permissions --git --icons --long -F"
 alias ls="ls --color=auto"

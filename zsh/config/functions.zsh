@@ -81,6 +81,7 @@ function gr() {
   INITIAL_QUERY="${*:-}"
   fzf --delimiter=':' \
       --prompt='Ripgrep: ' \
+      --wrap \
       --disabled \
       --query "$INITIAL_QUERY" \
       --color='hl:-1:underline,hl+:-1:underline:reverse' \
@@ -88,6 +89,7 @@ function gr() {
       --preview-label='[ Preview ]' \
       --preview-window=cycle \
       --preview-window '+{2}+3/3,~3' \
+      --bind='ctrl-/:change-preview-window(75%||25%|hidden)' \
       --bind "start:reload:$RG_PREFIX {q}" \
       --bind "change:reload:sleep 0.1; $RG_PREFIX {q} || true" \
       --bind 'enter:become(nvim {1} +{2})'
@@ -99,10 +101,12 @@ function fz() {
   fzf --prompt='Files: ' \
       --header='CTRL-T: Switch between Files/Directories | CTRL+C or ESC to exit' \
       --delimiter=':' \
+      --wrap \
       --bind='ctrl-t:transform:[[ ! $FZF_PROMPT =~ Files ]] &&
               echo "change-prompt(Files: )+reload(fd --hidden --exclude \".git\" --type file)+transform-preview-label(echo [ File Preview ])" ||
               echo "change-prompt(Directories: )+reload(fd --hidden --exclude \".git\" --type directory)+transform-preview-label(echo [ Directory Stats ])"' \
-      --preview='[[ $FZF_PROMPT =~ Files ]] && bat --color=always {} || exa -ahHilgUmuS --octal-permissions --git --icons --long -F {}' \
+      --bind='ctrl-/:change-preview-window(75%||25%|hidden)' \
+      --preview='[[ $FZF_PROMPT =~ Files ]] && bat --color=always {} || exa -RTFmahlUgu --octal-permissions --git --icons --long -F {}' \
       --preview-label='[ File Preview ]' \
       --bind='enter:become(nvim {1} +{2})'
 }
