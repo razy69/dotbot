@@ -4,24 +4,25 @@ paranoid = false
 python_compile = true
 
 [tools]
+"ubi:ogham/exa" = "latest"
+"ubi:solidiquis/erdtree" = { version = "latest", exe = "erd" }
 bat = "latest"
 delta = "latest"
 fd = "latest"
 fzf = "latest"
 go = "latest"
+gopass = "latest"
 jq = "latest"
 k9s = "latest"
 kubectl = "latest"
-nodejs = "lts"
 neovim = "0.11.3"
+nodejs = "lts"
 perl = "latest"
 python = ["3.10", "3.11", "3.12"]
 restish = "latest"
 ripgrep = "latest"
 rust = "latest"
-terraform = "latest"
-"ubi:ogham/exa" = "latest"
-"ubi:solidiquis/erdtree" = { version = "latest", exe = "erd" }
 usage = "latest"
 uv = "latest"
 yq = "latest"
+golangci-lint = "latest"

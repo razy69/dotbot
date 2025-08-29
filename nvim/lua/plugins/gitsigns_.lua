@@ -13,6 +13,9 @@ require("gitsigns").setup({
     changedelete = { text = '▍' },
     untracked    = { text = '▍' },
   },
-  current_line_blame = true,
-  current_line_blame_formatter = "  <author> (<author_time:%R>) - <summary>",
+  current_line_blame = false,
+  current_line_blame_opts = {
+    delay = 50,
+  },
+  current_line_blame_formatter = "\t <author> (<author_time:%R>) - <summary>",
 })

@@ -38,6 +38,9 @@ source "${ZSH}/config/functions.zsh"
 # Completion
 source "${ZSH}/config/completions.zsh"
 
+# Gopass
+(( $+commands[gopass] )) && source <(gopass completion zsh)
+
 # Work
 [[ ! -f "${ZSH}/config/work.zsh" ]] || source "${ZSH}/config/work.zsh"
 

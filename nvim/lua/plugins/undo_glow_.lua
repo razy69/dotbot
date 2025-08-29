@@ -10,7 +10,7 @@ local undo_glow_utils = require("undo-glow.utils")
 undo_glow.setup({
   animation = {
     enabled = true,
-    duration = 300,
+    duration = 500,
     animtion_type = "zoom",
     window_scoped = true,
   },
@@ -34,10 +34,10 @@ undo_glow.setup({
       hl_color = { bg = "#7A5A3D" }, -- Dark muted orange
     },
     cursor = {
-      hl_color = { bg = "#793D54" }, -- Dark muted pink
+      hl_color = { bg = "#808080" }, -- muted white
     },
   },
-  priority = 2048 * 3,
+  priority = 4096,
 })
 
 vim.api.nvim_create_autocmd("TextYankPost", {
@@ -47,7 +47,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   end,
 })
 
--- This only handles neovim instance and do not highlight when switching panes in tmux
+-- -- This only handles neovim instance and do not highlight when switching panes in tmux
 vim.api.nvim_create_autocmd("CursorMoved", {
   desc = "Highlight when cursor moved significantly",
   callback = function()

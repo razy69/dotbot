@@ -21,6 +21,7 @@ if luasnip then
     jump = function(direction)
       require("luasnip").jump(direction)
     end,
+    score_offset = -1,
   }
 
   -- Load friendly snippets
@@ -121,18 +122,28 @@ require("blink.cmp").setup({
     default = function()
       local success, node = pcall(vim.treesitter.get_node)
       if success and node and vim.tbl_contains({ "comment", "line_comment", "block_comment" }, node:type()) then
-        return { "buffer", "path" }
+        return { "buffer", "ripgrep", "path" }
       else
-        return { "lazydev", "lsp", "path", "snippets", "buffer" }
+        return { "lazydev", "lsp", "path", "snippets", "buffer", "ripgrep" }
       end
     end,
     providers = {
+      lsp = {
+        score_offset = 0,
+      },
+      lazydev = {
+        name = "LazyDev",
+        module = "lazydev.integrations.blink",
+        -- make lazydev completions top priority (see `:h blink.cmp`)
+        score_offset = -1,
+      },
       cmdline = {
         min_keyword_length = function(ctx)
           -- when typing a command, only show when the keyword is 2 characters or longer
           if ctx.mode == "cmdline" and string.find(ctx.line, " ") == nil then return 2 end
           return 0
-        end
+        end,
+        score_offset = -1,
       },
       path = {
         opts = {
@@ -140,12 +151,31 @@ require("blink.cmp").setup({
             return vim.fn.getcwd()
           end,
         },
+        score_offset = -2,
       },
-      lazydev = {
-        name = "LazyDev",
-        module = "lazydev.integrations.blink",
-        -- make lazydev completions top priority (see `:h blink.cmp`)
-        score_offset = 100,
+      ripgrep = {
+        module = "blink-ripgrep",
+        name = "Ripgrep",
+        opts = {
+          prefix_min_len = 3,
+          project_root_marker = ".git",
+          fallback_to_regex_highlighting = true,
+          backend = {
+            use = "ripgrep",
+            customize_icon_highlight = true,
+            ripgrep = {
+              context_size = 5,
+              max_filesize = "1M",
+              project_root_fallback = true,
+              search_casing = "--ignore-case",
+              additional_rg_options = {},
+              ignore_paths = {},
+              additional_paths = {},
+            },
+          },
+          debug = false,
+        },
+        score_offset = -10,
       },
     },
   },
@@ -169,6 +199,10 @@ require("blink.cmp").setup({
     ["<C-n>"] = { "select_next", "fallback" },
     ["<C-b>"] = { "scroll_documentation_up", "fallback" },
     ["<C-f>"] = { "scroll_documentation_down", "fallback" },
+    ["<C-r>"] = {
+      function(cmp)
+        cmp.show({ providers = { "ripgrep" } })
+      end,
+    },
   },
 })
-

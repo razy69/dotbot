@@ -285,7 +285,7 @@ if undo_glow then
       desc = "Toggle comment with highlight",
       mode = { "n", "x" },
     },
-    { "gc",  function() undo_glow.comment_textobject() end, desc = "Comment textobject with highlight",  mode = { "n" } },
+    { "gc",  function() undo_glow.comment_textobject() end, desc = "Comment textobject with highlight",  mode = { "o" } },
     { "gcc", function() undo_glow.comment_line() end,       desc = "Toggle comment line with highlight", mode = { "n" } },
   })
 end
@@ -328,5 +328,20 @@ if bufferline then
     { "<C-P>", "<cmd>BufferLineCyclePrev<cr>", desc = "BufferLine prev tab", mode = { "n" } },
     { "<C-t>", "<cmd>tabnew<cr>",              desc = "New tab",             mode = { "n" } },
     { "<C-e>", "<cmd>new<cr>",                 desc = "New buffer",          mode = { "n" } },
+  })
+end
+
+local overlook = utils.prequire("overlook.api")
+if overlook then
+  wk.add({
+    { "<leader>pd", function() overlook.peek_definition() end,         desc = "Peek definition",              mode = { "n" } },
+    { "<leader>pp", function() overlook.peek_cursor() end,             desc = "Peek cursor",                  mode = { "n" } },
+    { "<leader>pu", function() overlook.restore_popup() end,           desc = "Restore last popup",           mode = { "n" } },
+    { "<leader>pU", function() overlook.restore_all_popups() end,      desc = "Restore all popups",           mode = { "n" } },
+    { "<leader>pc", function() overlook.close_all() end,               desc = "Close all popups",             mode = { "n" } },
+    { "<leader>ps", function() overlook.open_in_split() end,           desc = "Open popup in split",          mode = { "n" } },
+    { "<leader>pv", function() overlook.open_in_vsplit() end,          desc = "Open popup in vsplit",         mode = { "n" } },
+    { "<leader>pt", function() overlook.open_in_tab() end,             desc = "Open popup in tab",            mode = { "n" } },
+    { "<leader>po", function() overlook.open_in_original_window() end, desc = "Open popup in current window", mode = { "n" } },
   })
 end

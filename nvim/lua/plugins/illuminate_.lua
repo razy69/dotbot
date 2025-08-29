@@ -5,7 +5,7 @@
 ]]
 
 require("illuminate").configure({
-  delay = 200,
+  delay = 2000, -- 2 seconds
   large_file_cutoff = 2000,
   large_file_overrides = {
     providers = { "lsp" },

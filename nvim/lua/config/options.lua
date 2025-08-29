@@ -40,21 +40,21 @@ vim.opt.report = 9999  -- Don't report number of changed lines.
 vim.opt.ruler = false
 vim.opt.scrolloff = 4
 vim.opt.shada = {
-  '"50', -- Max number of lines saved for each register.
-  "'50", -- Remember marks for the last 10 edited files.
-  "/50", -- Max number of items in the search pattern.
-  ":50", -- Max number of items in the command-line history.
-  "<50", -- Max number of lines saved for each register.
-  "@50", -- Max number of items in the input-line history.
-  "f1",  -- Save all file marks
-  "h",   -- Disable the effect of hlsearch when loading the shada file.
+  '"50',                   -- Max number of lines saved for each register.
+  "'50",                   -- Remember marks for the last 10 edited files.
+  "/50",                   -- Max number of items in the search pattern.
+  ":50",                   -- Max number of items in the command-line history.
+  "<50",                   -- Max number of lines saved for each register.
+  "@50",                   -- Max number of items in the input-line history.
+  "f1",                    -- Save all file marks
+  "h",                     -- Disable the effect of hlsearch when loading the shada file.
 }
 vim.opt.shortmess:append({ -- Don't show messages:
   A = true,                -- When a swap file is found.
   C = true,                -- When scanning for "ins-completion" items.
   F = true,                -- File info when editing a file.
   I = true,                -- Skip intro message.
-  S = true,                -- Search messages, using nvim-hlslens instead.
+  S = false,               -- Search messages, using nvim-hlslens instead.
   W = true,                -- When writing a file.
   a = true,                -- Use abbreviations
   c = true,                -- 'ins-completion-menu' messages.

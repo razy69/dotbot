@@ -7,7 +7,13 @@
 
 require("neorg").setup({
   load = {
-    ["core.defaults"] = {},
+    ["core.defaults"] = {
+      config = {
+        disable = {
+          "core.clipboard",
+        }
+      }
+    },
     ["core.concealer"] = {},
     ["core.completion"] = {
       config = { engine = { module_name = "external.lsp-completion" } },

@@ -45,13 +45,22 @@ local capabilities = vim.tbl_deep_extend(
 vim.lsp.config("*", {
   capabilities = capabilities,
   root_markers = { ".git" },
-  -- on_attach = function(client, bufnr)
-  --   local workspace_diag = utils.prequire("workspace-diagnostics")
-  --   -- Workspace diagnostic
-  --   if workspace_diag then
-  --     workspace_diag.populate_workspace_diagnostics(client, bufnr)
-  --   end
-  -- end
+  on_attach = function(client, bufnr)
+    if not client then
+      vim.notify_once("LSP inlay hints attached failed: nil client.", vim.log.levels.ERROR)
+      return
+    end
+
+    if client:supports_method("textDocument/inlayHint") or client.server_capabilities.inlayHintProvider then
+      vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+    end
+
+    -- local workspace_diag = utils.prequire("workspace-diagnostics")
+    -- -- Workspace diagnostic
+    -- if workspace_diag then
+    --   workspace_diag.populate_workspace_diagnostics(client, bufnr)
+    -- end
+  end
 })
 
 
@@ -59,7 +68,7 @@ vim.lsp.config("*", {
 local autocmd_utils = require("utilities.autocmd")
 local fzf_lua = utils.prequire("fzf-lua")
 local fzf_lua_actions = utils.prequire("fzf-lua.actions")
--- local hlargs = utils.prequire("hlargs")
+local hlargs = utils.prequire("hlargs")
 
 local autocmd_lsp_group = autocmd_utils.augroup("Lsp")
 
@@ -80,23 +89,18 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.wo[win][0].foldexpr = "v:lua.vim.lsp.foldexpr()"
     end
 
-    -- Inlay hints
-    -- if client:supports_method("textDocument/inlayHint") then
-    --   vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-    -- end
-
     if client:supports_method("definitionProvider") then
       vim.bo[bufnr].tagfunc = "v:lua.vim.lsp.tagfunc"
     end
 
     client.server_capabilities.semanticTokensProvider = nil
     -- If a language server with semantic token capabilities is attached to a buffer (credit to @perrin4869)
-    -- if hlargs then
-    --   local caps = client.server_capabilities
-    --   if caps and caps.semanticTokensProvider and caps.semanticTokensProvider.full then
-    --     hlargs.disable_buf(bufnr)
-    --   end
-    -- end
+    if hlargs then
+      local caps = client.server_capabilities
+      if caps and caps.semanticTokensProvider and caps.semanticTokensProvider.full then
+        hlargs.disable_buf(bufnr)
+      end
+    end
 
     if fzf_lua and fzf_lua_actions then
       -- Jumps to the declaration of the symbol under the cursor.

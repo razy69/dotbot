@@ -67,12 +67,6 @@ require("lualine").setup({
           vim.api.nvim_command("Trouble diagnostics")
         end
       },
-      {
-        function()
-          local arrow_status = utils.prequire("arrow.statusline")
-          return arrow_status and arrow_status.text_for_statusline_with_icons() or ""
-        end
-      },
     },
     lualine_c = {
       {

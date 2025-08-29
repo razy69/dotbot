@@ -5,7 +5,6 @@
 ]]
 
 require("snacks").setup({
-  animate = { enabled = true },
   bigfile = { enabled = true },
   dashboard = {
     enabled = true,
@@ -45,11 +44,7 @@ require("snacks").setup({
       enabled = false,
     },
   },
-  input = { enabled = true },
   notifier = { enabled = true },
-  quickfile = { enabled = true },
-  rename = { enabled = true },
-  scratch = { enabled = false },
   scroll = { enabled = true },
   statuscolumn = {
     enabled = true,

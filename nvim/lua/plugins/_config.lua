@@ -20,26 +20,6 @@ return {
     },
   },
 
-  -- Terragrunt LS
-  {
-    "gruntwork-io/terragrunt-ls",
-    -- To use a local version of the Neovim plugin, you can use something like following:
-    -- dir = vim.fn.expand '~/repos/src/github.com/gruntwork-io/terragrunt-ls',
-    ft = "hcl",
-    config = function()
-      local terragrunt_ls = require("terragrunt-ls")
-      terragrunt_ls.setup({})
-      if terragrunt_ls.client then
-        vim.api.nvim_create_autocmd("FileType", {
-          pattern = "hcl",
-          callback = function()
-            vim.lsp.buf_attach_client(0, terragrunt_ls.client)
-          end,
-        })
-      end
-    end,
-  },
-
   -- Manage external editor tooling
   {
     "mason-org/mason-lspconfig.nvim",
@@ -49,11 +29,6 @@ return {
       { "mason-org/mason.nvim", opts = {} },
       {
         "Bekaboo/dropbar.nvim",
-        -- optional, but required for fuzzy finder support
-        dependencies = {
-          "nvim-telescope/telescope-fzf-native.nvim",
-          build = "make"
-        },
         config = function()
           local dropbar_api = require("dropbar.api")
           vim.keymap.set("n", ";", dropbar_api.pick, { desc = "Pick symbols in winbar" })
@@ -73,7 +48,11 @@ return {
     event = { "InsertEnter" },
     version = "*",
     dependencies = {
-      "L3MON4D3/LuaSnip",
+      "mikavilpas/blink-ripgrep.nvim",
+      {
+        "L3MON4D3/LuaSnip",
+        build = "make install_jsregexp",
+      },
       "rafamadriz/friendly-snippets",
     },
     config = function()
@@ -131,15 +110,6 @@ return {
           detached = false,
         },
       })
-    end,
-  },
-  {
-    "mfussenegger/nvim-dap-python",
-    ft = "python",
-    dependencies = { "mfussenegger/nvim-dap" },
-    opts = {},
-    config = function()
-      require("dap-python").setup("uv")
     end,
   },
   {
@@ -282,44 +252,6 @@ return {
     end
   },
 
-  -- Undotree
-  {
-    "y3owk1n/time-machine.nvim",
-    cmd = {
-      "TimeMachineToggle",
-      "TimeMachinePurgeBuffer",
-      "TimeMachinePurgeAll",
-      "TimeMachineLogShow",
-      "TimeMachineLogClear",
-    },
-    opts = {},
-    keys = {
-      {
-        "<leader>wt",
-        "<cmd>TimeMachineToggle<cr>",
-        desc = "[W]ayback Time Machine [t]oggle",
-      },
-      {
-        "<leader>wp",
-        "<cmd>TimeMachinePurgeCurrent<cr>",
-        desc = "[W]ayback Time Machine [p]urge current",
-      },
-      {
-        "<leader>wP",
-        "<cmd>TimeMachinePurgeAll<cr>",
-        desc = "[W]ayback Time Machine [P]urge all",
-      },
-      {
-        "<leader>wl",
-        "<cmd>TimeMachineLogShow<cr>",
-        desc = "[W]ayback Time Machine Show [l]og",
-      },
-    },
-  },
-
-  -- Cursor
-  { "danilamihailov/beacon.nvim" },
-
   -- Statusbar
   {
     "nvim-lualine/lualine.nvim",
@@ -331,6 +263,7 @@ return {
   -- Tabline
   {
     "akinsho/bufferline.nvim",
+    after = "catppuccin",
     version = "*",
     dependencies = "nvim-tree/nvim-web-devicons",
     config = function()
@@ -342,7 +275,7 @@ return {
           show_buffer_close_icons = true,
           show_buffer_icons = true,
         },
-        highlights = require("catppuccin.groups.integrations.bufferline").get({
+        highlights = require("catppuccin.groups.integrations.bufferline").get_theme({
           styles = { "bold" },
           custom = {
             palette = {
@@ -490,6 +423,7 @@ return {
   {
     "JoosepAlviste/nvim-ts-context-commentstring",
     event = lazyFile,
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
     opts = {},
   },
 
@@ -501,18 +435,6 @@ return {
     config = function()
       require("plugins.neogen_")
     end,
-  },
-
-  -- Mark utility
-  {
-    "otavioschwanck/arrow.nvim",
-    event = lazyFile,
-    dependencies = { "echasnovski/mini.icons" },
-    opts = {
-      show_icons = true,
-      leader_key = "M",
-      buffer_leader_key = "m",
-    },
   },
 
   -- Icons
@@ -528,15 +450,6 @@ return {
         return package.loaded["nvim-web-devicons"]
       end
     end,
-  },
-
-  -- Highlight color
-  {
-    "norcalli/nvim-colorizer.lua",
-    event = lazyFile,
-    init = function()
-      require("colorizer").setup({ "css", "javascript", "html", "tmux" })
-    end
   },
 
   -- Vim motion helper
@@ -698,6 +611,24 @@ return {
     config = function()
       require("plugins.which_key_")
     end
+  },
+
+  -- Cursor mode
+  {
+    "mvllow/modes.nvim",
+    config = function()
+      require("modes").setup({
+        set_cursorline = true,
+      })
+    end
+  },
+
+  -- Previewer
+  {
+    "WilliamHsieh/overlook.nvim",
+    opts = {
+      size_ratio = 0.8,
+    },
   },
 
   -- Colorscheme

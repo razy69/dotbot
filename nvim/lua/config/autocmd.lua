@@ -17,15 +17,6 @@ vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
   end,
 })
 
--- Highlight on yank
-local highlight_group = autocmd_utils.augroup("highlight")
-vim.api.nvim_create_autocmd("TextYankPost", {
-  group = highlight_group,
-  callback = function()
-    vim.highlight.on_yank({ timeout = 50 })
-  end,
-})
-
 -- Resize splits if window got resized
 local window_group = autocmd_utils.augroup("window")
 vim.api.nvim_create_autocmd("VimResized", {
@@ -43,21 +34,21 @@ vim.api.nvim_create_autocmd("VimResized", {
 })
 
 -- Show cursor line only in active window
-vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
-  group = window_group,
-  callback = function(event)
-    if vim.api.nvim_buf_is_valid(event.buf) and vim.bo[event.buf].buftype == "" then
-      vim.opt_local.cursorline = true
-    end
-  end,
-})
-
-vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
-  group = autocmd_utils.augroup("auto_cursorline_hide"),
-  callback = function()
-    vim.opt_local.cursorline = false
-  end,
-})
+-- vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
+--   group = window_group,
+--   callback = function(event)
+--     if vim.api.nvim_buf_is_valid(event.buf) and vim.bo[event.buf].buftype == "" then
+--       vim.opt_local.cursorline = true
+--     end
+--   end,
+-- })
+--
+-- vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
+--   group = autocmd_utils.augroup("auto_cursorline_hide"),
+--   callback = function()
+--     vim.opt_local.cursorline = false
+--   end,
+-- })
 
 -- Go to last loc when opening a buffer, see ":h last-position-jump"
 local buffer_group = autocmd_utils.augroup("buffer")
@@ -85,6 +76,21 @@ vim.api.nvim_create_autocmd({ "BufWinEnter", "FileType" }, {
       vim.api.nvim_win_set_cursor(0, { line, col })
     end
   end
+})
+
+-- Disable cursor
+local neotree = autocmd_utils.augroup("neotree")
+vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
+  group = neotree,
+  callback = function()
+    local filetypes = { "neo-tree" }
+
+    if not vim.tbl_contains(filetypes, vim.bo.filetype) then
+      return
+    end
+
+    vim.opt.cursorline = true
+  end,
 })
 
 -- Auto create dir when saving a file, in case some intermediate directory does not exist

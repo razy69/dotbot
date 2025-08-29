@@ -44,13 +44,20 @@ export FZF_DEFAULT_OPTS=" \
 --bind=ctrl-w:preview-up,ctrl-s:preview-down,ctrl-i:preview-half-page-up,ctrl-k:preview-half-page-down,ctrl-u:preview-top,ctrl-o:preview-bottom"
 
 # GPG or SSH Agent
-if command -v gpg-agent &> /dev/null; then
-  gpg-connect-agent /bye &> /dev/null
-  export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-  export GPG_TTY=$(tty)
-else
+if ! command -v gpg-agent &> /dev/null; then
   eval "$(ssh-agent -s)"
   ssh-add
+else
+  unset GPG_AGENT_INFO SSH_AGENT_PID SSH_AUTH_SOCK
+
+  export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+  export GPG_TTY=$(tty)
+
+  if ! pgrep gpg-agent &> /dev/null; then
+    gpgconf --launch gpg-agent 2>/dev/null
+  fi
+
+  gpg-connect-agent updatestartuptty /bye > /dev/null
 fi
 
 autoload -U colors && colors

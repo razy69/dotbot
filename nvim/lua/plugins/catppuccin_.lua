@@ -11,7 +11,7 @@ local colors = utils.get_palette()
 require("catppuccin").setup({
   flavour = flavor,
   transparent_background = false, -- disables setting the background color.
-  show_end_of_buffer = true,      -- shows the "~" characters after the end of buffers
+  show_end_of_buffer = false,     -- shows the "~" characters after the end of buffers
   term_colors = true,             -- sets terminal colors (e.g. `g:terminal_color_0`)
   dim_inactive = {
     enabled = true,               -- dims the background color of inactive window
@@ -29,17 +29,15 @@ require("catppuccin").setup({
     blink_cmp = true,
     dap = true,
     dap_ui = true,
-    dropbar = {
-      enabled = true,
-      color_mode = true,
-    },
+    dropbar = { enabled = true, color_mode = true },
     flash = true,
     fzf = true,
     gitsigns = true,
     illuminate = { enabled = true, lsp = false },
     lsp_trouble = true,
+    markdown = true,
     mason = true,
-    native_lsp = { enabled = true, inlay_hints = { background = true } },
+    native_lsp = { enabled = true, inlay_hints = { background = false } },
     neotest = true,
     neotree = true,
     noice = true,
@@ -66,7 +64,9 @@ require("catppuccin").setup({
     BlinkCmpSignatureHelpBorder = { fg = colors.blue, bg = colors.base },
     BlinkCmpSource = { fg = colors.lavender },
     FloatBorder = { fg = colors.blue, bg = colors.base },
-    GitSignsCurrentLineBlame = { fg = colors.sapphire },
+    GitSignsCurrentLineBlame = { fg = colors.sky, bg = colors.base },
+    ModesVisual = { fg = colors.mauve, bg = colors.mauve },
+    ModesReplace = { fg = colors.yellow, bg = colors.yellow },
     NoiceMini = { bg = colors.base },
     NormalFloat = { fg = colors.text, bg = colors.base },
     SnacksIndent = { fg = colors.surface1 },
