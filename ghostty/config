@@ -21,7 +21,7 @@ quit-after-last-window-closed = true
 shell-integration = zsh
 shell-integration-features = no-cursor
 
-theme = dark:catppuccin-frappe,light:catppuccin-latte
+theme = dark:catppuccin-frappe.conf,light:catppuccin-latte.conf
 
 window-theme = system
 window-decoration = false

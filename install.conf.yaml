@@ -50,8 +50,10 @@
       path: bat/themes/catppuccin/themes
     ~/.config/delta/themes/catppuccin.gitconfig:
       path: delta/themes/catppuccin/catppuccin.gitconfig
-    ~/.config/ghostty:
-      path: ghostty
+    ~/.config/ghostty/config:
+      path: ghostty/config
+    ~/.config/ghostty/themes:
+      path: ghostty/themes/catppuccin/themes
     ~/.config/k9s:
       path: k9s
     ~/.vim/colors:
