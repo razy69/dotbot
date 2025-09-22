@@ -54,7 +54,7 @@ require("blink.cmp").setup({
       range = "prefix",
     },
     list = {
-      max_items = 50,
+      max_items = 500,
       selection = {
         preselect = false,
         auto_insert = false,

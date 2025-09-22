@@ -86,6 +86,13 @@ return {
       require("plugins.treesitter_")
     end,
   },
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    config = function()
+      require("treesitter-context").setup()
+    end
+  },
 
   -- Auto close buffers
   {
