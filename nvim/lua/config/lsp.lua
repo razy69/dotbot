@@ -40,29 +40,24 @@ local capabilities = vim.tbl_deep_extend(
   }
 )
 
+local enable_hinlay_hints = function(client, bufnr)
+  if not client then
+    vim.notify_once("LSP inlay hints attached failed: nil client.", vim.log.levels.ERROR)
+    return
+  end
+
+  if client:supports_method("textDocument/inlayHint") or client.server_capabilities.inlayHintProvider then
+    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+  end
+end
 
 -- Config
 vim.lsp.config("*", {
   capabilities = capabilities,
   root_markers = { ".git" },
-  on_attach = function(client, bufnr)
-    if not client then
-      vim.notify_once("LSP inlay hints attached failed: nil client.", vim.log.levels.ERROR)
-      return
-    end
-
-    if client:supports_method("textDocument/inlayHint") or client.server_capabilities.inlayHintProvider then
-      vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-    end
-
-    -- local workspace_diag = utils.prequire("workspace-diagnostics")
-    -- -- Workspace diagnostic
-    -- if workspace_diag then
-    --   workspace_diag.populate_workspace_diagnostics(client, bufnr)
-    -- end
-  end
+  -- on_attach = function(client, bufnr)
+  -- end
 })
-
 
 -- Autocmd
 local autocmd_utils = require("utilities.autocmd")

@@ -115,22 +115,6 @@ if trouble then
   })
 end
 
-local workspace_diag = utils.prequire("workspace-diagnostics")
-if workspace_diag then
-  wk.add({
-    {
-      "<leader>xr",
-      function()
-        for _, client in ipairs(vim.lsp.get_clients()) do
-          workspace_diag.populate_workspace_diagnostics(client, 0)
-        end
-      end,
-      desc = "Refresh workspace diagnostices",
-      mode = "n",
-    },
-  })
-end
-
 local noice = utils.prequire("noice")
 if noice then
   wk.add({

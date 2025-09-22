@@ -20,6 +20,23 @@ return {
     },
   },
 
+  -- Symbol Usage
+  {
+    "Wansmer/symbol-usage.nvim",
+    event = "BufReadPre",
+    config = function()
+      require("plugins.symbol_usage_")
+    end
+  },
+
+  -- LSP Garbage Collector
+  {
+    "zeioth/garbage-day.nvim",
+    dependencies = "neovim/nvim-lspconfig",
+    event = "VeryLazy",
+    opts = {},
+  },
+
   -- Manage external editor tooling
   {
     "mason-org/mason-lspconfig.nvim",
@@ -68,6 +85,13 @@ return {
     config = function()
       require("plugins.treesitter_")
     end,
+  },
+
+  -- Auto close buffers
+  {
+    "chrisgrieser/nvim-early-retirement",
+    config = true,
+    event = "VeryLazy",
   },
 
   -- Debugger
@@ -321,9 +345,6 @@ return {
       require("plugins.trouble_")
     end
   },
-  {
-    "artemave/workspace-diagnostics.nvim",
-  },
 
   -- Rainbow delimiters
   {
@@ -404,6 +425,12 @@ return {
     config = function()
       require("plugins.markdown_")
     end,
+  },
+
+  -- Helpfile renderer
+  {
+    "OXY2DEV/helpview.nvim",
+    lazy = false
   },
 
   -- Comments
@@ -621,6 +648,13 @@ return {
         set_cursorline = true,
       })
     end
+  },
+
+  {
+    "max397574/better-escape.nvim",
+    config = function()
+      require("better_escape").setup()
+    end,
   },
 
   -- Previewer
