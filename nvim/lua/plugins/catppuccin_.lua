@@ -8,6 +8,14 @@ local utils = require("utilities.catpuccin")
 local flavor = utils.get_flavor()
 local colors = utils.get_palette()
 
+-- Add custom highlight groups
+vim.api.nvim_set_hl(0, "SymbolUsageRounding", {})
+vim.api.nvim_set_hl(0, "SymbolUsageContent", {})
+vim.api.nvim_set_hl(0, "SymbolUsageRef", {})
+vim.api.nvim_set_hl(0, "SymbolUsageDef", {})
+vim.api.nvim_set_hl(0, "SymbolUsageImpl", {})
+
+-- Configure theme
 require("catppuccin").setup({
   flavour = flavor,
   transparent_background = false, -- disables setting the background color.
@@ -71,6 +79,11 @@ require("catppuccin").setup({
     NormalFloat = { fg = colors.text, bg = colors.base },
     SnacksIndent = { fg = colors.surface1 },
     SnacksIndentScope = { fg = colors.overlay1 },
+    SymbolUsageRounding = { fg = colors.surface0 },
+    SymbolUsageContent = { fg = colors.overlay2, bg = colors.surface0 },
+    SymbolUsageRef = { fg = colors.blue, bg = colors.surface0 },
+    SymbolUsageDef = { fg = colors.yellow, bg = colors.surface0 },
+    SymbolUsageImpl = { fg = colors.mauve, bg = colors.surface0 },
     WhichKey = { fg = colors.yellow },
     WhichKeyDesc = { fg = colors.text },
     WhichKeySeparator = { fg = colors.pink },
@@ -95,7 +108,6 @@ vim.api.nvim_create_user_command(
 )
 
 -- Dap UI signs
-local sign = vim.fn.sign_define
-sign("DapBreakpoint", { text = "●", texthl = "DapBreakpoint", linehl = "", numhl = "" })
-sign("DapBreakpointCondition", { text = "●", texthl = "DapBreakpointCondition", linehl = "", numhl = "" })
-sign("DapLogPoint", { text = "◆", texthl = "DapLogPoint", linehl = "", numhl = "" })
+vim.fn.sign_define("DapBreakpoint", { text = "●", texthl = "DapBreakpoint", linehl = "", numhl = "" })
+vim.fn.sign_define("DapBreakpointCondition", { text = "●", texthl = "DapBreakpointCondition", linehl = "", numhl = "" })
+vim.fn.sign_define("DapLogPoint", { text = "◆", texthl = "DapLogPoint", linehl = "", numhl = "" })

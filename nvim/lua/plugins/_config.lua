@@ -306,7 +306,7 @@ return {
           show_buffer_close_icons = true,
           show_buffer_icons = true,
         },
-        highlights = require("catppuccin.groups.integrations.bufferline").get_theme({
+        highlights = require("catppuccin.special.bufferline").get_theme({
           styles = { "bold" },
           custom = {
             palette = {
