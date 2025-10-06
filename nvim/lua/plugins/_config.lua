@@ -530,26 +530,6 @@ return {
     },
   },
 
-  -- Notes
-  {
-    "nvim-neorg/neorg",
-    dependencies = {
-      {
-        "benlubas/neorg-interim-ls",
-        lazy = true,
-      },
-      {
-        "3rd/image.nvim",
-        lazy = true,
-      },
-    },
-    lazy = true,   -- Disable lazy loading as some `lazy.nvim` distributions set `lazy = true` by default
-    version = "*", -- Pin Neorg to the latest stable release
-    config = function()
-      require("plugins.neorg_")
-    end,
-  },
-
   -- Scratch
   {
     "LintaoAmons/scratch.nvim",

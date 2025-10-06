@@ -22,7 +22,7 @@ add-zsh-hook precmd update_environment_from_tmux
 
 # Utils
 function uuid_gen() {
-  if command -v uuidgen >/dev/null; then
+  if [[ $+commands[fzf] ]]; then
     tr '[:upper:]' '[:lower:]' <<< $(uuidgen)
   else
     python3 -c 'import uuid; print(uuid.uuid4())'

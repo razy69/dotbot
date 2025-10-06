@@ -18,7 +18,6 @@
 --  t	Terminal-Job
 
 local utils = require("utilities.module")
-local win_utils = require("utilities.window")
 local wk = require("which-key")
 
 -- Disable Exising Bindings
@@ -185,13 +184,6 @@ if neotest then
     { "<leader>tt", function() neotest.run.stop() end,                                        desc = "[t]est [t]erminate",    mode = { "n" } },
     { "<leader>td", function() neotest.run.run({ suite = false, strategy = "dap" }) end,      desc = "Debug nearest test",    mode = { "n" } },
     { "<leader>tD", function() neotest.run.run({ vim.fn.expand("%"), strategy = "dap" }) end, desc = "Debug current file",    mode = { "n" } },
-  })
-end
-
-local neorg = utils.prequire("neorg")
-if neorg then
-  wk.add({
-    { "<leader>no", "<cmd>Neorg<cr>", desc = "Neorg", mode = "n" },
   })
 end
 

@@ -1,3 +1,5 @@
+# zmodload zsh/zprof
+
 # Zsh Home
 export ZSH="${HOME}/.zsh"
 export NVIM="${HOME}/.local/share/nvim"
@@ -46,3 +48,5 @@ source "${ZSH}/config/completions.zsh"
 
 # Plugins
 source "${ZSH}/config/plugins.zsh"
+
+# zprof
