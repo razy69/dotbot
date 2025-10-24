@@ -122,9 +122,9 @@ require("blink.cmp").setup({
     default = function()
       local success, node = pcall(vim.treesitter.get_node)
       if success and node and vim.tbl_contains({ "comment", "line_comment", "block_comment" }, node:type()) then
-        return { "buffer", "ripgrep", "path" }
+        return { "buffer", "path" }
       else
-        return { "lazydev", "lsp", "path", "snippets", "buffer", "ripgrep" }
+        return { "lazydev", "lsp", "path", "snippets", "buffer" }
       end
     end,
     providers = {
@@ -153,30 +153,6 @@ require("blink.cmp").setup({
         },
         score_offset = -2,
       },
-      ripgrep = {
-        module = "blink-ripgrep",
-        name = "Ripgrep",
-        opts = {
-          prefix_min_len = 3,
-          project_root_marker = ".git",
-          fallback_to_regex_highlighting = true,
-          backend = {
-            use = "ripgrep",
-            customize_icon_highlight = true,
-            ripgrep = {
-              context_size = 5,
-              max_filesize = "1M",
-              project_root_fallback = true,
-              search_casing = "--ignore-case",
-              additional_rg_options = {},
-              ignore_paths = {},
-              additional_paths = {},
-            },
-          },
-          debug = false,
-        },
-        score_offset = -10,
-      },
     },
   },
   snippets = snippets_opts,
@@ -199,10 +175,5 @@ require("blink.cmp").setup({
     ["<C-n>"] = { "select_next", "fallback" },
     ["<C-b>"] = { "scroll_documentation_up", "fallback" },
     ["<C-f>"] = { "scroll_documentation_down", "fallback" },
-    ["<C-r>"] = {
-      function(cmp)
-        cmp.show({ providers = { "ripgrep" } })
-      end,
-    },
   },
 })

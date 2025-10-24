@@ -65,7 +65,6 @@ return {
     event = { "InsertEnter" },
     version = "*",
     dependencies = {
-      "mikavilpas/blink-ripgrep.nvim",
       {
         "L3MON4D3/LuaSnip",
         build = "make install_jsregexp",
@@ -650,6 +649,17 @@ return {
     opts = {
       size_ratio = 0.8,
     },
+  },
+
+  -- Search and replace
+  {
+    "MagicDuck/grug-far.nvim",
+    event = lazyFile,
+    config = function()
+      require("grug-far").setup({
+        windowCreationCommand = "bot split",
+      })
+    end
   },
 
   -- Colorscheme
