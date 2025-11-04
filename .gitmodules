@@ -1,19 +1,6 @@
 [submodule "dotbot"]
   path = dotbot
   url = https://github.com/anishathalye/dotbot
-  ignore = dirty
-[submodule "tmux/tmux/plugins/tmux-continuum"]
-  path = tmux/tmux/plugins/tmux-continuum
-  url = https://github.com/tmux-plugins/tmux-continuum.git
-[submodule "tmux/tmux/plugins/tmux-resurrect"]
-  path = tmux/tmux/plugins/tmux-resurrect
-  url = https://github.com/tmux-plugins/tmux-resurrect.git
-[submodule "tmux/tmux/plugins/tmux-prefix-highlight"]
-  path = tmux/tmux/plugins/tmux-prefix-highlight
-  url = https://github.com/tmux-plugins/tmux-prefix-highlight
-[submodule "tmux/tmux/plugins/tpm"]
-  path = tmux/tmux/plugins/tpm
-  url = https://github.com/tmux-plugins/tpm.git
 [submodule "zsh/plugins/zsh-autosuggestions"]
   path = zsh/plugins/zsh-autosuggestions
   url = http://github.com/zsh-users/zsh-autosuggestions.git
@@ -42,5 +29,5 @@
 	path = zsh/plugins/zsh-z
 	url = https://github.com/agkozak/zsh-z
 [submodule "ghostty/themes/catppuccin"]
-	path = ghostty/theme/catppuccin
+	path = ghostty/themes/catppuccin
 	url = https://github.com/catppuccin/ghostty

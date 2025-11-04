@@ -29,14 +29,6 @@ return {
     end
   },
 
-  -- LSP Garbage Collector
-  {
-    "zeioth/garbage-day.nvim",
-    dependencies = "neovim/nvim-lspconfig",
-    event = "VeryLazy",
-    opts = {},
-  },
-
   -- Manage external editor tooling
   {
     "mason-org/mason-lspconfig.nvim",
@@ -91,13 +83,6 @@ return {
     config = function()
       require("treesitter-context").setup()
     end
-  },
-
-  -- Auto close buffers
-  {
-    "chrisgrieser/nvim-early-retirement",
-    config = true,
-    event = "VeryLazy",
   },
 
   -- Debugger
@@ -228,6 +213,7 @@ return {
     opts = {
       lsp_keymaps = false,
       lsp_inlay_hints = { enable = false },
+      diagnostic = false,
     },
     config = function(_, opts)
       require("go").setup(opts)
@@ -287,6 +273,43 @@ return {
     "nvim-lualine/lualine.nvim",
     config = function()
       require("plugins.lualine_")
+    end,
+  },
+
+  -- Better diagnostics line
+  {
+    "rachartier/tiny-inline-diagnostic.nvim",
+    event = "VeryLazy",
+    priority = 1000,
+    config = function()
+      require("tiny-inline-diagnostic").setup({
+        preset = "simple",
+        signs = {
+          diag = "●",
+          arrow = "    ",
+          up_arrow = " ",
+        },
+        options = {
+          enable_on_insert = false,
+          throttle = 20,
+          set_arrow_to_diag_color = false,
+          show_source = {
+            enabled = true,
+            if_many = false,
+          },
+          add_messages = {
+            messages = true,
+            display_count = true,
+          },
+          multilines = {
+            enabled = true,
+            always_show = true,
+            trim_whitespaces = true,
+          },
+        },
+      })
+      vim.diagnostic.config({ virtual_text = false }) -- Disable Neovim's default virtual text diagnostics
+      vim.diagnostic.open_float = require("tiny-inline-diagnostic.override").open_float
     end,
   },
 

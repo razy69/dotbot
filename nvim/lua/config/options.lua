@@ -197,6 +197,7 @@ vim.opt.splitright = true -- Put new vertical splits to right
 vim.opt.sessionoptions = { "blank", "buffers", "curdir", "folds", "help", "winpos", "winsize", "resize", "terminal" }
 
 vim.diagnostic.config({
+  underline = true,
   signs = {
     active = true,
     text = {

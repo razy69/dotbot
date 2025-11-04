@@ -38,6 +38,12 @@
       path: zsh/keymaps
     ~/.tmux.conf:
       path: tmux/tmux.conf
+    ~/.tmux.theme.conf:
+      path: tmux/tmux.theme.conf
+    ~/.tmux.dark.theme.conf:
+      path: tmux/tmux.dark.theme.conf
+    ~/.tmux.light.theme.conf:
+      path: tmux/tmux.light.theme.conf
     ~/.tmux:
       path: tmux/tmux
     ~/.config/mise:

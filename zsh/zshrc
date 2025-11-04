@@ -49,4 +49,5 @@ source "${ZSH}/config/completions.zsh"
 # Plugins
 source "${ZSH}/config/plugins.zsh"
 
-# zprof
+# Change theme mode
+set_theme_mode $THEME_MODE
