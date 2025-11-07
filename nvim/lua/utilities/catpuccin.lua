@@ -8,10 +8,6 @@ local M = {}
 -- Get catppuccin flavor in function of vim.o.background
 ---@return string
 function M.get_flavor()
-  if vim.env.THEME_MODE == 'light' then
-    vim.o.background = 'light'
-  end
-
   return (vim.o.background == "dark") and "frappe" or "latte"
 end
 

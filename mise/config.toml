@@ -1,7 +1,9 @@
 [settings]
 activate_aggressive = true
 paranoid = false
-python_compile = true
+
+[settings.python]
+compile = false
 
 [tools]
 "ubi:ogham/exa" = "latest"

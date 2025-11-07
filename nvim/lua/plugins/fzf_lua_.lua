@@ -46,7 +46,7 @@ fzf_lua.setup({
         "--color=always --smart-case -g '!{.git,node_modules}/*'", -- sort results (to be always in the same order, may impact perf)
     rg_glob        = true,                                         -- enable glob parsing by default to all
     glob_flag      = "--iglob",                                    -- for case sensitive globs use '--glob'
-    glob_separator = "%s%-%-"                                      -- query separator pattern (lua): ' --'
+    glob_separator = "%s%-%-",                                     -- query separator pattern (lua): ' --'
   },
 })
 

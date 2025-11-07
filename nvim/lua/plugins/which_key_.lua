@@ -194,6 +194,13 @@ if code_action then
   })
 end
 
+local neorg = utils.prequire("neorg")
+if neorg then
+  wk.add({
+    { "<leader>no", "<cmd>Neorg<cr>", desc = "Neorg", mode = "n" },
+  })
+end
+
 local undo_glow = utils.prequire("undo-glow")
 if undo_glow then
   wk.add({

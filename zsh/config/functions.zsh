@@ -10,14 +10,14 @@ precmd_functions+=(_fix_cursor)
 
 
 # Tmux env vars
-function update_environment_from_tmux() {
-  if [ -n "${TMUX}" ]; then
-    eval "$(tmux show-environment -s)"
-  fi
+function _update_environment_from_tmux() {
+  eval "$(tmux show-environment -s)"
 }
 
-autoload -zU add-zsh-hook
-add-zsh-hook precmd update_environment_from_tmux
+if [ -n "${TMUX}" ]; then
+  autoload -zU add-zsh-hook
+  add-zsh-hook preexec _update_environment_from_tmux
+fi
 
 
 # Utils
@@ -43,7 +43,6 @@ function tmux_new() {
     || tmux -L "${TMUX_ENV}" new-session -s "${TMUX_ENV}" -c "${PWD}"
 }
 
-
 function tmux_kill() {
   if [ $# -eq 1 ]; then
     TMUX_ENV="${1}"
@@ -54,6 +53,61 @@ function tmux_kill() {
   tmux -L "${TMUX_ENV}" kill-server
 }
 
+# Theme
+
+function _set_macos_dark_mode {
+  DM=$(osascript -e 'tell app "System Events" to tell appearance preferences to dark mode')
+
+  if [[ $1 == 1 && "${DM}" == "false" ]]; then 
+    osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to true'
+  elif [[ $1 == 0 && "${DM}" == "true" ]]; then
+    osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to false'
+  fi
+}
+
+function set_theme_mode {
+  if [[ "${1}" == "dark" ]]; then
+    export FZF_DEFAULT_OPTS=$FZF_OPTS_DARK_MODE
+
+    if [[ "${OSTYPE}" == "darwin"* ]]; then
+      _set_macos_dark_mode 1
+    fi
+
+    git config --global delta.features catppuccin-frappe
+
+    if [[ "${THEME_MODE}" != "dark" ]]; then
+      echo "dark" > ~/.theme_mode
+      export THEME_MODE="dark"
+    fi
+  else
+    export FZF_DEFAULT_OPTS=$FZF_OPTS_LIGHT_MODE
+
+    if [[ "${OSTYPE}" == "darwin"* ]]; then
+      _set_macos_dark_mode 0
+    fi
+
+    git config --global delta.features catppuccin-latte
+
+    if [[ "${THEME_MODE}" != "light" ]]; then
+      echo "light" > ~/.theme_mode
+      export THEME_MODE="light"
+    fi
+  fi
+
+  if [ -n "${TMUX}" ]; then
+    tmux source-file "${HOME}/.tmux.${THEME_MODE}.theme.conf"
+  fi
+}
+
+function tg {
+  if [[ "${THEME_MODE}" == "dark" ]]; then 
+    echo "Light Mode 󰛨 "
+    set_theme_mode "light"
+  else
+    echo "Dark Mode 󰌶 "
+    set_theme_mode "dark"
+  fi
+}
 
 # FZF
 

@@ -1,5 +1,5 @@
 --[[
-  File: lazy_bootstrap.lua
+  File: _bootstrap.lua
   Description: Bootstrap and setup lazy.nvim.
   See: https://github.com/folke/lazy.nvim
 ]]
@@ -44,7 +44,7 @@ require("lazy").setup({
     },
   },
   rocks = {
-    enabled = true,
+    hererocks = true,
   },
   performance = {
     rtp = {
