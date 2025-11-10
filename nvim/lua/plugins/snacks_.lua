@@ -40,7 +40,7 @@ require("snacks").setup({
   },
   image = { enabled = true },
   indent = {
-    enabled = true,
+    enabled = false,
     animate = {
       enabled = false,
     },

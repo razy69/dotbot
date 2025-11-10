@@ -651,6 +651,21 @@ return {
     end,
   },
 
+  -- Indent guide
+  {
+    "saghen/blink.indent",
+    config = function ()
+      require("blink.indent").setup({
+        static = {
+          char = "▏",
+        },
+        scope = {
+          char = "▏",
+        }
+      })
+    end
+  },
+
   -- Detect file indentation
   {
     "NMAC427/guess-indent.nvim",
@@ -658,6 +673,13 @@ return {
     config = function()
       require("guess-indent").setup({})
     end
+  },
+
+  -- Git conflict
+  {
+    "akinsho/git-conflict.nvim",
+    version = "*",
+    config = true,
   },
 
   -- Keybindings Helper
