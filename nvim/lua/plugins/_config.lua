@@ -286,7 +286,7 @@ return {
         preset = "simple",
         signs = {
           diag = "●",
-          arrow = "    ",
+          arrow = "   ",
           up_arrow = " ",
         },
         options = {

@@ -2,7 +2,7 @@
 return {
   cmd = { "ruff", "server" },
   filetypes = { "python" },
-  root_dir = vim.fs.root(0, {
+  root_markers = {
     "ruff.toml",
     ".ruff.toml",
     "pyproject.toml",
@@ -11,8 +11,7 @@ return {
     "requirements.txt",
     "Pipfile",
     ".git",
-  }),
-  single_file_support = true,
+  },
   settings = {
     organizeImports = true,
   },

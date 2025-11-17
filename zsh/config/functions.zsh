@@ -170,6 +170,6 @@ function fztmux() {
   tmux list-sessions |
   sed -E 's/:.*$//' |
   grep -v \"^"$(tmux display-message -p '#S')"\$\" |
-  fzf --reverse --ghost="Session name" --header="Available Sessions:" --height 10 --border-label=" Switch Tmux Session " |
+  fzf --reverse --ghost="Session name" --header="Available Sessions:" --border-label=" Switch Tmux Session " |
   xargs tmux switch-client -t
 }
