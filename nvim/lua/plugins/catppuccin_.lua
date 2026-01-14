@@ -50,7 +50,6 @@ require("catppuccin").setup({
     neotree = true,
     noice = true,
     nvim_surround = true,
-    rainbow_delimiters = true,
     render_markdown = true,
     snacks = { enabled = true },
     treesitter = true,
@@ -74,6 +73,12 @@ require("catppuccin").setup({
     BlinkIndentOrange = { fg = colors.flamingo },
     BlinkIndentViolet = { fg = colors.mauve },
     BlinkIndentBlue = { fg = colors.blue },
+    BlinkPairsMatchParen = { fg = colors.red },
+    BlinkPairsUnmatched = { fg = colors.red },
+    BlinkPairsOrange = { fg = colors.flamingo },
+    BlinkPairsPurple = { fg = colors.mauve },
+    BlinkPairGreen = { fg = colors.green },
+    BlinkPairsBlue = { fg = colors.blue },
     FloatBorder = { fg = colors.blue, bg = colors.base },
     GitSignsCurrentLineBlame = { fg = colors.sky, bg = colors.base },
     ModesVisual = { fg = colors.mauve, bg = colors.mauve },
@@ -105,7 +110,6 @@ vim.api.nvim_create_user_command("BackgroundToggle", function()
   package.loaded["plugins.catppuccin_"] = nil
   package.loaded["catppuccin"] = nil
   require("plugins.catppuccin_")
-
 end, { range = true })
 
 -- Dap UI signs

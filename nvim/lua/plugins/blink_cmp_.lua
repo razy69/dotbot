@@ -67,6 +67,7 @@ require("blink.cmp").setup({
       treesitter_highlighting = true,
     },
     menu = {
+      auto_show = true,
       border = "rounded",
       draw = {
         columns = {
@@ -175,5 +176,6 @@ require("blink.cmp").setup({
     ["<C-n>"] = { "select_next", "fallback" },
     ["<C-b>"] = { "scroll_documentation_up", "fallback" },
     ["<C-f>"] = { "scroll_documentation_down", "fallback" },
+    ["<C-space>"] = { "show" },
   },
 })

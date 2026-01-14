@@ -210,7 +210,7 @@ vim.api.nvim_create_autocmd("FileType", {
 local theme_group = autocmd_utils.augroup("theme")
 vim.api.nvim_create_autocmd("VimEnter", {
   group = theme_group,
-  callback = function (_)
+  callback = function(_)
     if vim.env.THEME_MODE == "dark" then
       vim.o.background = "dark"
     else

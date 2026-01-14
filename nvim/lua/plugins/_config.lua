@@ -182,6 +182,18 @@ return {
     end
   },
 
+  -- Linter
+  {
+    "mfussenegger/nvim-lint",
+    event = lazyFile,
+    keys = {
+      { "<leader>L", "<cmd>Lint<cr>", desc = "Lint current file", mode = "n" },
+    },
+    config = function()
+      require("plugins.nvim_lint_")
+    end
+  },
+
   -- Undo Glow
   {
     "y3owk1n/undo-glow.nvim",
@@ -395,12 +407,6 @@ return {
     end,
   },
 
-  -- Rainbow delimiters
-  {
-    "HiPhish/rainbow-delimiters.nvim",
-    event = lazyFile,
-  },
-
   -- Highlight arguments
   {
     "m-demare/hlargs.nvim",
@@ -448,13 +454,27 @@ return {
     end,
   },
 
-  -- Autopairs
+  -- Autopairs + Rainbow Delimiters
   {
-    "windwp/nvim-autopairs",
+    "saghen/blink.pairs",
+    version = "*",
+    dependencies = "saghen/blink.download",
     event = { "InsertEnter" },
     opts = {
-      enable_check_bracket_line = true,
-      check_ts = true,
+      mappings = {
+        enabled = true,
+        cmdline = false,
+      },
+      highlights = {
+        enabled = true,
+        cmdline = false,
+        groups = {
+          "BlinkPairsOrange",
+          "BlinkPairsPurple",
+          "BlinkPairGreen",
+          "BlinkPairsBlue",
+        },
+      },
     },
   },
 
@@ -654,7 +674,7 @@ return {
   -- Indent guide
   {
     "saghen/blink.indent",
-    config = function ()
+    config = function()
       require("blink.indent").setup({
         static = {
           char = "▏",
@@ -725,6 +745,20 @@ return {
         windowCreationCommand = "bot split",
       })
     end
+  },
+
+  -- Tips
+  {
+    "saxon1964/neovim-tips",
+    version = "*",
+    lazy = false,
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "MeanderingProgrammer/render-markdown.nvim", -- Clean rendering
+    },
+    opts = {
+      daily_tip = 1, -- 0 = off, 1 = once per day, 2 = every startup
+    },
   },
 
   -- Colorscheme

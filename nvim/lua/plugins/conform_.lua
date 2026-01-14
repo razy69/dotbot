@@ -20,11 +20,11 @@ conform.setup({
   },
   formatter_by_ft = {
     ["_"] = { "trim_newlines", "trim_whitespace" },
+    go = { "goimports", "gofmt" },
+    json = { "fixjson" },
     lua = { "stylua" },
     python = { "isort", "ruff_format" },
     rust = { "rustfmt", lsp_format = "fallback" },
-    json = { "fixjson" },
-    go = { "goimports", "gofmt" },
     sh = { "shfmt" },
     terraform = { "terraform_fmt" },
     yaml = { "yamlfix" },
