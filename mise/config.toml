@@ -6,8 +6,8 @@ paranoid = false
 compile = false
 
 [tools]
-"ubi:ogham/exa" = "latest"
-"ubi:solidiquis/erdtree" = { version = "latest", exe = "erd" }
+"github:ogham/exa" = "latest"
+"github:solidiquis/erdtree" = { version = "latest", exe = "erd" }
 bat = "latest"
 delta = "latest"
 fd = "latest"

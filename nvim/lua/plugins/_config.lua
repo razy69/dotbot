@@ -761,6 +761,30 @@ return {
     },
   },
 
+  -- CodeCompanion
+  {
+    "olimorris/codecompanion.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+      {
+        "ravitemer/mcphub.nvim",
+        build = "npm install -g mcp-hub@latest",
+        config = function()
+          require("mcphub").setup({
+            log = {
+              level = vim.log.levels.WARN,
+            },
+          })
+        end,
+      },
+    },
+    config = function()
+      require("plugins.codecompanion_")
+    end
+  },
+
+
   -- Colorscheme
   {
     "catppuccin/nvim",

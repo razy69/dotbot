@@ -326,3 +326,11 @@ if overlook then
     { "<leader>po", function() overlook.open_in_original_window() end, desc = "Open popup in current window", mode = { "n" } },
   })
 end
+
+local codecompanion = utils.prequire("codecompanion")
+if codecompanion then
+  wk.add({
+    { "<leader>aa", "<cmd>CodeCompanionChat<cr>",    desc = "Codecompanion chat toggle", mode = { "n" } },
+    { "<leader>ac", "<cmd>CodeCompanionActions<cr>", desc = "Codecompanion actions",     mode = { "n" } },
+  })
+end
