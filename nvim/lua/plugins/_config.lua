@@ -23,7 +23,7 @@ return {
   -- Symbol Usage
   {
     "Wansmer/symbol-usage.nvim",
-    event = "BufReadPre",
+    event = { "BufReadPre" },
     config = function()
       require("plugins.symbol_usage_")
     end
@@ -35,9 +35,13 @@ return {
     lazy = false,
     opts = {},
     dependencies = {
-      { "mason-org/mason.nvim", opts = {} },
+      {
+        "mason-org/mason.nvim",
+        lazy = true,
+      },
       {
         "Bekaboo/dropbar.nvim",
+        event = lazyFile,
         config = function()
           local dropbar_api = require("dropbar.api")
           vim.keymap.set("n", ";", dropbar_api.pick, { desc = "Pick symbols in winbar" })
@@ -59,6 +63,7 @@ return {
     dependencies = {
       {
         "L3MON4D3/LuaSnip",
+        lazy = true,
         build = "make install_jsregexp",
       },
       "rafamadriz/friendly-snippets",
@@ -79,7 +84,9 @@ return {
   },
   {
     "nvim-treesitter/nvim-treesitter-context",
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    dependencies = {
+      { "nvim-treesitter/nvim-treesitter" },
+    },
     config = function()
       require("treesitter-context").setup()
     end
@@ -90,8 +97,14 @@ return {
     "rcarriga/nvim-dap-ui",
     event = { "VeryLazy" },
     dependencies = {
-      "nvim-neotest/nvim-nio",
-      "mfussenegger/nvim-dap",
+      {
+        "nvim-neotest/nvim-nio",
+        lazy = true,
+      },
+      {
+        "mfussenegger/nvim-dap",
+        lazy = true,
+      },
     },
     config = function()
       local dap = require("dap")
@@ -118,7 +131,12 @@ return {
   {
     "leoluz/nvim-dap-go",
     ft = "go",
-    dependencies = { "mfussenegger/nvim-dap" },
+    dependencies = {
+      {
+        "mfussenegger/nvim-dap",
+        lazy = true,
+      },
+    },
     config = function()
       require("dap-go").setup({
         delve = {
@@ -136,19 +154,41 @@ return {
   -- Test
   {
     "nvim-neotest/neotest",
-    event = { "VeryLazy" },
+    cmd = { "Notest" },
     dependencies = {
-      "nvim-neotest/nvim-nio",
-      "nvim-lua/plenary.nvim",
-      "antoinemadec/FixCursorHold.nvim",
-      "nvim-treesitter/nvim-treesitter",
-      "nvim-neotest/neotest-plenary",
-      "nvim-neotest/neotest-vim-test",
-      "andythigpen/nvim-coverage", -- Added dependency
+      {
+        "nvim-neotest/nvim-nio",
+        lazy = true,
+      },
+      {
+        "nvim-lua/plenary.nvim",
+        lazy = true,
+      },
+      {
+        "antoinemadec/FixCursorHold.nvim",
+        lazy = true,
+      },
+      {
+        "nvim-treesitter/nvim-treesitter",
+        lazy = true,
+      },
+      {
+        "nvim-neotest/neotest-plenary",
+        lazy = true,
+      },
+      {
+        "nvim-neotest/neotest-vim-test",
+        lazy = true,
+      },
+      {
+        "andythigpen/nvim-coverage",
+        lazy = true,
+      },
       {
         "fredrikaverpil/neotest-golang",
+        lazy = true,
         dependencies = {
-          "leoluz/nvim-dap-go",
+          { "leoluz/nvim-dap-go", lazy = true },
         },
       },
     },
@@ -197,7 +237,7 @@ return {
   -- Undo Glow
   {
     "y3owk1n/undo-glow.nvim",
-    event = { "VeryLazy" },
+    event = lazyFile,
     config = function()
       require("plugins.undo_glow_")
     end
@@ -206,6 +246,7 @@ return {
   -- Improve clipboard
   {
     "EtiamNullam/deferred-clipboard.nvim",
+    event = lazyFile,
     config = function()
       require("deferred-clipboard").setup {
         lazy = true,
@@ -218,9 +259,18 @@ return {
   {
     "ray-x/go.nvim",
     dependencies = { -- optional packages
-      "ray-x/guihua.lua",
-      "neovim/nvim-lspconfig",
-      "nvim-treesitter/nvim-treesitter",
+      {
+        "ray-x/guihua.lua",
+        lazy = true,
+      },
+      {
+        "neovim/nvim-lspconfig",
+        lazy = true,
+      },
+      {
+        "nvim-treesitter/nvim-treesitter",
+        lazy = true,
+      },
     },
     opts = {
       lsp_keymaps = false,
@@ -239,7 +289,7 @@ return {
       })
     end,
     event = { "CmdlineEnter" },
-    ft = { "go", "gomod" },
+    ft = { "go", "gomod", "godoc" },
     build = ":lua require('go.install').update_all_sync()" -- if you need to install/update all binaries
   },
 
@@ -248,7 +298,7 @@ return {
     "folke/noice.nvim",
     lazy = false,
     dependencies = {
-      "MunifTanjim/nui.nvim",
+      { "MunifTanjim/nui.nvim" },
     },
     config = function()
       require("plugins.noice_")
@@ -269,7 +319,7 @@ return {
   -- Bool
   {
     "nat-418/boole.nvim",
-    event = { "VeryLazy" },
+    event = lazyFile,
     config = function()
       require("boole").setup({
         mappings = {
@@ -283,6 +333,7 @@ return {
   -- Statusbar
   {
     "nvim-lualine/lualine.nvim",
+    lazy = false,
     config = function()
       require("plugins.lualine_")
     end,
@@ -291,7 +342,7 @@ return {
   -- Better diagnostics line
   {
     "rachartier/tiny-inline-diagnostic.nvim",
-    event = "VeryLazy",
+    event = { "LspAttach" },
     priority = 1000,
     config = function()
       require("tiny-inline-diagnostic").setup({
@@ -330,7 +381,10 @@ return {
     "akinsho/bufferline.nvim",
     after = "catppuccin",
     version = "*",
-    dependencies = "nvim-tree/nvim-web-devicons",
+    dependencies = {
+      { "nvim-tree/nvim-web-devicons" },
+    },
+    lazy = false,
     config = function()
       local utils = require("utilities.catpuccin")
       local palette = utils.get_palette()
@@ -370,8 +424,8 @@ return {
     lazy = false,
     branch = "v3.x",
     dependencies = {
-      "nvim-lua/plenary.nvim",
-      "MunifTanjim/nui.nvim",
+      { "nvim-lua/plenary.nvim" },
+      { "MunifTanjim/nui.nvim" },
     },
     config = function()
       require("plugins.neotree_")
@@ -400,7 +454,8 @@ return {
         lazy = true,
       },
     },
-    lazy = true,   -- Disable lazy loading as some `lazy.nvim` distributions set `lazy = true` by default
+    cmd = { "Neorg" },
+    ft = { "norg" },
     version = "*", -- Pin Neorg to the latest stable release
     config = function()
       require("plugins.neorg_")
@@ -433,7 +488,7 @@ return {
   -- Git signs
   {
     "lewis6991/gitsigns.nvim",
-    event = { "VeryLazy" },
+    event = lazyFile,
     config = function()
       require("plugins.gitsigns_")
     end,
@@ -442,7 +497,9 @@ return {
   -- Split/join code blocks
   {
     "Wansmer/treesj",
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    dependencies = {
+      { "nvim-treesitter/nvim-treesitter" },
+    },
     keys = {
       { "<leader>j", "<cmd>TSJToggle<cr>", desc = "Join Toggle" },
     },
@@ -458,7 +515,9 @@ return {
   {
     "saghen/blink.pairs",
     version = "*",
-    dependencies = "saghen/blink.download",
+    dependencies = {
+      { "saghen/blink.download" }
+    },
     event = { "InsertEnter" },
     opts = {
       mappings = {
@@ -490,7 +549,9 @@ return {
     "MeanderingProgrammer/markdown.nvim",
     name = "render-markdown",
     ft = { "markdown" },
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    dependencies = {
+      { "nvim-treesitter/nvim-treesitter" },
+    },
     config = function()
       require("plugins.markdown_")
     end,
@@ -506,7 +567,9 @@ return {
   {
     "folke/todo-comments.nvim",
     event = lazyFile,
-    dependencies = { "nvim-lua/plenary.nvim" },
+    dependencies = {
+      { "nvim-lua/plenary.nvim" },
+    },
     config = function()
       require("plugins.todo_comments_")
     end
@@ -519,7 +582,9 @@ return {
   {
     "JoosepAlviste/nvim-ts-context-commentstring",
     event = lazyFile,
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    dependencies = {
+      { "nvim-treesitter/nvim-treesitter" },
+    },
     opts = {},
   },
 
@@ -527,7 +592,9 @@ return {
   {
     "danymat/neogen",
     event = lazyFile,
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    dependencies = {
+      { "nvim-treesitter/nvim-treesitter" },
+    },
     config = function()
       require("plugins.neogen_")
     end,
@@ -536,7 +603,7 @@ return {
   -- Icons
   {
     "echasnovski/mini.icons",
-    lazy = true,
+    lazy = false,
     specs = {
       { "nvim-tree/nvim-web-devicons", enabled = false, optional = true },
     },
@@ -585,7 +652,7 @@ return {
       { "nvim-lua/plenary.nvim" },
       { "ibhagwan/fzf-lua" },
     },
-    event = "LspAttach",
+    event = { "LspAttach" },
     opts = {
       backend = "delta",
       picker = "select",
@@ -595,10 +662,7 @@ return {
   -- Scratch
   {
     "LintaoAmons/scratch.nvim",
-    cmd = {
-      "Scratch",
-      "ScratchOpen",
-    },
+    cmd = { "Scratch", "ScratchOpen" },
     config = function()
       require("scratch").setup({
         scratch_file_dir = vim.fn.stdpath("cache") .. "/scratch.nvim", -- where your scratch files will be put
@@ -623,20 +687,7 @@ return {
   -- Type from JSON
   {
     "midoBB/nvim-quicktype",
-    cmd = "QuickType",
-    ft = {
-      "typescript",
-      "python",
-      "java",
-      "go",
-      "rust",
-      "cs",
-      "swift",
-      "elixir",
-      "kotlin",
-      "typescriptreact",
-      "dart",
-    },
+    cmd = { "QuickType" },
   },
 
   -- GPG
@@ -664,6 +715,7 @@ return {
   -- Super sort
   {
     "sQVe/sort.nvim",
+    cmd = { "Sort" },
     config = function()
       require("sort").setup({
         -- Optional configuration overrides.
@@ -674,6 +726,7 @@ return {
   -- Indent guide
   {
     "saghen/blink.indent",
+    event = lazyFile,
     config = function()
       require("blink.indent").setup({
         static = {
@@ -698,6 +751,7 @@ return {
   -- Git conflict
   {
     "akinsho/git-conflict.nvim",
+    event = lazyFile,
     version = "*",
     config = true,
   },
@@ -714,6 +768,7 @@ return {
   -- Cursor mode
   {
     "mvllow/modes.nvim",
+    event = lazyFile,
     config = function()
       require("modes").setup({
         set_cursorline = true,
@@ -723,6 +778,7 @@ return {
 
   {
     "max397574/better-escape.nvim",
+    lazy = false,
     config = function()
       require("better_escape").setup()
     end,
@@ -731,6 +787,7 @@ return {
   -- Previewer
   {
     "WilliamHsieh/overlook.nvim",
+    event = lazyFile,
     opts = {
       size_ratio = 0.8,
     },
@@ -751,13 +808,13 @@ return {
   {
     "saxon1964/neovim-tips",
     version = "*",
-    lazy = false,
     dependencies = {
       "MunifTanjim/nui.nvim",
       "MeanderingProgrammer/render-markdown.nvim", -- Clean rendering
     },
+    cmd = { "NeovimTips" },
     opts = {
-      daily_tip = 1, -- 0 = off, 1 = once per day, 2 = every startup
+      daily_tip = 0, -- 0 = off, 1 = once per day, 2 = every startup
     },
   },
 
@@ -765,10 +822,11 @@ return {
   {
     "olimorris/codecompanion.nvim",
     dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
+      { "nvim-lua/plenary.nvim" },
+      { "nvim-treesitter/nvim-treesitter" },
       {
         "ravitemer/mcphub.nvim",
+        lazy = true,
         build = "npm install -g mcp-hub@latest",
         config = function()
           require("mcphub").setup({
@@ -779,11 +837,18 @@ return {
         end,
       },
     },
+    cmd = { "CodeCompanion" },
     config = function()
       require("plugins.codecompanion_")
     end
   },
 
+  -- Markdown TOC
+  {
+    "hedyhli/markdown-toc.nvim",
+    ft = "markdown",  -- Lazy load on markdown filetype
+    cmd = { "Mtoc" }, -- Or, lazy load on "Mtoc" command
+  },
 
   -- Colorscheme
   {

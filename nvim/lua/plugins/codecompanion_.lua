@@ -21,11 +21,10 @@ require("codecompanion").setup({
   },
   strategies = {
     chat = { adapter = llm_adapter },
-    inline = { adapter = llm_adapter },
     cmd = { adapter = llm_adapter },
+    inline = { adapter = llm_adapter },
   },
   adapters = {
-    acp = { show_defaults = false },
     http = {
       opts = { show_defaults = false, show_model_choices = true },
       ovhcloud = function()
