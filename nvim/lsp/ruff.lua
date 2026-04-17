@@ -1,18 +1,21 @@
+-- Python linter via Ruff (diagnostics only, formatting handled by conform)
 ---@type vim.lsp.Config
 return {
   cmd = { "ruff", "server" },
   filetypes = { "python" },
-  root_markers = {
+  root_dir = vim.fs.root(0, {
+    "pyproject.toml",
     "ruff.toml",
     ".ruff.toml",
-    "pyproject.toml",
     "setup.py",
-    "setup.cfg",
-    "requirements.txt",
-    "Pipfile",
     ".git",
-  },
+  }),
+  single_file_support = true,
   settings = {
-    organizeImports = true,
+    ruff = {
+      lint = {
+        enable = true,
+      },
+    },
   },
 }

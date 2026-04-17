@@ -1,3 +1,4 @@
+-- typescript-language-server: TypeScript/TSX LSP wrapper around tsserver
 ---@type vim.lsp.Config
 return {
   cmd = { "typescript-language-server", "--stdio" },

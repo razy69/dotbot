@@ -12,3 +12,6 @@ tmux/tmux/resurrect
 k9s/benchmarks
 k9s/clusters
 k9s/screen-dumps
+
+# Claude
+.claude/

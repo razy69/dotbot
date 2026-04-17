@@ -1,3 +1,4 @@
+-- ansible-language-server: Ansible playbook and role LSP
 ---@type vim.lsp.Config
 return {
   cmd = { "ansible-language-server", "--stdio" },
@@ -9,6 +10,7 @@ return {
       ansible = {
         path = "ansible",
       },
+      -- Disable Ansible Execution Environment (container-based); use local ansible
       executionEnvironment = {
         enabled = false,
       },

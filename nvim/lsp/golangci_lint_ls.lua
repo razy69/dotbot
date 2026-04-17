@@ -1,3 +1,17 @@
+-- golangci-lint-langserver: Bridges golangci-lint with LSP diagnostics
+-- Async version detection: kicks off at require-time, defaults to v2 until resolved.
+local is_v1 = nil
+if vim.fn.executable("go") == 1 then
+  local exe = vim.fn.exepath("golangci-lint")
+  vim.system({ "go", "version", "-m", exe }, {}, function(result)
+    is_v1 = string.match(result.stdout or "", "\tmod\tgithub.com/golangci/golangci%-lint\t") ~= nil
+  end)
+elseif vim.fn.executable("golangci-lint") == 1 then
+  vim.system({ "golangci-lint", "version" }, {}, function(result)
+    is_v1 = string.match(result.stdout or "", "version v?1%.") ~= nil
+  end)
+end
+
 ---@type vim.lsp.Config
 return {
   cmd = { "golangci-lint-langserver" },
@@ -16,19 +30,8 @@ return {
   }),
   before_init = function(_, config)
     -- Add support for golangci-lint V1 (in V2 `--out-format=json` was replaced by
-    -- `--output.json.path=stdout`).
-    local v1
-    -- PERF: `golangci-lint version` is very slow (about 0.1 sec) so let"s find
-    -- version using `go version -m $(which golangci-lint) | grep "^\smod"`.
-    if vim.fn.executable "go" == 1 then
-      local exe = vim.fn.exepath "golangci-lint"
-      local version = vim.system({ "go", "version", "-m", exe }):wait()
-      v1 = string.match(version.stdout, "\tmod\tgithub.com/golangci/golangci%-lint\t")
-    else
-      local version = vim.system({ "golangci-lint", "version" }):wait()
-      v1 = string.match(version.stdout, "version v?1%.")
-    end
-    if v1 then
+    -- `--output.json.path=stdout`). Defaults to v2; overrides only if async detection confirmed v1.
+    if is_v1 == true then
       config.init_options.command = { "golangci-lint", "run", "--out-format", "json" }
     end
   end,

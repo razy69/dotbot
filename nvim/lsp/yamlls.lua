@@ -1,3 +1,4 @@
+-- yaml-language-server: YAML LSP with schema validation (Red Hat)
 ---@type vim.lsp.Config
 return {
   cmd = { "yaml-language-server", "--stdio" },

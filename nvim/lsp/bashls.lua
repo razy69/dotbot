@@ -1,3 +1,4 @@
+-- bash-language-server: Shell script LSP for Bash, Sh, and Zsh
 ---@type vim.lsp.Config
 return {
   cmd = { "bash-language-server", "start" },

@@ -1,3 +1,4 @@
+-- gopls: Official Go language server
 ---@type vim.lsp.Config
 return {
   cmd = { "gopls" },
@@ -18,6 +19,7 @@ return {
       analyses = {
         unusedparams = true,
       },
+      -- Enable all inlay hint categories for Go constructs
       hints = {
         assignVariableTypes = true,
         compositeLiteralFields = true,
