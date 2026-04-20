@@ -292,6 +292,7 @@ end
 --- then replay the original command (preserving bang, range, and arguments).
 ---@param spec PluginSpec Must have spec.cmd set
 local function setup_cmd_trigger(spec)
+  local placeholder_desc = "Lazy: " .. spec.name
   for _, cmd in ipairs(spec.cmd) do
     vim.api.nvim_create_user_command(cmd, function(ctx)
       -- Delete placeholder before loading so the real command can register
@@ -310,9 +311,15 @@ local function setup_cmd_trigger(spec)
         replay = replay .. " " .. ctx.args
       end
       vim.cmd(replay)
-    end, { nargs = "*", range = true, bang = true, desc = "Lazy: " .. spec.name })
+    end, { nargs = "*", range = true, bang = true, desc = placeholder_desc })
+    -- Only remove the placeholder, not a real command of the same name that
+    -- the plugin may have just registered (e.g. sort.nvim registers :Sort
+    -- from plugin/sort.lua, which vim.pack.add sources synchronously).
     add_cleanup(spec.name, function()
-      pcall(vim.api.nvim_del_user_command, cmd)
+      local info = vim.api.nvim_get_commands({})[cmd]
+      if info and info.definition == placeholder_desc then
+        pcall(vim.api.nvim_del_user_command, cmd)
+      end
     end)
   end
 end

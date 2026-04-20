@@ -153,26 +153,127 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- Syntax highlight in :substitute live-preview split ('inccommand=split'). The
--- preview uses a scratch buffer whose filetype is never set, so treesitter's
--- FileType handler never fires. Copy the source buffer's filetype onto the
--- preview buffer when it appears — that trips the FileType autocmd and
--- treesitter attaches.
-vim.api.nvim_create_autocmd("BufNew", {
-  group = utils.augroup("inccommand_preview"),
-  callback = function(ev)
-    local name = vim.api.nvim_buf_get_name(ev.buf)
-    if not name:find("%[Preview%]$") then return end
-    -- Snapshot the source filetype now — the BufNew event fires while the
-    -- source buffer is still current. Apply it after the buffer is fully
-    -- initialised (scheduled tick) so our ft-set wins over any late reset.
-    local source_ft = vim.bo.filetype
-    if source_ft == "" then return end
-    vim.schedule(function()
-      if vim.api.nvim_buf_is_valid(ev.buf) then
-        vim.bo[ev.buf].filetype = source_ft
+-- Enrich :substitute live-preview split ('inccommand=split'). The preview
+-- is drawn into a `[Preview]` buffer, but the window attached to it is
+-- transient and absent from nvim_list_wins/tabpage_list_wins under noice's
+-- cmdpreview hooks. We therefore use a decoration provider: its `on_win`
+-- callback fires per-window-redraw and sees the preview window even when
+-- the Lua enumeration APIs don't. Inside on_win we:
+--   1. copy the source buffer's filetype onto the preview buffer (starts
+--      treesitter via the FileType autocmd in 02-treesitter.lua)
+--   2. conceal the per-line `|<lnum>|` prefix added by Neovim
+--   3. override the window's statuscolumn to show the real source lnum
+local preview_ns = vim.api.nvim_create_namespace("inccommand_preview")
+local preview_source_ft = nil
+
+vim.api.nvim_create_autocmd("CmdlineEnter", {
+  group = utils.augroup("inccommand_preview_cmdline"),
+  pattern = ":",
+  callback = function()
+    local ft = vim.bo.filetype
+    preview_source_ft = ft ~= "" and ft or nil
+  end,
+})
+
+vim.api.nvim_create_autocmd("CmdlineLeave", {
+  group = utils.augroup("inccommand_preview_cmdline_leave"),
+  callback = function() preview_source_ft = nil end,
+})
+
+-- Neovim prefixes each preview line with the source lnum, right-padded so
+-- all line numbers in a batch share the same column width (e.g. `| 4|`,
+-- `|44|`). Return (source_lnum, prefix_byte_len) on match.
+local function parse_preview_prefix(line)
+  local n, rest = line:match("^|%s*(%d+)%s*|%s?()")
+  if n then return tonumber(n), rest - 1 end
+  return nil
+end
+
+vim.api.nvim_set_decoration_provider(preview_ns, {
+  on_win = function(_, winid, bufnr, _, _)
+    if not preview_source_ft then return false end
+    if not vim.api.nvim_buf_is_valid(bufnr) then return false end
+    local name = vim.api.nvim_buf_get_name(bufnr)
+    if not name:match("%[Preview%]$") then return false end
+
+    -- Setting 'filetype' and starting treesitter aren't allowed inside a
+    -- decoration-provider fast callback — defer to vim.schedule. Guard
+    -- against re-scheduling for every redraw by checking current state.
+    if vim.bo[bufnr].filetype ~= preview_source_ft then
+      local b, ft = bufnr, preview_source_ft
+      vim.schedule(function()
+        if not vim.api.nvim_buf_is_valid(b) then return end
+        if vim.bo[b].filetype ~= ft then
+          pcall(function() vim.bo[b].filetype = ft end)
+        end
+        local lang = vim.treesitter.language.get_lang(ft)
+        if lang then pcall(vim.treesitter.start, b, lang) end
+      end)
+    end
+
+    -- Rebuild lnum map + extmarks each redraw (fast-safe APIs).
+    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+    local line_map = {}
+    local line_count = 0
+    vim.api.nvim_buf_clear_namespace(bufnr, preview_ns, 0, -1)
+    for i, line in ipairs(lines) do
+      local src_lnum, prefix_len = parse_preview_prefix(line)
+      if src_lnum and prefix_len and prefix_len > 0 then
+        line_map[tostring(i)] = src_lnum
+        line_count = line_count + 1
+        pcall(vim.api.nvim_buf_set_extmark, bufnr, preview_ns, i - 1, 0, {
+          end_col = prefix_len,
+          conceal = "",
+        })
       end
-    end)
+    end
+
+    -- Count actual match occurrences (one line may contain several).
+    -- Neovim draws its own Substitute-highlighted extmarks on the matches;
+    -- counting those is cheaper than re-parsing the pattern.
+    local match_count = 0
+    local ok_marks, all_marks = pcall(
+      vim.api.nvim_buf_get_extmarks, bufnr, -1, 0, -1, { details = true }
+    )
+    if ok_marks and type(all_marks) == "table" then
+      for _, m in ipairs(all_marks) do
+        local d = m[4]
+        if d and (d.hl_group == "Substitute" or d.hl_group == "IncSearch") then
+          match_count = match_count + 1
+        end
+      end
+    end
+    if match_count == 0 then match_count = line_count end
+
+    -- Overlay the change count at the right edge of the first preview
+    -- line via an extmark. virt_text_pos="right_align" doesn't consume
+    -- layout space, so the statusline and window height stay intact
+    -- (setting 'winbar' was stealing a row and hiding the statusline).
+    if #lines > 0 then
+      local summary = (" %d change%s on %d line%s "):format(
+        match_count, match_count == 1 and "" or "s",
+        line_count, line_count == 1 and "" or "s")
+      pcall(vim.api.nvim_buf_set_extmark, bufnr, preview_ns, 0, 0, {
+        virt_text = { { summary, "Comment" } },
+        virt_text_pos = "right_align",
+        hl_mode = "combine",
+      })
+    end
+
+    -- Window-local vars/options are fast-safe in practice (confirmed by
+    -- statuscolumn and conceal both applying from here).
+    if vim.api.nvim_win_is_valid(winid) then
+      pcall(function() vim.w[winid].inccommand_line_map = line_map end)
+      pcall(function()
+        vim.wo[winid].statuscolumn = "%=%{get(w:inccommand_line_map,string(v:lnum),'')} "
+        vim.wo[winid].conceallevel = 3
+        vim.wo[winid].concealcursor = "nvic"
+        vim.wo[winid].number = false
+        vim.wo[winid].relativenumber = false
+        vim.wo[winid].signcolumn = "no"
+        vim.wo[winid].foldcolumn = "0"
+      end)
+    end
   end,
 })
 

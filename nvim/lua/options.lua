@@ -226,6 +226,7 @@ vim.opt.wildmenu = false -- Disable wildmenu (fzf-lua handles file/command compl
 vim.opt.gdefault = true      -- Apply substitutions globally by default (:s/foo/bar/ acts like :s/foo/bar/g)
 vim.opt.ignorecase = true    -- Case-insensitive search by default
 vim.opt.inccommand = "split" -- Show live substitution preview in a split
+vim.opt.previewheight = 20   -- Preview split can grow to this many lines before scrolling
 -- vim.opt.incsearch is true by default in Neovim
 vim.opt.joinspaces = false   -- Don't insert double spaces after periods when joining lines
 vim.opt.showmatch = true     -- Briefly jump to matching bracket when inserting one
