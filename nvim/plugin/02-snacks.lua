@@ -30,6 +30,7 @@ plugin.add({
                 keys = {
                   ["S"] = "edit_split",
                   ["s"] = "edit_vsplit",
+                  ["t"] = "tab"
                 },
               },
             },

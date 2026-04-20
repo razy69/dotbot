@@ -153,6 +153,29 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Syntax highlight in :substitute live-preview split ('inccommand=split'). The
+-- preview uses a scratch buffer whose filetype is never set, so treesitter's
+-- FileType handler never fires. Copy the source buffer's filetype onto the
+-- preview buffer when it appears — that trips the FileType autocmd and
+-- treesitter attaches.
+vim.api.nvim_create_autocmd("BufNew", {
+  group = utils.augroup("inccommand_preview"),
+  callback = function(ev)
+    local name = vim.api.nvim_buf_get_name(ev.buf)
+    if not name:find("%[Preview%]$") then return end
+    -- Snapshot the source filetype now — the BufNew event fires while the
+    -- source buffer is still current. Apply it after the buffer is fully
+    -- initialised (scheduled tick) so our ft-set wins over any late reset.
+    local source_ft = vim.bo.filetype
+    if source_ft == "" then return end
+    vim.schedule(function()
+      if vim.api.nvim_buf_is_valid(ev.buf) then
+        vim.bo[ev.buf].filetype = source_ft
+      end
+    end)
+  end,
+})
+
 -- Set background from THEME_MODE env var on startup (integrates with system dark/light mode)
 local theme_group = utils.augroup("theme")
 vim.api.nvim_create_autocmd("VimEnter", {

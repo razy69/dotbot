@@ -34,7 +34,7 @@ vim.opt.formatoptions = "jqlnt" -- j: remove comment leader on join,
 -- (c/r/o excluded: no auto-insert comment leader; BufWinEnter autocmd guards against ftplugins re-adding them)
 -- vim.opt.hidden is true by default in Neovim
 vim.opt.jumpoptions = "view"               -- Restore view (scroll position) when jumping
-vim.opt.laststatus = 0                     -- No statusline by default (lualine provides its own)
+vim.opt.laststatus = 2                     -- Statusline on every window (neonvim.statusline renders it)
 vim.opt.lazyredraw = false                 -- Don't defer screen redraws (can cause issues with async plugins)
 vim.opt.modeline = false                   -- Disable modelines for security
 vim.opt.number = true                      -- Show line numbers
@@ -43,7 +43,7 @@ vim.opt.path:remove("/usr/include")        -- Remove system includes from search
 vim.opt.pumblend = 10                      -- 10% pseudo-transparency for popup menu
 vim.opt.pumheight = 10                     -- Limit popup menu to 10 visible items
 vim.opt.report = 9999                      -- Suppress "N lines changed" messages
-vim.opt.ruler = false                      -- Hide cursor position in statusline (lualine shows it)
+vim.opt.ruler = false                      -- Hide cursor position (statusline shows it)
 vim.opt.scrolloff = 4                      -- Keep 4 lines visible above/below cursor
 vim.opt.shada = {
   '"50',                                   -- Save up to 50 lines for each register
@@ -67,8 +67,8 @@ vim.opt.shortmess:append({                 -- Suppress messages:
   s = true,                                -- Skip "search hit BOTTOM/TOP" messages
 })
 vim.opt.showcmd = false                    -- Hide partial command display
-vim.opt.showmode = false                   -- Hide mode indicator (lualine shows it)
-vim.opt.showtabline = 0                    -- Hide tabline (bufferline manages tabs)
+vim.opt.showmode = false                   -- Hide mode indicator (statusline shows it)
+vim.opt.showtabline = 2                    -- Always show tabline (neonvim.tabline renders it)
 vim.opt.sidescrolloff = 8                  -- Keep 8 columns visible left/right of cursor
 vim.opt.spelloptions:append "camel"        -- Treat CamelCase words as separate words for spell check
 vim.opt.splitkeep = "screen"               -- Keep text on screen when opening splits

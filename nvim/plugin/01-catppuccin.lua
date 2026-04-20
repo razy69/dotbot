@@ -113,9 +113,9 @@ plugin.add({
         require("catppuccin").setup(catppuccin_opts)
         vim.cmd("colorscheme catppuccin")
         -- Refresh dependent plugins that cache their theme
-        local ok_lualine, lualine = pcall(require, "lualine")
-        if ok_lualine then
-          lualine.setup({ theme = "catppuccin" })
+        local ok_statusline, statusline = pcall(require, "neonvim.statusline")
+        if ok_statusline then
+          statusline.refresh_highlights()
         end
         local ok_fzf, fzf = pcall(require, "fzf-lua")
         if ok_fzf then
@@ -125,6 +125,20 @@ plugin.add({
         if ok_hlargs then
           hlargs_mod.setup({ color = utils.get_palette().maroon })
         end
+        -- tiny-inline-diagnostic stores its TinyInline* highlight groups from
+        -- DiagnosticError/Warn/Info/Hint at ColorScheme time. Setting
+        -- vim.o.background re-sources the colorscheme re-entrantly (the
+        -- compiled catppuccin cache writes back to 'background'), which
+        -- causes a later `hi clear` to wipe the freshly-applied TinyInline
+        -- groups after the plugin's own ColorScheme autocmd has run. We
+        -- re-apply them once the reload cycle has fully unwound so the
+        -- final state is consistent.
+        vim.schedule(function()
+          local ok_tiny, tiny = pcall(require, "tiny-inline-diagnostic")
+          if ok_tiny and type(tiny.change) == "function" then
+            pcall(tiny.change)
+          end
+        end)
         reloading = false
       end,
     })

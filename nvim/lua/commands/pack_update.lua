@@ -443,54 +443,65 @@ vim.api.nvim_create_user_command("PackCancel", function()
 end, { desc = "Cancel running pack update check" })
 
 vim.api.nvim_create_user_command("PackClean", function()
-  -- Build set of all expected pack names from registered specs
+  -- Build set of expected pack names from registered specs. Each src entry
+  -- may be a URL string or a `{ src = ..., name = ... }` table — the name
+  -- field, when present, overrides the URL-derived name (vim.pack installs
+  -- the plugin under that name). Without this, specs like catppuccin that
+  -- pin `name = "catppuccin"` on a `.../nvim` URL get flagged as orphans
+  -- because the URL tail ("nvim") doesn't match the installed name.
   local expected = {}
   for _, spec in pairs(plugin._specs) do
     local src = spec.src
     if type(src) == "string" then src = { src } end
     for _, s in ipairs(src) do
-      local url = type(s) == "table" and s.src or s
-      if type(url) == "string" then
-        local pack_name = url:match("[^/]+$")
-        if pack_name then
-          expected[pack_name] = true
-        end
+      local name
+      if type(s) == "table" then
+        name = s.name or (type(s.src) == "string" and s.src:match("[^/]+$") or nil)
+      elseif type(s) == "string" then
+        name = s:match("[^/]+$")
+      end
+      if name then
+        expected[name] = true
       end
     end
   end
 
   -- Compare against installed packs
   local installed = vim.pack.get(nil, { info = false })
-  local orphans = {}
+  local orphan_names = {}
   for _, pkg in ipairs(installed) do
     if not expected[pkg.spec.name] then
-      table.insert(orphans, pkg)
+      table.insert(orphan_names, pkg.spec.name)
     end
   end
 
-  if #orphans == 0 then
+  if #orphan_names == 0 then
     vim.notify("No orphaned plugins found", vim.log.levels.INFO, { title = "vim.pack" })
     return
   end
 
-  local names = {}
-  for _, pkg in ipairs(orphans) do
-    table.insert(names, pkg.spec.name)
-  end
-  table.sort(names)
+  table.sort(orphan_names)
 
   vim.ui.select({ "Yes", "No" }, {
     prompt = ("Remove %d orphaned plugin%s?\n  %s"):format(
-      #orphans, #orphans == 1 and "" or "s", table.concat(names, ", ")
+      #orphan_names, #orphan_names == 1 and "" or "s", table.concat(orphan_names, ", ")
     ),
   }, function(choice)
     if choice ~= "Yes" then return end
-    for _, pkg in ipairs(orphans) do
-      local path = pkg.path
-      if path and vim.fn.isdirectory(path) == 1 then
-        vim.fn.delete(path, "rf")
-        vim.notify("Removed: " .. pkg.spec.name, vim.log.levels.INFO, { title = "vim.pack" })
-      end
+    -- vim.pack.del handles both the on-disk removal and the lockfile
+    -- update. The previous implementation used vim.fn.delete() directly,
+    -- which left stale entries in nvim-pack-lock.json and caused vim.pack
+    -- to "re-discover" the plugin on the next startup.
+    local ok, err = pcall(vim.pack.del, orphan_names)
+    if not ok then
+      vim.notify("vim.pack.del failed: " .. tostring(err), vim.log.levels.ERROR, { title = "vim.pack" })
+      return
     end
+    vim.notify(
+      ("Removed %d plugin%s: %s"):format(
+        #orphan_names, #orphan_names == 1 and "" or "s", table.concat(orphan_names, ", ")
+      ),
+      vim.log.levels.INFO, { title = "vim.pack" }
+    )
   end)
 end, { desc = "Remove orphaned plugins not in current specs" })
