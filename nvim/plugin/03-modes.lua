@@ -23,6 +23,6 @@ plugin.add({
     })
 
     -- bug: "Press ENTER" prompt shows when entering vim
-    -- vim.o.cmdheight = 0
+    vim.o.cmdheight = 0
   end,
 })

@@ -155,8 +155,8 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- Enrich :substitute live-preview split ('inccommand=split'). The preview
 -- is drawn into a `[Preview]` buffer, but the window attached to it is
--- transient and absent from nvim_list_wins/tabpage_list_wins under noice's
--- cmdpreview hooks. We therefore use a decoration provider: its `on_win`
+-- transient and can be absent from nvim_list_wins/tabpage_list_wins during
+-- cmdpreview. We therefore use a decoration provider: its `on_win`
 -- callback fires per-window-redraw and sees the preview window even when
 -- the Lua enumeration APIs don't. Inside on_win we:
 --   1. copy the source buffer's filetype onto the preview buffer (starts

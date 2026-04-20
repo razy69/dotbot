@@ -209,8 +209,15 @@ plugin.add({
             buffer = bufnr,
             mode = { "n", "v" }
           },
-          -- Hover
-          { "K",          vim.lsp.buf.hover,  desc = "LSP Hover",             buffer = bufnr, mode = "n" },
+          -- Hover. Second `K` focuses the hover window so j/k scrolls it
+          -- when content exceeds max_height.
+          {
+            "K",
+            function() vim.lsp.buf.hover({ max_height = 20, max_width = 100, focusable = true, focus = true }) end,
+            desc = "LSP Hover",
+            buffer = bufnr,
+            mode = "n",
+          },
           -- Rename
           { "<leader>Rn", vim.lsp.buf.rename, desc = "LSP Rename references", buffer = bufnr, mode = "n" },
         })

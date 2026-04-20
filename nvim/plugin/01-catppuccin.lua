@@ -55,7 +55,6 @@ plugin.add({
         mason = true,
         native_lsp = { enabled = true, inlay_hints = { background = false } },
         neotest = true,
-        noice = true,
         nvim_surround = true,
         render_markdown = true,
         snacks = { enabled = true },

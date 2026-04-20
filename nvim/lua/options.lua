@@ -27,7 +27,7 @@ vim.opt.diffopt = "filler,internal,closeoff,algorithm:histogram,context:5,linema
 vim.opt.errorbells = false -- No audible error bells
 vim.opt.fillchars = { fold = " ", foldopen = "", foldsep = " ", foldclose = "", eob = " " }
 -- Custom fold/end-of-buffer fill characters (Nerd Font icons)
-vim.opt.fixeol = true              -- Ensure files end with a newline
+vim.opt.fixeol = true           -- Ensure files end with a newline
 vim.opt.formatoptions = "jqlnt" -- j: remove comment leader on join,
 -- q: allow gq formatting, l: don't break long lines in insert,
 -- n: recognize numbered lists, t: auto-wrap text
@@ -35,6 +35,7 @@ vim.opt.formatoptions = "jqlnt" -- j: remove comment leader on join,
 -- vim.opt.hidden is true by default in Neovim
 vim.opt.jumpoptions = "view"               -- Restore view (scroll position) when jumping
 vim.opt.laststatus = 2                     -- Statusline on every window (neonvim.statusline renders it)
+vim.opt.cmdheight = 1                      -- No cmdline row; ui2 overlays the statusline when the cmdline is active
 vim.opt.lazyredraw = false                 -- Don't defer screen redraws (can cause issues with async plugins)
 vim.opt.modeline = false                   -- Disable modelines for security
 vim.opt.number = true                      -- Show line numbers

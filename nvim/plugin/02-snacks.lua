@@ -65,7 +65,10 @@ plugin.add({
         },
       },
       image = { enabled = true },
-      notifier = { enabled = true },
+      notifier = {
+        enabled = true,
+        top_down = true,
+      },
       terminal = { enabled = true },
       scroll = { enabled = true },
       statuscolumn = {
