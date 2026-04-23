@@ -209,12 +209,14 @@ plugin.add({
             buffer = bufnr,
             mode = { "n", "v" }
           },
-          -- Hover. Second `K` focuses the hover window so j/k scrolls it
-          -- when content exceeds max_height.
+          -- Hover with nesting. Opens the standard hover float; pressing K
+          -- again inside the hover resolves the word under the cursor via
+          -- workspace/symbol on this buffer's client and stacks another
+          -- hover on top. `q` pops one level. See neonvim.nested_hover.
           {
             "K",
-            function() vim.lsp.buf.hover({ max_height = 20, max_width = 100, focusable = true, focus = true }) end,
-            desc = "LSP Hover",
+            function() require("neonvim.nested_hover").open() end,
+            desc = "LSP Hover (nested)",
             buffer = bufnr,
             mode = "n",
           },

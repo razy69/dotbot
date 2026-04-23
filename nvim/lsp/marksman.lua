@@ -2,7 +2,7 @@
 ---@type vim.lsp.Config
 return {
   cmd = { "marksman", "server" },
-  filetypes = { "markdown", "markdown.mdx" },
+  filetypes = { "markdown" },
   root_dir = vim.fs.root(0, {
     ".marksman.toml",
     ".git",

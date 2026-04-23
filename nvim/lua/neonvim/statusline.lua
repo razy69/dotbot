@@ -178,8 +178,18 @@ local function section_diagnostics()
   return "%@v:lua.statusline_click_diag@" .. table.concat(parts, " ") .. "%X"
 end
 
+-- `filereadable()` is a filesystem stat; calling it from the statusline on
+-- every redraw is avoidable since file-on-disk state only changes on
+-- load/write. We cache the result in a buffer-local var, refreshed by
+-- BufEnter/BufReadPost/BufNewFile/BufWritePost in M.setup().
+--
+-- We resolve the buffer via `g:statusline_winid` so the inactive half of
+-- a split shows *its own* buffer name, not whichever buffer happens to be
+-- current at evaluation time.
 local function section_filename()
-  local bufnr = 0
+  local winid = tonumber(vim.g.statusline_winid)
+  local bufnr = (winid and vim.api.nvim_win_is_valid(winid))
+      and vim.api.nvim_win_get_buf(winid) or 0
   local name = vim.api.nvim_buf_get_name(bufnr)
   local display = name == "" and "[No Name]" or vim.fn.fnamemodify(name, ":~:.")
   local parts = { esc(display) }
@@ -189,7 +199,7 @@ local function section_filename()
   if not vim.bo[bufnr].modifiable or vim.bo[bufnr].readonly then
     table.insert(parts, "[-]")
   end
-  if name ~= "" and vim.fn.filereadable(name) == 0 then
+  if name ~= "" and vim.b[bufnr].statusline_is_new then
     table.insert(parts, "[+]")
   end
   return table.concat(parts, "")
@@ -240,6 +250,14 @@ local function lsp_in_progress(clients)
     end
   end
   return false
+end
+
+-- Any client across the whole editor currently showing progress. Cheaper
+-- variant used by the spinner timer to decide whether to force a redraw.
+local function any_lsp_in_progress()
+  local clients = vim.lsp.get_clients()
+  if #clients == 0 then return false end
+  return lsp_in_progress(clients)
 end
 
 local function section_lsp()
@@ -335,12 +353,18 @@ end
 
 -- === Globals referenced by `%!` and `%@ ... @` =========================
 
+-- Wrapped in pcall because returning an empty/error string from a `%!`
+-- expression causes Neovim to paint a blank statusline row — on a busy
+-- day any transient error in one section would wipe the whole bar.
 function _G.statusline()
   local winid = tonumber(vim.g.statusline_winid)
-  if winid and winid == vim.api.nvim_get_current_win() then
-    return M.active()
+  local active = winid and winid == vim.api.nvim_get_current_win()
+  local ok, result = pcall(active and M.active or M.inactive)
+  if ok and type(result) == "string" and result ~= "" then
+    return result
   end
-  return M.inactive()
+  -- Last-resort fallback: never return empty from `%!`.
+  return "%#StFill# " .. (vim.fn.bufname("%") ~= "" and vim.fn.fnamemodify(vim.fn.bufname("%"), ":t") or "[No Name]") .. " "
 end
 
 function _G.statusline_click_branch()
@@ -365,23 +389,70 @@ end
 
 -- === Setup ============================================================
 
+local spinner_timer = nil
+
 function M.setup()
   setup_highlights()
+  local augroup = require("utils").augroup("Statusline")
   -- Re-apply highlights after :colorscheme or :BackgroundToggle reloads.
   vim.api.nvim_create_autocmd("ColorScheme", {
-    group = require("utils").augroup("Statusline"),
+    group = augroup,
     callback = setup_highlights,
+  })
+
+  -- Refresh the "file doesn't exist on disk yet" flag only when the buffer
+  -- actually enters, loads, or is written — not on every redraw.
+  vim.api.nvim_create_autocmd({ "BufEnter", "BufReadPost", "BufNewFile", "BufWritePost" }, {
+    group = augroup,
+    callback = function(ev)
+      local name = vim.api.nvim_buf_get_name(ev.buf)
+      vim.b[ev.buf].statusline_is_new = name ~= "" and vim.fn.filereadable(name) == 0
+    end,
+  })
+
+  -- Since we no longer force a redraw every 300ms, the statusline shows
+  -- stale state until the next natural redraw. Nudge it on the events
+  -- that actually change what's rendered — content events
+  -- (DiagnosticChanged, LspAttach/Detach) and window-topology events
+  -- (WinEnter, WinClosed). The latter matter because Neovim's implicit
+  -- redraw after :close sometimes doesn't land when the close happens
+  -- inside a keymap callback (e.g. close_with_q's `q` handler closing a
+  -- checkhealth split leaves the remaining window with an un-repainted
+  -- statusline row). LspProgress is intentionally excluded — the
+  -- spinner_timer below repaints during in-flight progress (and the
+  -- final ✓ lands within one 300ms tick of "end"), so adding it here
+  -- would stack dozens of per-second redraws during indexing.
+  vim.api.nvim_create_autocmd({ "DiagnosticChanged", "LspAttach", "LspDetach", "WinEnter", "WinClosed" }, {
+    group = augroup,
+    callback = function() vim.cmd("redrawstatus") end,
   })
 
   vim.opt.statusline = "%!v:lua.statusline()"
 
-  -- A single repeating timer drives the spinner animation and forces a
-  -- statusline redraw (matches lualine's old 300ms refresh cadence).
-  -- Neovim only repaints cells that actually changed, so this is cheap.
-  local timer = assert(vim.uv.new_timer())
-  timer:start(300, 300, vim.schedule_wrap(function()
-    spinner_idx = (spinner_idx % #spinner_frames) + 1
-    vim.cmd("redrawstatus!")
+  -- Stop a prior timer if setup() is called again (e.g. after :luafile or
+  -- a dev reload) — otherwise timers accumulate and the spinner ticks N
+  -- times faster than intended.
+  if spinner_timer then
+    pcall(function() spinner_timer:stop() end)
+    pcall(function() spinner_timer:close() end)
+    spinner_timer = nil
+  end
+
+  -- 300ms heartbeat: drives the LSP spinner animation AND serves as a
+  -- safety net against missed implicit redraws (closing floats, plugin
+  -- callbacks that exit cmdline weirdly, etc.). We use `redrawstatus`
+  -- without the bang — that only repaints the *current* window's status
+  -- row, which is one row per tick. The old implementation used
+  -- `redrawstatus!` (all windows) and was the expensive part; the timer
+  -- itself is fine. Inactive windows' status content is static
+  -- (filename only), so they don't need a heartbeat — WinEnter/WinClosed
+  -- autocmds above cover their transitions.
+  spinner_timer = assert(vim.uv.new_timer())
+  spinner_timer:start(300, 300, vim.schedule_wrap(function()
+    if any_lsp_in_progress() then
+      spinner_idx = (spinner_idx % #spinner_frames) + 1
+    end
+    vim.cmd("redrawstatus")
   end))
 end
 

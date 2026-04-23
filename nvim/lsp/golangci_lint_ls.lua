@@ -15,7 +15,7 @@ end
 ---@type vim.lsp.Config
 return {
   cmd = { "golangci-lint-langserver" },
-  filetypes = { "go", "gomod" },
+  filetypes = { "go", "gomod", "gowork" },
   init_options = {
     command = { "golangci-lint", "run", "--output.json.path=stdout", "--show-stats=false" },
   },

@@ -165,6 +165,12 @@ vim.api.nvim_create_autocmd("FileType", {
 --   3. override the window's statuscolumn to show the real source lnum
 local preview_ns = vim.api.nvim_create_namespace("inccommand_preview")
 local preview_source_ft = nil
+local preview_winid = nil
+-- Per-buf + per-window caches for the decoration provider below. Declared
+-- here so CmdlineLeave (which resets them on :s teardown) captures the
+-- same upvalue the provider mutates.
+local preview_last_tick = {}
+local preview_last_window_setup = {}
 
 vim.api.nvim_create_autocmd("CmdlineEnter", {
   group = utils.augroup("inccommand_preview_cmdline"),
@@ -177,7 +183,12 @@ vim.api.nvim_create_autocmd("CmdlineEnter", {
 
 vim.api.nvim_create_autocmd("CmdlineLeave", {
   group = utils.augroup("inccommand_preview_cmdline_leave"),
-  callback = function() preview_source_ft = nil end,
+  callback = function()
+    preview_source_ft = nil
+    preview_winid = nil
+    preview_last_tick = {}
+    preview_last_window_setup = {}
+  end,
 })
 
 -- Neovim prefixes each preview line with the source lnum, right-padded so
@@ -189,12 +200,16 @@ local function parse_preview_prefix(line)
   return nil
 end
 
+-- on_win below fires on every window redraw; `preview_last_tick` and
+-- `preview_last_window_setup` (declared at the top of the block) short-
+-- circuit the expensive work when the buffer/window state is unchanged.
 vim.api.nvim_set_decoration_provider(preview_ns, {
   on_win = function(_, winid, bufnr, _, _)
     if not preview_source_ft then return false end
     if not vim.api.nvim_buf_is_valid(bufnr) then return false end
     local name = vim.api.nvim_buf_get_name(bufnr)
     if not name:match("%[Preview%]$") then return false end
+    preview_winid = winid
 
     -- Setting 'filetype' and starting treesitter aren't allowed inside a
     -- decoration-provider fast callback — defer to vim.schedule. Guard
@@ -211,7 +226,34 @@ vim.api.nvim_set_decoration_provider(preview_ns, {
       end)
     end
 
-    -- Rebuild lnum map + extmarks each redraw (fast-safe APIs).
+    -- Apply the preview window's options once per (winid, bufnr) pair.
+    -- Must be synchronous — scheduling to the main loop lands *after* the
+    -- current redraw frame is painted, so the first preview shows
+    -- Neovim's native number column + unconcealed `|<lnum>|` prefixes
+    -- before the options land. vim.wo writes from this fast callback are
+    -- verified to work in practice (original author's note). Cache the
+    -- win_key only on pcall success so a transient failure can be
+    -- retried on the next redraw rather than being sticky-broken.
+    local win_key = winid .. ":" .. bufnr
+    if preview_last_window_setup[win_key] ~= bufnr then
+      local ok = pcall(function()
+        vim.wo[winid].statuscolumn = "%=%{get(w:inccommand_line_map,string(v:lnum),'')} "
+        vim.wo[winid].conceallevel = 3
+        vim.wo[winid].concealcursor = "nvic"
+        vim.wo[winid].number = false
+        vim.wo[winid].relativenumber = false
+        vim.wo[winid].signcolumn = "no"
+        vim.wo[winid].foldcolumn = "0"
+      end)
+      if ok then preview_last_window_setup[win_key] = bufnr end
+    end
+
+    -- Skip the extmark rebuild when the preview buffer is unchanged.
+    local tick = vim.api.nvim_buf_get_changedtick(bufnr)
+    if preview_last_tick[bufnr] == tick then return end
+    preview_last_tick[bufnr] = tick
+
+    -- Rebuild lnum map + extmarks (fast-safe APIs).
     local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
     local line_map = {}
     local line_count = 0
@@ -260,33 +302,36 @@ vim.api.nvim_set_decoration_provider(preview_ns, {
       })
     end
 
-    -- Window-local vars/options are fast-safe in practice (confirmed by
-    -- statuscolumn and conceal both applying from here).
     if vim.api.nvim_win_is_valid(winid) then
       pcall(function() vim.w[winid].inccommand_line_map = line_map end)
-      pcall(function()
-        vim.wo[winid].statuscolumn = "%=%{get(w:inccommand_line_map,string(v:lnum),'')} "
-        vim.wo[winid].conceallevel = 3
-        vim.wo[winid].concealcursor = "nvic"
-        vim.wo[winid].number = false
-        vim.wo[winid].relativenumber = false
-        vim.wo[winid].signcolumn = "no"
-        vim.wo[winid].foldcolumn = "0"
-      end)
     end
   end,
 })
 
--- Set background from THEME_MODE env var on startup (integrates with system dark/light mode)
+local function resize_preview(delta)
+  if not preview_winid or not vim.api.nvim_win_is_valid(preview_winid) then return end
+  local h = vim.api.nvim_win_get_height(preview_winid)
+  local new_h = math.max(3, math.min(h + delta, vim.o.lines - 5))
+  pcall(vim.api.nvim_win_set_height, preview_winid, new_h)
+  vim.o.previewheight = new_h
+end
+
+vim.keymap.set("c", "<C-Up>", function() resize_preview(5) end)
+vim.keymap.set("c", "<C-Down>", function() resize_preview(-5) end)
+
+-- Set background from THEME_MODE env var on startup (integrates with system dark/light mode).
+-- Guarded so we don't fire OptionSet (and thus a full catppuccin reload) when
+-- the current value already matches the desired one — that reload landed on
+-- top of the synchronous colorscheme apply during plugin load, producing a
+-- visible flicker on every start.
 local theme_group = utils.augroup("theme")
 vim.api.nvim_create_autocmd("VimEnter", {
   group = theme_group,
   callback = function(_)
-    local mode = vim.env.THEME_MODE
-    if mode == "dark" or mode == "light" then
+    local env = vim.env.THEME_MODE
+    local mode = (env == "dark" or env == "light") and env or "light"
+    if vim.o.background ~= mode then
       vim.o.background = mode
-    else
-      vim.o.background = "light"
     end
   end
 })

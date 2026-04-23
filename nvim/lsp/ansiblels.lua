@@ -23,7 +23,7 @@ return {
       },
     },
   },
-  filetypes = { "yaml.ansible" },
+  filetypes = { "yaml" },
   root_dir = vim.fs.root(0, {
     "ansible.cfg",
     ".ansible-lint",

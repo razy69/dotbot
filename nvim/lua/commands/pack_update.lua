@@ -29,8 +29,16 @@ local NOTIFY_LOG_LIMIT = 10
 local updates = {}
 
 local running = false
-local cancelled = false
 local watchdog_timer = nil
+-- Set by run_check while a check is active; cleared on success or cancel.
+-- Holds the cancellation closure for the current run so :PackCancel and
+-- the watchdog can abort only *this* run. The previous design used a
+-- module-level `cancelled` bool — a subsequent run_check would reset it
+-- to false, letting zombie callbacks from the aborted run proceed against
+-- the new run's state. Per-run closures fix that by pinning the cancel
+-- flag inside the closure where the callbacks live.
+---@type (fun())|nil
+local current_cancel = nil
 
 local state_file = vim.fs.joinpath(vim.fn.stdpath("state"), "pack-update-check.txt")
 
@@ -91,9 +99,14 @@ end
 
 --- Fetch one plugin and compute update info.
 --- Calls `on_done(info_or_nil)` on the main loop.
+--- `on_handle(handle, true|false)` is called with each vim.system handle
+--- when it's started (true) and when it completes (false), so the caller
+--- can kill in-flight subprocesses on cancel/timeout instead of letting
+--- them linger after we've given up on their results.
 ---@param plugin vim.pack.PlugData
+---@param on_handle fun(handle: vim.SystemObj, add: boolean)
 ---@param on_done fun(info: PackUpdateInfo|nil)
-local function fetch_one(plugin, on_done)
+local function fetch_one(plugin, on_handle, on_done)
   local cwd = plugin.path
   local local_rev = plugin.rev
 
@@ -105,7 +118,12 @@ local function fetch_one(plugin, on_done)
   end
 
   local function sys(cmd, cb)
-    vim.system(cmd, { cwd = cwd, text = true }, vim.schedule_wrap(cb))
+    local handle
+    handle = vim.system(cmd, { cwd = cwd, text = true }, vim.schedule_wrap(function(res)
+      on_handle(handle, false)
+      cb(res)
+    end))
+    on_handle(handle, true)
   end
 
   sys(
@@ -146,7 +164,7 @@ end
 local function run_check(opts, on_complete)
   opts = opts or {}
   if running then
-    vim.notify("vim.pack: update check already running", vim.log.levels.WARN)
+    vim.notify("update check already running", vim.log.levels.WARN, { title = "vim.pack" })
     return
   end
 
@@ -158,31 +176,67 @@ local function run_check(opts, on_complete)
   end
 
   running = true
-  cancelled = false
   updates = {}
   local collected = {}
-
-  -- Watchdog: force-reset running flag if check hangs (network timeout, git deadlock)
-  watchdog_timer = vim.uv.new_timer()
-  watchdog_timer:start(60000, 0, vim.schedule_wrap(function()
-    if not watchdog_timer:is_closing() then watchdog_timer:close() end
-    watchdog_timer = nil
-    if running then
-      running = false
-      vim.notify("vim.pack: update check timed out", vim.log.levels.ERROR, { title = "vim.pack" })
-    end
-  end))
-
+  -- Per-run state captured by every closure below. Keeping these local
+  -- (not module-level) guarantees that callbacks from an aborted run see
+  -- their own my_cancelled == true forever, even after a subsequent
+  -- run_check has started.
+  local my_cancelled = false
+  local my_handles = {}
   local progress = opts.show_progress and new_progress("Checking for updates") or nil
   local total = #plugins
   local done = 0
+
+  local function stop_watchdog()
+    if watchdog_timer and not watchdog_timer:is_closing() then
+      watchdog_timer:close()
+      watchdog_timer = nil
+    end
+  end
+
+  local function on_handle(handle, add)
+    if add then
+      my_handles[handle] = true
+    else
+      my_handles[handle] = nil
+    end
+  end
+
+  local function cancel()
+    if my_cancelled then return end
+    my_cancelled = true
+    running = false
+    current_cancel = nil
+    stop_watchdog()
+    -- SIGTERM lets `git fetch` unwind its network state; a hung git will
+    -- still exit within a few ms. Good enough — we only care that the
+    -- subprocess stops competing with the next run_check for resources.
+    for handle in pairs(my_handles) do
+      pcall(function() handle:kill("sigterm") end)
+    end
+    my_handles = {}
+    if progress then
+      pcall(progress, "end", 100, "(cancelled)")
+    end
+  end
+
+  current_cancel = cancel
+
+  -- Watchdog: force-cancel if check hangs (network timeout, git deadlock).
+  watchdog_timer = assert(vim.uv.new_timer())
+  watchdog_timer:start(60000, 0, vim.schedule_wrap(function()
+    if my_cancelled then return end
+    cancel()
+    vim.notify("update check timed out", vim.log.levels.ERROR, { title = "vim.pack" })
+  end))
 
   if progress then
     progress("begin", 0, "(0/%d)", total)
   end
 
-  local function on_one_done(info)
-    if cancelled then return end
+  local function on_one_done(name, info)
+    if my_cancelled then return end
     done = done + 1
     if info then
       collected[#collected + 1] = info
@@ -193,27 +247,23 @@ local function run_check(opts, on_complete)
       if done == total then
         progress("end", 100, "(%d/%d)", done, total)
       else
-        local label = info and info.name or ""
-        progress("report", percent, "(%d/%d)%s", done, total, label ~= "" and (" - " .. label) or "")
+        progress("report", percent, "(%d/%d) - %s", done, total, name)
       end
     end
     if done == total then
       running = false
-      if watchdog_timer and not watchdog_timer:is_closing() then
-        watchdog_timer:close()
-        watchdog_timer = nil
-      end
+      current_cancel = nil
+      stop_watchdog()
       record_check()
       on_complete(collected)
     end
   end
 
-  for _, plugin in ipairs(plugins) do
-    if not plugin.rev then
-      -- No lock rev (partial state): skip but count as done for the fan-in.
-      on_one_done(nil)
+  for _, p in ipairs(plugins) do
+    if not p.rev then
+      on_one_done(p.spec.name, nil)
     else
-      fetch_one(plugin, on_one_done)
+      fetch_one(p, on_handle, function(info) on_one_done(p.spec.name, info) end)
     end
   end
 end
@@ -288,7 +338,7 @@ vim.api.nvim_create_user_command("PackChangelog", function(ctx)
   if name == "" then
     local names = vim.tbl_keys(updates)
     if #names == 0 then
-      vim.notify("No pending updates — run :PackCheckUpdates", vim.log.levels.INFO)
+      vim.notify("No pending updates — run :PackCheckUpdates", vim.log.levels.INFO, { title = "vim.pack" })
       return
     end
     table.sort(names)
@@ -304,7 +354,7 @@ vim.api.nvim_create_user_command("PackChangelog", function(ctx)
   end
   local u = updates[name]
   if not u then
-    vim.notify("No pending changes for " .. name, vim.log.levels.WARN)
+    vim.notify("No pending changes for " .. name, vim.log.levels.WARN, { title = "vim.pack" })
     return
   end
   vim.notify(
@@ -429,16 +479,11 @@ end, {
 })
 
 vim.api.nvim_create_user_command("PackCancel", function()
-  if running then
-    cancelled = true
-    running = false
-    if watchdog_timer and not watchdog_timer:is_closing() then
-      watchdog_timer:close()
-      watchdog_timer = nil
-    end
-    vim.notify("vim.pack: update check cancelled", vim.log.levels.INFO, { title = "vim.pack" })
+  if current_cancel then
+    current_cancel()
+    vim.notify("update check cancelled", vim.log.levels.INFO, { title = "vim.pack" })
   else
-    vim.notify("No update check running", vim.log.levels.INFO)
+    vim.notify("No update check running", vim.log.levels.INFO, { title = "vim.pack" })
   end
 end, { desc = "Cancel running pack update check" })
 
@@ -494,7 +539,7 @@ vim.api.nvim_create_user_command("PackClean", function()
     -- to "re-discover" the plugin on the next startup.
     local ok, err = pcall(vim.pack.del, orphan_names)
     if not ok then
-      vim.notify("vim.pack.del failed: " .. tostring(err), vim.log.levels.ERROR, { title = "vim.pack" })
+      vim.notify("del failed: " .. tostring(err), vim.log.levels.ERROR, { title = "vim.pack" })
       return
     end
     vim.notify(

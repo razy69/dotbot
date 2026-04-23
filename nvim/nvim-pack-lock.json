@@ -10,7 +10,7 @@
       "version": "1.0.0 - 2.0.0"
     },
     "blink.download": {
-      "rev": "a459c8fbf51359902971874b5ebe05f6602db8b4",
+      "rev": "4b9a304a1d715c180c8a0d1db7b76a8c6868ed8f",
       "src": "https://github.com/saghen/blink.download"
     },
     "blink.indent": {
@@ -31,11 +31,11 @@
       "src": "https://github.com/catppuccin/nvim"
     },
     "conform.nvim": {
-      "rev": "086a40dc7ed8242c03be9f47fbcee68699cc2395",
+      "rev": "dca1a190aa85f9065979ef35802fb77131911106",
       "src": "https://github.com/stevearc/conform.nvim"
     },
     "diffview.nvim": {
-      "rev": "eaa5f2a4570a8b756201987e50ded5ad34ac34b0",
+      "rev": "1031f0937de767c15024517c0186909b35076355",
       "src": "https://github.com/dlyongemallo/diffview.nvim"
     },
     "dropbar.nvim": {
@@ -51,7 +51,7 @@
       "src": "https://github.com/rafamadriz/friendly-snippets"
     },
     "fzf-lua": {
-      "rev": "c27c398ef84f3a98185623764ba4793758b68952",
+      "rev": "8223eb24a7adf72c4b24e04b751486b492775414",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "git-conflict.nvim": {
@@ -79,11 +79,11 @@
       "src": "https://github.com/folke/lazydev.nvim"
     },
     "markdown.nvim": {
-      "rev": "0fd43fb4b1f073931c4b481f5f3b7cea3749e190",
+      "rev": "d67113f11384c0dad96fced2f7b91f1fc811e97f",
       "src": "https://github.com/MeanderingProgrammer/markdown.nvim"
     },
     "mason.nvim": {
-      "rev": "b03fb0f20bc1d43daf558cda981a2be22e73ac42",
+      "rev": "12ddd182d9efbdc848b540f16484a583d52da0fb",
       "src": "https://github.com/mason-org/mason.nvim"
     },
     "mini.ai": {
@@ -123,7 +123,7 @@
       "src": "https://github.com/leoluz/nvim-dap-go"
     },
     "nvim-dap-view": {
-      "rev": "03c22bb2bc0d6ed60ee6f7351f8a5e65dd2e80d3",
+      "rev": "134c018903abc2c9b6fd5fc34c64d906db468c9f",
       "src": "https://github.com/igorlfs/nvim-dap-view"
     },
     "nvim-dap-virtual-text": {
@@ -167,7 +167,7 @@
       "src": "https://github.com/nvim-lua/plenary.nvim"
     },
     "refactoring.nvim": {
-      "rev": "6784b54587e6d8a6b9ea199318512170ffb9e418",
+      "rev": "f06ac3d457128f9d512103399b367c4be49a2421",
       "src": "https://github.com/ThePrimeagen/refactoring.nvim"
     },
     "snacks.nvim": {
@@ -187,7 +187,7 @@
       "src": "https://github.com/rachartier/tiny-code-action.nvim"
     },
     "tiny-inline-diagnostic.nvim": {
-      "rev": "b3b91e086795c036ecfe70429b72b26bcb302c91",
+      "rev": "147af4e49f51dd48f41972de26552872b8ba7b25",
       "src": "https://github.com/rachartier/tiny-inline-diagnostic.nvim"
     },
     "todo-comments.nvim": {

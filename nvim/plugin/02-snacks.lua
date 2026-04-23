@@ -65,6 +65,7 @@ plugin.add({
         },
       },
       image = { enabled = true },
+      input = { enabled = true },
       notifier = {
         enabled = true,
         top_down = true,

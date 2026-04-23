@@ -2,7 +2,7 @@
 ---@type vim.lsp.Config
 return {
   cmd = { "gopls" },
-  filetypes = { "go", "gomod", "gowork", "gotmpl" },
+  filetypes = { "go", "gomod", "gowork" },
   root_dir = vim.fs.root(0, {
     ".golangci.yml",
     ".golangci.yaml",
@@ -18,6 +18,8 @@ return {
       usePlaceholders = true,
       analyses = {
         unusedparams = true,
+        nilness      = true,
+        unusedwrite  = true,
       },
       -- Enable all inlay hint categories for Go constructs
       hints = {
@@ -28,6 +30,14 @@ return {
         functionTypeParameters = true,
         parameterNames = true,
         rangeVariableTypes = true,
+      },
+      staticcheck = true,
+      gofumpt = true,
+      codelenses = {
+        generate = true,
+        gc_details = true,
+        test = true,
+        tidy = true,
       },
     }
   }

@@ -402,7 +402,7 @@ vim.api.nvim_create_autocmd("PackChanged", {
     end
     local name = ev.data.spec and ev.data.spec.name or "?"
     vim.schedule(function()
-      vim.notify(("vim.pack: installed %s"):format(name), vim.log.levels.INFO, { title = "vim.pack" })
+      vim.notify(("installed %s"):format(name), vim.log.levels.INFO, { title = "vim.pack" })
     end)
   end,
 })

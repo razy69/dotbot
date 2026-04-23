@@ -41,9 +41,6 @@ vim.api.nvim_create_autocmd("UIEnter", {
     ui2.enable({
       msg = {
         target = "msg",
-        targets = {
-          wmsg = "msg",
-        },
       },
     })
 
@@ -60,9 +57,9 @@ vim.api.nvim_create_autocmd("UIEnter", {
           if not cfg.hide then
             pcall(vim.api.nvim_win_set_config, win, {
               relative = "editor",
-              anchor = "NW",
+              anchor = "NE",
               row = 1,
-              col = 1,
+              col = vim.o.columns,
             })
           end
         end
@@ -82,6 +79,67 @@ vim.api.nvim_create_autocmd("UIEnter", {
       ["?"] = { icon = RSEARCH_ICON, hl = "Ui2CmdlineIconSearch" },
       ["="] = { icon = LUA_ICON, hl = "Ui2CmdlineIconLua" },
     }
+
+    -- ==== Mini view (bottom-right, faded, no border) =================
+
+    local mini_buf = vim.api.nvim_create_buf(false, true)
+    vim.bo[mini_buf].buftype = "nofile"
+    local mini_win = nil
+    -- Single long-lived timer reused via stop()/start(). The earlier
+    -- implementation re-created a timer per show via vim.defer_fn, which
+    -- leaked the libuv handle on every re-arm because vim.defer_fn only
+    -- closes the timer on callback fire, not when it's :stop()ed early.
+    local mini_timer = assert(vim.uv.new_timer())
+
+    local function hide_mini()
+      if mini_win and vim.api.nvim_win_is_valid(mini_win) then
+        pcall(vim.api.nvim_win_set_config, mini_win, { hide = true })
+      end
+    end
+
+    local function show_mini(text, timeout)
+      timeout = timeout or 3000
+      local lines = {}
+      for _, line in ipairs(vim.split(vim.trim(text), "\n", { plain = true })) do
+        if line ~= "" then lines[#lines + 1] = " " .. line .. " " end
+      end
+      if #lines == 0 then return end
+      vim.api.nvim_buf_set_lines(mini_buf, 0, -1, false, lines)
+
+      local width = 0
+      for _, line in ipairs(lines) do
+        width = math.max(width, vim.api.nvim_strwidth(line))
+      end
+      width = math.min(width, math.floor(vim.o.columns * 0.6))
+      local height = #lines
+      local row = vim.o.lines - height - 1
+      local col = vim.o.columns - width - 1
+
+      if mini_win and vim.api.nvim_win_is_valid(mini_win) then
+        pcall(vim.api.nvim_win_set_config, mini_win, {
+          hide = false,
+          relative = "editor",
+          row = row, col = col,
+          width = width, height = height,
+        })
+      else
+        mini_win = vim.api.nvim_open_win(mini_buf, false, {
+          relative = "editor",
+          row = row, col = col,
+          width = width, height = height,
+          style = "minimal",
+          border = "none",
+          focusable = false,
+          zindex = 60,
+          noautocmd = true,
+        })
+        vim.wo[mini_win].winhighlight = "Normal:Ui2Mini"
+        vim.wo[mini_win].wrap = false
+      end
+
+      mini_timer:stop()
+      mini_timer:start(timeout, 0, vim.schedule_wrap(hide_mini))
+    end
 
     -- ==== Search count (eol virt_text on editor cursor line) =========
 
@@ -163,6 +221,100 @@ vim.api.nvim_create_autocmd("UIEnter", {
       end
     end
 
+    -- ==== Centered dialog for confirm/input prompts ====================
+
+    local dialog_buf = vim.api.nvim_create_buf(false, true)
+    vim.bo[dialog_buf].buftype = "nofile"
+    local dialog_win = nil
+    local dialog_active = false
+
+    local function show_dialog(lines)
+      vim.api.nvim_buf_set_lines(dialog_buf, 0, -1, false, lines)
+      local width = 0
+      for _, line in ipairs(lines) do
+        width = math.max(width, vim.api.nvim_strwidth(line))
+      end
+      width = math.max(width + 4, 40)
+      width = math.min(width, math.floor(vim.o.columns * 0.8))
+      local height = #lines
+      local row = math.floor((vim.o.lines - height) / 2)
+      local col = math.floor((vim.o.columns - width) / 2)
+
+      if dialog_win and vim.api.nvim_win_is_valid(dialog_win) then
+        pcall(vim.api.nvim_win_set_config, dialog_win, {
+          hide = false,
+          relative = "editor",
+          row = row, col = col,
+          width = width, height = height,
+        })
+      else
+        dialog_win = vim.api.nvim_open_win(dialog_buf, false, {
+          relative = "editor",
+          row = row, col = col,
+          width = width, height = height,
+          style = "minimal",
+          border = "rounded",
+          focusable = false,
+          zindex = 250,
+          noautocmd = true,
+        })
+        vim.wo[dialog_win].winhighlight = "Normal:Ui2Cmdline,FloatBorder:FloatBorder"
+        vim.wo[dialog_win].wrap = true
+      end
+      dialog_active = true
+    end
+
+    local function hide_dialog()
+      if dialog_win and vim.api.nvim_win_is_valid(dialog_win) then
+        pcall(vim.api.nvim_win_set_config, dialog_win, { hide = true })
+      end
+      dialog_active = false
+    end
+
+    -- Capture raw msg_show events BEFORE ui2's callback schedules them.
+    -- ui2 defers msg_show in fast events (vim.schedule_wrap), so our
+    -- wrapper on messages.msg_show runs too late for confirm dialogs.
+    -- This parallel ui_attach runs synchronously and just buffers the
+    -- text — it does NOT consume the event (returns nil, not true).
+    local dialog_msg_queue = {}
+    -- Long-lived timer (see comment on mini_timer above for the leak this
+    -- avoids vs. per-call vim.defer_fn).
+    local dialog_msg_timer = assert(vim.uv.new_timer())
+    local raw_msg_ns = vim.api.nvim_create_namespace("ui2_raw_msg")
+
+    -- Declared up here so the closure below and messages.msg_show later
+    -- both capture the same upvalue (Lua's local scope only starts after
+    -- the `local` statement — referencing it from a closure defined
+    -- earlier would bind to a global instead).
+    local echoing_history = false
+
+    vim.ui_attach(raw_msg_ns, { ext_messages = true }, function(event, ...)
+      if event == "msg_show" then
+        local kind, content = ...
+        if kind ~= "search_count" and not echoing_history then
+          local parts = {}
+          for _, chunk in ipairs(content or {}) do
+            parts[#parts + 1] = chunk[2] or ""
+          end
+          local text = table.concat(parts)
+          if text ~= "" and text ~= "\n" then
+            dialog_msg_queue[#dialog_msg_queue + 1] = text
+            dialog_msg_timer:stop()
+            dialog_msg_timer:start(500, 0, vim.schedule_wrap(function()
+              dialog_msg_queue = {}
+            end))
+          end
+        end
+      end
+    end)
+
+    local function drain_dialog_msgs()
+      local msgs = dialog_msg_queue
+      dialog_msg_queue = {}
+      dialog_msg_timer:stop()
+      return msgs
+    end
+
     local function show_cmd_window()
       local win = ui2.wins.cmd
       if not win or not vim.api.nvim_win_is_valid(win) then return end
@@ -192,6 +344,42 @@ vim.api.nvim_create_autocmd("UIEnter", {
       cmd.level = level
       cmd.indent = indent
       cmd.prompt = #prompt > 0
+
+      -- Confirm / input prompts (firstc="" with non-empty prompt) →
+      -- centered dialog instead of the statusline bar. Pull in any
+      -- message that arrived just before (e.g. the warning text).
+      if cmd.prompt and (firstc == "" or icon_map[firstc] == nil) then
+        local typed = ""
+        for _, chunk in ipairs(content) do
+          typed = typed .. chunk[2]
+        end
+        local lines = {}
+        local msgs = drain_dialog_msgs()
+        if #msgs > 0 then
+          hide_mini()
+          if ui2.wins.msg and vim.api.nvim_win_is_valid(ui2.wins.msg) then
+            pcall(vim.api.nvim_win_set_config, ui2.wins.msg, { hide = true })
+          end
+          for _, msg in ipairs(msgs) do
+            for line in msg:gmatch("[^\n]+") do
+              lines[#lines + 1] = "  " .. line .. "  "
+            end
+          end
+          lines[#lines + 1] = ""
+        end
+        for line in prompt:gmatch("[^\n]+") do
+          lines[#lines + 1] = "  " .. line .. "  "
+        end
+        if typed ~= "" then
+          lines[#lines + 1] = ""
+          lines[#lines + 1] = "  > " .. typed .. "  "
+        end
+        show_dialog(lines)
+        hide_cmd_window()
+        return
+      end
+
+      dialog_msg_queue = {}
 
       local entry = icon_map[firstc] or { icon = firstc, hl = "Ui2CmdlineIcon" }
       local icon, hl = entry.icon, entry.hl
@@ -251,6 +439,7 @@ vim.api.nvim_create_autocmd("UIEnter", {
       end
       cmd.prompt = false
       cmd.level = 0
+      hide_dialog()
       hide_cmd_window()
     end
 
@@ -285,65 +474,6 @@ vim.api.nvim_create_autocmd("UIEnter", {
       end,
     })
 
-    -- ==== Mini view (bottom-right, faded, no border) =================
-    -- Lightweight ephemeral popup for low-priority messages, matching
-    -- Noice's "mini" view / fidget style.
-
-    local mini_buf = vim.api.nvim_create_buf(false, true)
-    vim.bo[mini_buf].buftype = "nofile"
-    local mini_win = nil
-    local mini_timer = nil
-
-    local function hide_mini()
-      if mini_win and vim.api.nvim_win_is_valid(mini_win) then
-        pcall(vim.api.nvim_win_set_config, mini_win, { hide = true })
-      end
-    end
-
-    local function show_mini(text, timeout)
-      timeout = timeout or 3000
-      local lines = {}
-      for _, line in ipairs(vim.split(vim.trim(text), "\n", { plain = true })) do
-        if line ~= "" then lines[#lines + 1] = " " .. line .. " " end
-      end
-      if #lines == 0 then return end
-      vim.api.nvim_buf_set_lines(mini_buf, 0, -1, false, lines)
-
-      local width = 0
-      for _, line in ipairs(lines) do
-        width = math.max(width, vim.api.nvim_strwidth(line))
-      end
-      width = math.min(width, math.floor(vim.o.columns * 0.6))
-      local height = #lines
-      local row = vim.o.lines - height - 1
-      local col = vim.o.columns - width - 1
-
-      if mini_win and vim.api.nvim_win_is_valid(mini_win) then
-        pcall(vim.api.nvim_win_set_config, mini_win, {
-          hide = false,
-          relative = "editor",
-          row = row, col = col,
-          width = width, height = height,
-        })
-      else
-        mini_win = vim.api.nvim_open_win(mini_buf, false, {
-          relative = "editor",
-          row = row, col = col,
-          width = width, height = height,
-          style = "minimal",
-          border = "none",
-          focusable = false,
-          zindex = 60,
-          noautocmd = true,
-        })
-        vim.wo[mini_win].winhighlight = "Normal:Ui2Mini"
-        vim.wo[mini_win].wrap = false
-      end
-
-      if mini_timer then mini_timer:stop() end
-      mini_timer = vim.defer_fn(hide_mini, timeout)
-    end
-
     -- ==== LSP progress in the mini view ===============================
 
     local spinner_frames = {
@@ -373,24 +503,11 @@ vim.api.nvim_create_autocmd("UIEnter", {
 
     -- ==== Message routing ============================================
 
-    local noisy_patterns = {
-      "E85: There is no listed buffer",
-      "E486: Pattern not found",
-      "E490: No fold found",
-      "Already at oldest change",
-      "Already at newest change",
-      "; after #%d+",
-      "; before #%d+",
-      "^%d+ fewer lines",
-      "^%d+ more lines",
-      "^%d+ lines [a-zA-Z]+ %d+ times?$",
-      "^%d+ lines yanked$",
-      "%d+L, %d+B",
-    }
+    local error_kinds = { emsg = true, lua_error = true, rpc_error = true, echoerr = true }
 
     local orig_msg_show = messages.msg_show
     messages.msg_show = function(kind, content, replace_last, history, append, id, trigger)
-      if kind == "notify_history" then return end
+      if echoing_history then return end
 
       if kind == "search_count" then
         local full_text = ""
@@ -406,36 +523,119 @@ vim.api.nvim_create_autocmd("UIEnter", {
         text_parts[#text_parts + 1] = chunk[2] or ""
       end
       local text = table.concat(text_parts)
-      for _, p in ipairs(noisy_patterns) do
-        if text:find(p) then
-          show_mini(text)
-          return
+
+      -- Errors → top-right msg window. Everything else → mini view.
+      if error_kinds[kind] then
+        return orig_msg_show(kind, content, replace_last, history, append, id, trigger)
+      end
+      if text ~= "" and text ~= "\n" then
+        -- Defer mini: if a confirm/input dialog opens within the same
+        -- redraw batch, dialog_active will be true and we skip mini.
+        local t = text
+        vim.schedule(function()
+          if not dialog_active then show_mini(t) end
+        end)
+        if not history then
+          echoing_history = true
+          pcall(vim.api.nvim_echo, { { text } }, true, {})
+          echoing_history = false
         end
       end
-      return orig_msg_show(kind, content, replace_last, history, append, id, trigger)
     end
 
     vim.api.nvim_create_autocmd("CmdlineLeave", {
       callback = clear_search_count,
     })
 
-    utils.wk_add({
-      { "<leader>nh", "<cmd>messages<CR>",      desc = "Message history (pager)", mode = "n" },
-      { "<leader>nl", "<cmd>normal! g<lt><CR>", desc = "Show last message",       mode = "n" },
-    })
+    local msg_history_ns = vim.api.nvim_create_namespace("msg_history_hl")
 
-    vim.schedule(function()
-      local wrapped_notify = vim.notify
-      vim.notify = function(msg, level, opts)
-        wrapped_notify(msg, level, opts)
-        if type(msg) ~= "string" or msg == "" then return end
-        local prefix = opts and opts.title and ("[" .. opts.title .. "] ") or ""
-        for _, line in ipairs(vim.split(msg, "\n", { plain = true })) do
-          if line ~= "" then
-            pcall(vim.api.nvim_echo, { { prefix .. line } }, true, { kind = "notify_history" })
+    local notif_level_hl = {
+      error = "ErrorMsg",
+      warn = "WarningMsg",
+      debug = "Comment",
+      trace = "Comment",
+    }
+
+    messages.msg_history_show = function(entries)
+      local lines = {}
+      local marks = {}
+
+      local function add_line(text, hl)
+        lines[#lines + 1] = text
+        if hl and text ~= "" then
+          marks[#marks + 1] = { #lines - 1, 0, #text, hl }
+        end
+      end
+
+      -- Neovim message history (errors, echomsg, etc.)
+      for _, entry in ipairs(entries or {}) do
+        if lines[#lines] and lines[#lines] ~= "" then add_line("") end
+        local content = entry[2]
+        for _, chunk in ipairs(content) do
+          local text = chunk[2] or ""
+          local hl = chunk[3]
+          local text_parts = vim.split(text, "\n", { plain = true })
+          for pi, part in ipairs(text_parts) do
+            if pi > 1 then lines[#lines + 1] = "" end
+            local cr_segs = vim.split(part, "\r", { plain = true })
+            part = cr_segs[#cr_segs]
+            if #cr_segs > 1 then
+              lines[#lines] = ""
+              marks = vim.tbl_filter(function(m) return m[1] ~= #lines - 1 end, marks)
+            end
+            if #lines == 0 then lines[1] = "" end
+            local lnum = #lines - 1
+            local col = #lines[#lines]
+            lines[#lines] = lines[#lines] .. part
+            if hl and hl > 0 and #part > 0 then
+              marks[#marks + 1] = { lnum, col, col + #part, hl }
+            end
           end
         end
       end
-    end)
+
+      -- Snacks notification history (vim.notify messages)
+      local ok, notifs = pcall(function() return Snacks.notifier.get_history() end)
+      if ok and notifs and #notifs > 0 then
+        if #lines > 0 then add_line("") end
+        for _, notif in ipairs(notifs) do
+          if lines[#lines] and lines[#lines] ~= "" then add_line("") end
+          local hl = notif_level_hl[notif.level] or "Normal"
+          local prefix = notif.title and notif.title ~= "" and (notif.title .. ": ") or ""
+          for _, line in ipairs(vim.split(notif.msg or "", "\n", { plain = true })) do
+            if line ~= "" then
+              add_line(prefix .. line, hl)
+              prefix = ""
+            end
+          end
+        end
+      end
+
+      if #lines == 0 or (#lines == 1 and lines[1] == "") then return end
+
+      local buf = vim.api.nvim_create_buf(false, true)
+      vim.bo[buf].buftype = "nofile"
+      vim.bo[buf].bufhidden = "wipe"
+      vim.bo[buf].buflisted = false
+      vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+      for _, m in ipairs(marks) do
+        pcall(vim.api.nvim_buf_set_extmark, buf, msg_history_ns, m[1], m[2], {
+          end_col = m[3],
+          hl_group = m[4],
+        })
+      end
+      vim.bo[buf].modifiable = false
+
+      vim.cmd("botright split")
+      vim.api.nvim_win_set_buf(0, buf)
+      vim.api.nvim_win_set_height(0, math.min(#lines, math.floor(vim.o.lines * 0.4)))
+      vim.cmd("normal! G")
+      vim.keymap.set("n", "q", "<cmd>close<CR>", { buffer = buf, nowait = true })
+    end
+
+    utils.wk_add({
+      { "<leader>nh", "<cmd>messages<CR>",      desc = "Message history", mode = "n" },
+      { "<leader>nl", "<cmd>normal! g<lt><CR>", desc = "Show last message",       mode = "n" },
+    })
   end,
 })
