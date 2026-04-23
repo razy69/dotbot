@@ -34,7 +34,7 @@ plugin.add({
     local wk = require("which-key")
     wk.setup({
       -- Defer which-key for d/y operators so they don't intercept keystrokes
-      -- before undo-glow can apply its visual highlights on yank/delete.
+      -- before neonvim.glow can apply its visual highlights on yank/delete.
       defer = function(ctx)
         if vim.list_contains({ "d", "y" }, ctx.operator) then
           return true

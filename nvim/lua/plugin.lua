@@ -10,9 +10,11 @@ local augroup = vim.api.nvim_create_augroup("plugin_lazy", { clear = true })
 --- Shared event constants for lazy-loading triggers
 M.LazyFile = { "BufReadPost", "BufNewFile", "BufWritePre" }
 
---- Valid fields in a PluginSpec (used for typo detection)
+--- Valid fields in a PluginSpec (used for typo detection).
+--- Ref-pinning fields (version/tag/branch/commit_id) are per-src-entry, not
+--- top-level, so they are not listed here.
 local known_fields = {
-  "name", "disabled", "lazy", "src", "version", "deps",
+  "name", "disabled", "lazy", "src", "deps",
   "event", "ft", "cmd", "keys", "build", "config",
 }
 
@@ -26,12 +28,19 @@ local known_fields = {
 ---@field name string Pack name (last segment of the git URL, e.g. "blink.cmp")
 ---@field kind string "install" or "update"
 
+---@class PluginSrcEntry
+---@field src string Git URL
+---@field version? vim.VersionRange Semver constraint (use vim.version.range())
+---@field tag? string Exact tag name
+---@field branch? string Branch name
+---@field commit_id? string Commit hash
+--- Only one of version/tag/branch/commit_id may be set per entry.
+
 ---@class PluginSpec
 ---@field name string Unique identifier, must match the registry key
 ---@field disabled? boolean Disable plugin
 ---@field lazy? boolean Defer vim.pack.add + config to vim.schedule
----@field src string|table<string|table> Git URL(s) for vim.pack.add
----@field version? string Semver constraint passed to vim.pack
+---@field src string|PluginSrcEntry|(string|PluginSrcEntry)[] Git URL or entry (or array of either)
 ---@field deps? string[] Names of specs that must be loaded first
 ---@field event? string[] Neovim events that trigger loading (e.g. "BufReadPost")
 ---@field ft? string[] Filetypes that trigger loading (e.g. "go", "lua")
@@ -109,22 +118,49 @@ vim.api.nvim_create_autocmd("UIEnter", {
 
 -- Loader --------------------------------------------------------------------
 
+--- Normalize a single src entry, folding tag/branch/commit_id into vim.pack's
+--- `version` field. `version` is reserved for semver ranges (vim.VersionRange);
+--- use tag/branch/commit_id for string refs. At most one ref kind per entry.
+---@param entry string|table
+---@param spec_name string Used for error messages
+---@return string|table Entry in the shape vim.pack.add() expects
+local function normalize_src_entry(entry, spec_name)
+  if type(entry) == "string" then
+    return entry
+  end
+  if entry.version ~= nil then
+    assert(type(entry.version) ~= "string",
+      spec_name .. ": `version` is for vim.version.range() semver constraints; "
+        .. "use tag/branch/commit_id for string refs")
+  end
+  local count = 0
+  for _, v in ipairs({ entry.version, entry.tag, entry.branch, entry.commit_id }) do
+    if v then count = count + 1 end
+  end
+  assert(count <= 1,
+    spec_name .. ": src entry has multiple ref kinds; use only one of version/tag/branch/commit_id")
+  local version = entry.version or entry.tag or entry.branch or entry.commit_id
+  if version then
+    return { src = entry.src, version = version }
+  end
+  return { src = entry.src }
+end
+
 --- Convert a PluginSpec's src field into the table format expected by vim.pack.add().
---- Handles single strings, arrays of strings, and mixed arrays with table entries.
+--- Handles single strings, single table entries, arrays of strings, and mixed arrays.
 ---@param spec PluginSpec
 ---@return table pack_specs Array suitable for vim.pack.add()
 local function build_pack_specs(spec)
   local src = spec.src
   if type(src) == "string" then
     src = { src }
+  elseif type(src) == "table" and src.src then
+    -- Single table-form entry, not an array of entries
+    src = { src }
   end
   local pack_specs = {}
   for _, s in ipairs(src) do
-    table.insert(pack_specs, s)
-  end
-  -- Apply top-level version constraint to a single string source
-  if spec.version and #pack_specs == 1 and type(pack_specs[1]) == "string" then
-    pack_specs[1] = { src = pack_specs[1], version = spec.version }
+    table.insert(pack_specs, normalize_src_entry(s, spec.name))
   end
   return pack_specs
 end

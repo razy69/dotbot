@@ -25,6 +25,7 @@ local ICON_LOCATION  = "\u{F039}" --  powerline line-number glyph
 local ICON_FF_UNIX   = "\u{F17C}" --  fa-linux
 local ICON_FF_DOS    = "\u{F17A}" --  fa-windows
 local ICON_FF_MAC    = "\u{F179}" --  fa-apple
+local ICON_ARROW     = "\u{F1841}" -- 󱡁 nf-md-bookmark_multiple (matches arrow.nvim)
 
 -- Spinner frames for LSP progress (same set as lualine's default:
 -- U+280B, U+2819, U+2839, U+2838, U+283C, U+2834, U+2826, U+2827, U+2807, U+280F).
@@ -78,6 +79,8 @@ local mode_info      = {
 
 -- Mode-pill base hl -> catppuccin palette key. Used to generate a matching
 -- separator highlight (mode_color over section bg) for every mode.
+-- Operator pills (Yank/Delete/Change/Format/Rchar) mirror modes.nvim's
+-- cursorline tints so the pill colour matches the line flash.
 local mode_color_key = {
   StModeNormal   = "blue",
   StModeInsert   = "green",
@@ -85,7 +88,30 @@ local mode_color_key = {
   StModeReplace  = "red",
   StModeCommand  = "peach",
   StModeTerminal = "teal",
+  StModeYank     = "yellow",
+  StModeDelete   = "red",
+  StModeChange   = "teal",
+  StModeFormat   = "peach",
+  StModeRchar    = "blue",
 }
+
+-- Transient operator/replace-char pill. Set by the ModeChanged / on_key
+-- handlers in M.setup() and consulted by current_mode_info() so the pill
+-- reflects a yank/delete/change/format/replace-char the instant it fires,
+-- instead of flickering through the microsecond-long `no*` mode.
+local transient = nil    ---@type { label: string, hl: string }?
+local transient_timer = nil
+
+local function show_transient(label, hl, ms)
+  transient = { label = label, hl = hl }
+  if transient_timer then pcall(function() transient_timer:stop() end) end
+  transient_timer = vim.defer_fn(function()
+    transient = nil
+    transient_timer = nil
+    pcall(vim.cmd, "redrawstatus")
+  end, ms or 400)
+  pcall(vim.cmd, "redrawstatus")
+end
 
 -- User content (filenames, branch names) can contain `%` which the
 -- statusline parser otherwise treats as a format escape.
@@ -137,11 +163,25 @@ local function setup_highlights()
   set("StDiagWarn", { fg = p.yellow, bg = p.surface0 })
   set("StDiagInfo", { fg = p.sky, bg = p.surface0 })
   set("StDiagHint", { fg = p.teal, bg = p.surface0 })
+  set("StArrow", { fg = p.peach, bg = p.surface0, bold = true })
+  set("StArrowLine", { fg = p.sky, bg = p.surface0 })
+
+  -- Named labels for special-filetype buffers (see `special_names`). Bg
+  -- must match StSecC's (mantle) so the label is seamless within the c
+  -- section.
+  set("StSpecialExplorer", { fg = p.blue, bg = p.mantle, bold = true })
 end
+
+-- Filetype -> styled label override for section_filename. When matched,
+-- we skip the filename/modified/readonly/new decorations and render the
+-- label inline with the surrounding StSecC (setting hl then restoring).
+-- Populated from `opts.special_names` in `setup()`.
+local special_names = {}
 
 -- === Section builders ==================================================
 
 local function current_mode_info()
+  if transient then return { transient.label, transient.hl } end
   local m = vim.api.nvim_get_mode().mode
   return mode_info[m] or { m:upper(), "StModeNormal" }
 end
@@ -161,6 +201,32 @@ local function section_diff()
   if d.removed and d.removed > 0 then table.insert(parts, "%#StDiffDel#-" .. d.removed) end
   if #parts == 0 then return "" end
   return "%@v:lua.statusline_click_diff@" .. table.concat(parts, " ") .. "%X"
+end
+
+-- Project-wide arrow marks: file count + line count. Pulled from our
+-- side-car index (see lua/neonvim/arrow_project.lua) rather than arrow
+-- itself — arrow only knows line marks for currently-loaded buffers, so
+-- asking arrow for a project total would under-count.
+-- Wrapped defensively: any throw here bricks M.active() and drops the
+-- whole statusline into its fallback render, which looks like the bar
+-- has disappeared.
+local function section_arrow()
+  local ok, ap = pcall(require, "neonvim.arrow_project")
+  if not ok or type(ap) ~= "table" or type(ap.count) ~= "function" then return "" end
+  local c_ok, c = pcall(ap.count)
+  if not c_ok or type(c) ~= "table" then return "" end
+  local files = tonumber(c.files) or 0
+  local lines = tonumber(c.line_marks) or 0
+  if files == 0 and lines == 0 then return "" end
+  local parts = {}
+  if files > 0 then
+    parts[#parts + 1] = "%#StArrow#" .. files .. "f"
+  end
+  if lines > 0 then
+    parts[#parts + 1] = "%#StArrowLine#" .. lines .. "l"
+  end
+  return "%@v:lua.statusline_click_arrow@%#StArrow#" .. ICON_ARROW .. " " ..
+      table.concat(parts, " ") .. "%X"
 end
 
 local function section_diagnostics()
@@ -190,11 +256,15 @@ local function section_filename()
   local winid = tonumber(vim.g.statusline_winid)
   local bufnr = (winid and vim.api.nvim_win_is_valid(winid))
       and vim.api.nvim_win_get_buf(winid) or 0
+  local special = special_names[vim.bo[bufnr].filetype]
+  if special then
+    return "%#" .. special.hl .. "#" .. esc(special.label) .. "%#StSecC#"
+  end
   local name = vim.api.nvim_buf_get_name(bufnr)
   local display = name == "" and "[No Name]" or vim.fn.fnamemodify(name, ":~:.")
   local parts = { esc(display) }
   if vim.bo[bufnr].modified then
-    table.insert(parts, "[~]")
+    table.insert(parts, " \u{25CF}") -- ● matches tabline modified glyph
   end
   if not vim.bo[bufnr].modifiable or vim.bo[bufnr].readonly then
     table.insert(parts, "[-]")
@@ -212,9 +282,9 @@ end
 local function section_fileformat()
   local ff = vim.bo.fileformat
   local icon = ff == "unix" and ICON_FF_UNIX
-            or ff == "dos"  and ICON_FF_DOS
-            or ff == "mac"  and ICON_FF_MAC
-            or ""
+      or ff == "dos" and ICON_FF_DOS
+      or ff == "mac" and ICON_FF_MAC
+      or ""
   if icon == "" then return ff end
   return icon .. " " .. ff
 end
@@ -297,6 +367,7 @@ local function build_b()
   local br = section_branch(); if br ~= "" then table.insert(items, br) end
   local df = section_diff(); if df ~= "" then table.insert(items, df) end
   local dg = section_diagnostics(); if dg ~= "" then table.insert(items, dg) end
+  local ar = section_arrow(); if ar ~= "" then table.insert(items, ar) end
   return items
 end
 
@@ -364,7 +435,8 @@ function _G.statusline()
     return result
   end
   -- Last-resort fallback: never return empty from `%!`.
-  return "%#StFill# " .. (vim.fn.bufname("%") ~= "" and vim.fn.fnamemodify(vim.fn.bufname("%"), ":t") or "[No Name]") .. " "
+  return "%#StFill# " ..
+  (vim.fn.bufname("%") ~= "" and vim.fn.fnamemodify(vim.fn.bufname("%"), ":t") or "[No Name]") .. " "
 end
 
 function _G.statusline_click_branch()
@@ -387,11 +459,41 @@ function _G.statusline_click_lsp()
   vim.cmd("LspInfo")
 end
 
+function _G.statusline_click_arrow()
+  local ok, ap = pcall(require, "neonvim.arrow_project")
+  if ok then ap.pick() end
+end
+
 -- === Setup ============================================================
 
 local spinner_timer = nil
 
-function M.setup()
+--- @class neonvim.statusline.SpecialName
+--- @field label string Text shown in place of the filename.
+--- @field hl string Highlight group for the label; bg should match StSecC.
+
+--- @class neonvim.statusline.Opts
+--- @field special_names? table<string, neonvim.statusline.SpecialName>
+---   Filetype -> styled label override for the filename section. Default
+---   labels all three snacks picker windows (input/list/preview) as
+---   "File Explorer" — when toggling the explorer the focused window is
+---   the input, not the list.
+
+--- @param opts? neonvim.statusline.Opts
+function M.setup(opts)
+  opts = opts or {}
+  if opts.special_names then
+    special_names = opts.special_names
+  else
+    local explorer = { label = "File Explorer", hl = "StSpecialExplorer" }
+    special_names = {
+      snacks_layout_box = explorer,
+      snacks_picker_input = explorer,
+      snacks_picker_list = explorer,
+      snacks_picker_preview = explorer,
+    }
+  end
+
   setup_highlights()
   local augroup = require("utils").augroup("Statusline")
   -- Re-apply highlights after :colorscheme or :BackgroundToggle reloads.
@@ -425,6 +527,54 @@ function M.setup()
   vim.api.nvim_create_autocmd({ "DiagnosticChanged", "LspAttach", "LspDetach", "WinEnter", "WinClosed" }, {
     group = augroup,
     callback = function() vim.cmd("redrawstatus") end,
+  })
+
+  -- Operator-pending pill. The `*:no*` transition fires the instant the
+  -- user presses y/d/c/=/>/<; vim.v.operator tells us which. By the time
+  -- mode returns to `n` the motion has executed, so we show the pill for
+  -- ~400ms regardless of how short the operator window was. Format
+  -- operators (`=`, `<`, `>`, `gq`, `!`) all collapse into one FORMAT
+  -- pill — the user just needs to know an operator fired, not which.
+  vim.api.nvim_create_autocmd("ModeChanged", {
+    group = augroup,
+    pattern = "*:no*",
+    callback = function()
+      local op = vim.v.operator
+      if op == "y" then
+        show_transient("YANK", "StModeYank")
+      elseif op == "d" then
+        show_transient("DELETE", "StModeDelete")
+      elseif op == "c" then
+        show_transient("CHANGE", "StModeChange")
+      elseif op:match("[=!><g]") then
+        show_transient("FORMAT", "StModeFormat")
+      end
+    end,
+  })
+
+  -- Single-char replace (`r<x>`) doesn't fire ModeChanged — Neovim handles
+  -- it in one keystroke. vim.on_key lets us surface it the same way
+  -- modes.nvim does for its cursorline tint.
+  vim.on_key(function(key)
+    if key ~= "r" then return end
+    local m = vim.api.nvim_get_mode().mode
+    if m == "n" or m:match("^ni") or m:match("^[vV\22]") then
+      show_transient("R-CHAR", "StModeRchar")
+    end
+  end)
+
+  -- Arrow mark changes don't surface through any standard event; the plugin
+  -- fires User autocmds after every update, so hook those too. The redraw
+  -- is scheduled because ArrowMarkUpdate fires from inside BufReadPost via
+  -- arrow's own load path — redrawing synchronously during that event
+  -- sometimes paints over mid-render UI state, leaving the bar blank until
+  -- the next natural redraw.
+  vim.api.nvim_create_autocmd("User", {
+    group = augroup,
+    pattern = { "ArrowUpdate", "ArrowMarkUpdate" },
+    callback = function()
+      vim.schedule(function() pcall(vim.cmd, "redrawstatus") end)
+    end,
   })
 
   vim.opt.statusline = "%!v:lua.statusline()"

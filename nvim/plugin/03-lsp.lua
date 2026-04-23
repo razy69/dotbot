@@ -68,6 +68,20 @@ plugin.add({
             didRename = true,
             willRename = true,
           },
+          symbol = {
+            dynamicRegistration = true,
+            symbolKind = {
+              valueSet = (function()
+                local kinds = {}
+                for i = 1, 26 do kinds[i] = i end
+                return kinds
+              end)(),
+            },
+            tagSupport = { valueSet = { 1 } },
+            resolveSupport = {
+              properties = { "location.range" },
+            },
+          },
         },
         textDocument = {
           completion = {
@@ -94,6 +108,15 @@ plugin.add({
 
     vim.lsp.log.set_level(vim.log.levels.OFF)
 
+    -- Fire `workspace/diagnostic` once per client so diagnostics are populated
+    -- for files we never opened. Servers without workspace pull support
+    -- (lua_ls, yamlls, bashls, dockerls, jsonls, terraformls, ansiblels,
+    -- jedi_language_server, perlnavigator, marksman, html, golangci_lint_ls)
+    -- fall back to their usual push-on-open behavior — this is a server
+    -- capability, not something we can force. Document pull is auto-enabled
+    -- by Neovim when advertised (see vim/lsp.lua: lsp.diagnostic._enable).
+    local workspace_diag_triggered = {}
+
     vim.api.nvim_create_autocmd("LspAttach", {
       group = autocmd_lsp_group,
       callback = function(ev)
@@ -103,16 +126,24 @@ plugin.add({
           return
         end
 
+        if not workspace_diag_triggered[client.id]
+            and client:supports_method("workspace/diagnostic") then
+          workspace_diag_triggered[client.id] = true
+          vim.lsp.buf.workspace_diagnostics({ client_id = client.id })
+        end
+
         -- Deferred requires (cached by Lua module system after first call)
         local fzf_lua = require("fzf-lua")
         local fzf_lua_actions = require("fzf-lua.actions")
         local hlargs = require("hlargs")
 
-        -- Use LSP-based folding when the server supports it (overrides treesitter foldexpr)
-        if client:supports_method("textDocument/foldingRange") then
-          local win = vim.api.nvim_get_current_win()
-          vim.wo[win].foldexpr = "v:lua.vim.lsp.foldexpr()"
-        end
+        -- Folding intentionally uses treesitter (set globally in options.lua),
+        -- not LSP. Many servers report foldingRange with lineFoldingOnly in a
+        -- way that excludes the closing `}` from the range (observed with
+        -- gopls on `func outer() { return func() { … } }` — the outer brace
+        -- stays visible when folded). Treesitter's fold queries capture the
+        -- full syntactic node including trailing punctuation and behave
+        -- consistently across languages.
 
         -- Use LSP for tag-based navigation (Ctrl-], :tag, etc.)
         if client:supports_method("definitionProvider") then
@@ -226,6 +257,18 @@ plugin.add({
         end
       end
     })
+
+    vim.api.nvim_create_user_command("LspWorkspaceDiagnostics", function()
+      local clients = vim.lsp.get_clients({ method = "workspace/diagnostic" })
+      if #clients == 0 then
+        vim.notify("No attached LSP server supports workspace/diagnostic", vim.log.levels.WARN)
+        return
+      end
+      vim.lsp.buf.workspace_diagnostics()
+      local names = {}
+      for _, c in ipairs(clients) do table.insert(names, c.name) end
+      vim.notify("Workspace diagnostics requested: " .. table.concat(names, ", "), vim.log.levels.INFO)
+    end, { desc = "Request workspace-wide LSP diagnostics" })
 
     -- Explicitly stop all LSP servers on exit to avoid orphaned processes
     vim.api.nvim_create_autocmd("VimLeavePre", {

@@ -229,7 +229,6 @@ vim.api.nvim_create_autocmd("UIEnter", {
     local dialog_active = false
 
     local function show_dialog(lines)
-      vim.api.nvim_buf_set_lines(dialog_buf, 0, -1, false, lines)
       local width = 0
       for _, line in ipairs(lines) do
         width = math.max(width, vim.api.nvim_strwidth(line))
@@ -261,6 +260,12 @@ vim.api.nvim_create_autocmd("UIEnter", {
         vim.wo[dialog_win].winhighlight = "Normal:Ui2Cmdline,FloatBorder:FloatBorder"
         vim.wo[dialog_win].wrap = true
       end
+      -- Set buffer lines AFTER opening/unhiding the window. Setting them
+      -- first inside a UI handler (our cmdline_show) leaves the window's
+      -- dirty region out of the post-handler redraw that ui2 targets at
+      -- wins.cmd — the box borders paint but the text stays invisible
+      -- until the next unrelated redraw (e.g. a mouse click).
+      vim.api.nvim_buf_set_lines(dialog_buf, 0, -1, false, lines)
       dialog_active = true
     end
 

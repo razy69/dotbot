@@ -10,3 +10,8 @@ plugin.add({
   name = "nvim_nio",
   src = "https://github.com/nvim-neotest/nvim-nio",
 })
+
+plugin.add({
+  name = "async",
+  src = "https://github.com/lewis6991/async.nvim",
+})

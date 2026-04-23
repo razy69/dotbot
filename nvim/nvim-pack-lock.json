@@ -4,6 +4,14 @@
       "rev": "a62e1083a3cfe8b6b206e7d3d33a51091df25357",
       "src": "https://github.com/L3MON4D3/LuaSnip"
     },
+    "arrow.nvim": {
+      "rev": "6e0f726f55f99332dd726a53effd6813786b6d49",
+      "src": "https://github.com/otavioschwanck/arrow.nvim"
+    },
+    "async.nvim": {
+      "rev": "7a1d7d49933fbe902b84b55f352a3b10fd587331",
+      "src": "https://github.com/lewis6991/async.nvim"
+    },
     "blink.cmp": {
       "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
       "src": "https://github.com/saghen/blink.cmp",
@@ -35,7 +43,7 @@
       "src": "https://github.com/stevearc/conform.nvim"
     },
     "diffview.nvim": {
-      "rev": "1031f0937de767c15024517c0186909b35076355",
+      "rev": "be71259aa5b8cadbb2c7abbd259093869b8d8166",
       "src": "https://github.com/dlyongemallo/diffview.nvim"
     },
     "dropbar.nvim": {
@@ -51,7 +59,7 @@
       "src": "https://github.com/rafamadriz/friendly-snippets"
     },
     "fzf-lua": {
-      "rev": "8223eb24a7adf72c4b24e04b751486b492775414",
+      "rev": "f233cb2f4cf0bc56ae2b10d06f25345069fcf355",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "git-conflict.nvim": {
@@ -69,6 +77,10 @@
     "guihua.lua": {
       "rev": "d178056728548ed8a99cce94de47b7500bd6889a",
       "src": "https://github.com/ray-x/guihua.lua"
+    },
+    "harpoon": {
+      "rev": "1bc17e3e42ea3c46b33c0bbad6a880792692a1b3",
+      "src": "https://github.com/ThePrimeagen/harpoon"
     },
     "hlargs.nvim": {
       "rev": "0b29317c944fb1f76503ce4540d6dceffbb5ccd2",
@@ -113,6 +125,10 @@
     "numb.nvim": {
       "rev": "12ef3913dea8727d4632c6f2ed47957a993de627",
       "src": "https://github.com/nacro90/numb.nvim"
+    },
+    "nvim": {
+      "rev": "426dbebe06b5c69fd846ceb17b42e12f890aedf1",
+      "src": "https://github.com/catppuccin/nvim"
     },
     "nvim-dap": {
       "rev": "45a69eba683a2c448dd9ecfc4de89511f0646b5f",
@@ -201,10 +217,6 @@
     "trouble.nvim": {
       "rev": "bd67efe408d4816e25e8491cc5ad4088e708a69a",
       "src": "https://github.com/folke/trouble.nvim"
-    },
-    "undo-glow.nvim": {
-      "rev": "25314a94cdfd84a3ca62bada1f88ed00982659ac",
-      "src": "https://github.com/y3owk1n/undo-glow.nvim"
     },
     "vim-illuminate": {
       "rev": "0d1e93684da00ab7c057410fecfc24f434698898",

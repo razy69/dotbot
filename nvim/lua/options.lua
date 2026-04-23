@@ -95,34 +95,102 @@ vim.opt.ttimeoutlen = 200 -- Wait 200ms for terminal key codes
 -- Custom fold text with treesitter syntax highlighting
 -- Credit: https://www.reddit.com/r/neovim/comments/1fzn1zt/custom_fold_text_function_with_treesitter_syntax/
 
+--- Overlay higher-priority buffer extmark highlights on top of treesitter
+--- captures. Plugins like blink.pairs (rainbow brackets) paint bracket
+--- glyphs via extmarks with priority > 100; reading only treesitter
+--- captures would render `}` in `@punctuation.bracket` grey while the
+--- unfolded buffer shows it in the rainbow pair color — a visible
+--- discrepancy between the folded summary and the live syntax colors.
+--- Returns the chosen hl_group string or nil if no extmark wins over
+--- the treesitter capture at (lnum, col).
+---@param bufnr integer
+---@param lnum integer 0-indexed row
+---@param col integer 0-indexed column
+---@return string? hl_group
+local function extmark_hl_at(bufnr, lnum, col)
+  -- `overlap = true` is too permissive: it returns marks whose end_col
+  -- is exactly `col` as well, bleeding e.g. a `(` at [5,6) into `c` at
+  -- col 6. We re-check the mark's actual range below and drop any whose
+  -- half-open [col, end_col) doesn't strictly contain `col`.
+  local ok, marks = pcall(vim.api.nvim_buf_get_extmarks, bufnr, -1,
+    { lnum, col }, { lnum, col },
+    { details = true, overlap = true, type = "highlight" })
+  if not ok or not marks or #marks == 0 then return nil end
+
+  local best_hl, best_priority = nil, -1
+  for _, m in ipairs(marks) do
+    local m_col = m[3]
+    local d = m[4] or {}
+    local m_end_col = d.end_col or (m_col + 1)
+    local hl = d.hl_group
+    -- Strict containment: extmark range [m_col, m_end_col) must contain col.
+    -- Also skip plugin decorations that aren't meaningful in a fold summary
+    -- (squiggly diagnostics, transient cursor/search highlights).
+    if m_col <= col and col < m_end_col
+        and hl
+        and not hl:find("^Diagnostic") and not hl:find("^LspDiagnostic")
+        and not hl:find("^Cursor") and not hl:find("^IncSearch")
+        and not hl:find("^Search") then
+      local priority = d.priority or 0
+      if priority > best_priority then
+        best_priority = priority
+        best_hl = hl
+      end
+    end
+  end
+  return best_hl
+end
+
 --- Build syntax-highlighted virtual text for a single line of a fold.
---- Queries treesitter captures at each character position to determine highlights,
---- then merges consecutive characters with the same highlight into chunks.
+--- Resolves each byte's highlight by combining treesitter captures (base
+--- layer) with higher-priority buffer extmark highlights (overlay
+--- layer), matching what Neovim actually paints at that position.
+---
+--- IMPORTANT: `s` must be the raw line (no tab expansion). Treesitter
+--- and extmark APIs return *raw byte* columns; expanding tabs to spaces
+--- in `s` before indexing shifts every character by (tabstop-1) per
+--- preceding tab, which puts each token's highlight onto the character
+--- to its left. Tabs are expanded when chunks are emitted instead, so
+--- display width stays correct without breaking the hl map.
 ---@param result table[] Accumulator: array of {text, highlight} pairs
----@param s string The line text to highlight
+---@param s string The raw line text (must NOT have tabs pre-expanded)
 ---@param lnum integer 0-indexed line number in the buffer
----@param coloff? integer Column offset (default 0)
+---@param coloff? integer Raw-byte column offset (default 0) — non-zero
+---   when `s` is a trimmed slice of the real line, used to map back
+---   into buffer cols
 local function fold_virt_text(result, s, lnum, coloff)
   coloff = coloff or 0
+  local bufnr = vim.api.nvim_get_current_buf()
+  local tabwidth = vim.bo[bufnr].tabstop
 
-  -- Build a highlight map using treesitter node ranges (much faster than per-character queries).
-  -- Wrapped in pcall to gracefully handle buffers without a treesitter parser.
+  -- Base layer: treesitter captures. iter_captures is far cheaper than
+  -- a per-char query and orders matches such that more-specific captures
+  -- come last, so overwriting in hl_map yields the same resolution
+  -- Neovim's highlighter uses.
   ---@type table<integer, string>
   local hl_map = {}
   pcall(function()
-    local bufnr = vim.api.nvim_get_current_buf()
     local parser = vim.treesitter.get_parser(bufnr)
     parser:parse()
     parser:for_each_tree(function(tstree, ltree)
-      local query = vim.treesitter.query.get(ltree:lang(), "highlights")
+      local lang = ltree:lang()
+      local query = vim.treesitter.query.get(lang, "highlights")
       if not query then
         return
       end
       for id, node in query:iter_captures(tstree:root(), bufnr, lnum, lnum + 1) do
         local sr, sc, er, ec = node:range()
         if sr <= lnum and er >= lnum then
-          local start_col = sr < lnum and 0 or (sc - coloff + 1)
+          local start_col = sr < lnum and 1 or (sc - coloff + 1)
           local end_col = er > lnum and #s or (ec - coloff)
+          -- Use the base capture name — Neovim registers per-language
+          -- variants like `@keyword.conditional.go` as *empty* hl groups
+          -- rather than links to the base (at least in 0.12). Passing the
+          -- suffixed name into a foldtext chunk renders with no
+          -- attributes (only the inherited Folded fg is applied), which
+          -- looked like "the last character of each token lost its
+          -- colour". The base `@keyword.conditional` carries the real
+          -- link chain and renders correctly.
           local hl = "@" .. query.captures[id]
           for i = math.max(1, start_col), math.min(#s, end_col) do
             hl_map[i] = hl
@@ -132,20 +200,38 @@ local function fold_virt_text(result, s, lnum, coloff)
     end)
   end)
 
-  -- Merge consecutive characters with the same highlight into chunks
+  -- Overlay layer: buffer extmark highlights. Per-byte lookup — fine
+  -- because we only run this for short fold anchor strings. Any extmark
+  -- with priority > 100 takes precedence over the treesitter capture,
+  -- mirroring Neovim's highlight-stacking rules.
+  for i = 1, #s do
+    local buf_col = coloff + i - 1
+    local em_hl = extmark_hl_at(bufnr, lnum, buf_col)
+    if em_hl then
+      hl_map[i] = em_hl
+    end
+  end
+
+  -- Emit chunks: walk bytes, merging runs with the same hl. A tab byte
+  -- is expanded to `tabwidth` spaces at emit time so the fold summary
+  -- lines up visually without breaking the byte-indexed hl map.
   local text = ""
   ---@type string?
   local hl = nil
   for i = 1, #s do
     local new_hl = hl_map[i]
+    local ch = s:sub(i, i)
+    if ch == "\t" then
+      ch = string.rep(" ", tabwidth)
+    end
     if new_hl ~= hl then
       if #text > 0 then
         table.insert(result, { text, hl })
       end
-      text = s:sub(i, i)
+      text = ch
       hl = new_hl
     else
-      text = text .. s:sub(i, i)
+      text = text .. ch
     end
   end
   if #text > 0 then
@@ -155,14 +241,63 @@ end
 
 --- Global fold text function referenced by foldtext option.
 --- Returns syntax-highlighted text for the first line of the fold,
---- followed by a line count indicator.
+--- followed by the last line's trailing closing punctuation (stripped
+--- of leading whitespace) so the anchor reads like a single-line
+--- summary — e.g. `func Foo() { ... }` instead of `func Foo() { ...`
+--- with a dangling `}` below. Then a line count indicator.
 ---@return table[] Array of {text, highlight} pairs for statusline-style rendering
 _G.get_fold_text = function()
-  local start = vim.fn.getline(vim.v.foldstart):gsub("\t", string.rep(" ", vim.o.tabstop))
+  -- Pass the raw line (tabs intact) — fold_virt_text indexes by raw byte
+  -- column to match treesitter captures, and expands tabs at chunk
+  -- emission so the display width is still correct.
+  local start = vim.fn.getline(vim.v.foldstart)
   local result = {}
 
   fold_virt_text(result, start, vim.v.foldstart - 1)
+
+  -- Remember the hl of the last opening bracket on the anchor line. The
+  -- matching closing bracket on the hidden last line won't have any
+  -- plugin-provided extmark (blink.pairs places its rainbow-pair
+  -- highlights via a decoration_provider that only fires for visible
+  -- lines), so our per-char extmark lookup would miss the rainbow color
+  -- there. Carrying the opener's hl forward lets us paint the close
+  -- with the same color the user sees when unfolded.
+  local opener_hl = nil
+  for _, chunk in ipairs(result) do
+    if chunk[1]:find("[{(%[]") then
+      opener_hl = chunk[2]
+    end
+  end
+
   table.insert(result, { " ... ", "Delimiter" })
+
+  -- Append the last line's content with full treesitter + extmark
+  -- resolution. `coloff` maps the trimmed string back into raw buffer
+  -- byte columns so the lookups query the right positions. Tabs stay
+  -- in the string — fold_virt_text expands them at emit time.
+  if vim.v.foldend > vim.v.foldstart then
+    local last_raw = vim.fn.getline(vim.v.foldend)
+    local last_trim = last_raw:gsub("^%s+", "")
+    if last_trim ~= "" then
+      local coloff = #last_raw - #last_trim
+      local prev_len = #result
+      fold_virt_text(result, last_trim, vim.v.foldend - 1, coloff)
+
+      -- Re-color the first closing bracket chunk on the last line so it
+      -- matches the opener. Only the first match is rewritten — any
+      -- further brackets (e.g. `})` pair where a function call follows
+      -- the block close) keep their own lookup.
+      if opener_hl then
+        for i = prev_len + 1, #result do
+          if result[i][1]:find("[})%]]") then
+            result[i] = { result[i][1], opener_hl }
+            break
+          end
+        end
+      end
+    end
+  end
+
   table.insert(result, { "  󰉸 " .. (vim.v.foldend - vim.v.foldstart) .. " line(s)", "Delimiter" })
 
   return result

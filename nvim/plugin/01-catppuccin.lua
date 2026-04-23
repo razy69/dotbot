@@ -70,8 +70,25 @@ plugin.add({
         return {
           FloatBorder = { fg = colors.blue, bg = colors.base },
           GitSignsCurrentLineBlame = { fg = colors.sky, bg = colors.base },
-          ModesVisual = { fg = colors.mauve, bg = colors.mauve },
-          ModesReplace = { fg = colors.yellow, bg = colors.yellow },
+          -- neonvim.glow — region flashes on yank/undo/redo/paste/search/focus.
+          -- surface2 tint + themed fg keeps the flash readable on frappe and
+          -- latte without the hard-coded hexes undo-glow used to ship.
+          GlowYank    = { bg = colors.surface2, fg = colors.yellow },
+          GlowUndo    = { bg = colors.surface2, fg = colors.red },
+          GlowRedo    = { bg = colors.surface2, fg = colors.green },
+          GlowPaste   = { bg = colors.surface2, fg = colors.teal },
+          GlowSearch  = { bg = colors.surface2, fg = colors.mauve },
+          GlowCursor  = { bg = colors.surface1 },
+          -- Per-mode source colours. modes.nvim reads each `Modes<Mode>`
+          -- hl group's bg and blends it against Normal.bg using
+          -- line_opacity (see 02-modes.lua) to produce the selection /
+          -- cursorline tint. fg doesn't matter here — modes.nvim only
+          -- consults bg.
+          ModesVisual  = { bg = colors.mauve },  -- visual/select selection → mauve
+          ModesCopy    = { bg = colors.yellow }, -- yank flash → yellow
+          ModesChange  = { bg = colors.green },  -- change (cc) → green
+          ModesDelete  = { bg = colors.red },    -- delete (dd) → red
+          ModesReplace = { bg = colors.peach },  -- replace → peach (was yellow, but clashed with yank)
           NoiceMini = { bg = colors.base },
           NormalFloat = { fg = colors.text, bg = colors.base },
           SymbolUsageRounding = { fg = colors.surface0 },
@@ -123,6 +140,26 @@ plugin.add({
         local ok_hlargs, hlargs_mod = pcall(require, "hlargs")
         if ok_hlargs then
           hlargs_mod.setup({ color = utils.get_palette().maroon })
+        end
+        -- modes.nvim captures `config.colors` at setup time and reuses those
+        -- hex values from its ColorScheme autocmd. Re-running setup() swaps
+        -- them to the new flavour so Modes* groups reflect latte on light /
+        -- frappe on dark instead of staying frozen at the startup flavour.
+        local ok_modes, modes_mod = pcall(require, "modes")
+        if ok_modes then
+          local p = utils.get_palette()
+          modes_mod.setup({
+            set_cursorline = true,
+            colors = {
+              copy = p.yellow, delete = p.red, change = p.teal,
+              format = p.peach, insert = p.blue, replace = p.blue,
+              visual = p.mauve,
+            },
+            line_opacity = {
+              copy = 0.15, delete = 0.15, change = 0.15, format = 0.15,
+              insert = 0.15, replace = 0.15, select = 0.5, visual = 0.5,
+            },
+          })
         end
         -- tiny-inline-diagnostic stores its TinyInline* highlight groups from
         -- DiagnosticError/Warn/Info/Hint at ColorScheme time. Setting
