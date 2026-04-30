@@ -1,5 +1,6 @@
 ---@brief Shared utility functions for the neonvim configuration.
 
+---@class neonvim.utils
 local M = {}
 
 --- Create a namespaced augroup with auto-clear.
@@ -72,8 +73,36 @@ function M.get_flavor()
   return (vim.o.background == "dark") and "frappe" or "latte"
 end
 
+---@class neonvim.CatppuccinPalette
+---@field rosewater string
+---@field flamingo string
+---@field pink string
+---@field mauve string
+---@field red string
+---@field maroon string
+---@field peach string
+---@field yellow string
+---@field green string
+---@field teal string
+---@field sky string
+---@field sapphire string
+---@field blue string
+---@field lavender string
+---@field text string
+---@field subtext1 string
+---@field subtext0 string
+---@field overlay2 string
+---@field overlay1 string
+---@field overlay0 string
+---@field surface2 string
+---@field surface1 string
+---@field surface0 string
+---@field base string
+---@field mantle string
+---@field crust string
+
 --- Get the catppuccin color palette for the current background setting.
----@return CtpColors<string>|{rosewater: string, flamingo: string, pink: string, mauve: string, red: string, maroon: string, peach: string, yellow: string, green: string, teal: string, sky: string, sapphire: string, blue: string, lavender: string, text: string, subtext1: string, subtext0: string, overlay2: string, overlay1: string, overlay0: string, surface2: string, surface1: string, surface0: string, base: string, mantle: string, crust: string}
+---@return neonvim.CatppuccinPalette
 function M.get_palette()
   local palettes = require("catppuccin.palettes")
   return palettes.get_palette(M.get_flavor())

@@ -2,6 +2,7 @@
 --- Provides lazy-loading via event/ft/cmd/keys triggers, dependency resolution,
 --- and automatic post-install/update build hooks.
 
+---@class neonvim.plugin
 local M = {}
 
 --- Augroup for all lazy-loading autocmds and build dispatch
@@ -131,7 +132,7 @@ local function normalize_src_entry(entry, spec_name)
   if entry.version ~= nil then
     assert(type(entry.version) ~= "string",
       spec_name .. ": `version` is for vim.version.range() semver constraints; "
-        .. "use tag/branch/commit_id for string refs")
+      .. "use tag/branch/commit_id for string refs")
   end
   local count = 0
   for _, v in ipairs({ entry.version, entry.tag, entry.branch, entry.commit_id }) do
@@ -141,9 +142,9 @@ local function normalize_src_entry(entry, spec_name)
     spec_name .. ": src entry has multiple ref kinds; use only one of version/tag/branch/commit_id")
   local version = entry.version or entry.tag or entry.branch or entry.commit_id
   if version then
-    return { src = entry.src, version = version }
+    return { src = entry.src, name = entry.name, version = version }
   end
-  return { src = entry.src }
+  return { src = entry.src, name = entry.name }
 end
 
 --- Convert a PluginSpec's src field into the table format expected by vim.pack.add().

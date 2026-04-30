@@ -501,6 +501,7 @@ vim.api.nvim_create_user_command("PackClean", function()
     for _, s in ipairs(src) do
       local name
       if type(s) == "table" then
+        ---@cast s {name?:string, src?:string}
         name = s.name or (type(s.src) == "string" and s.src:match("[^/]+$") or nil)
       elseif type(s) == "string" then
         name = s:match("[^/]+$")

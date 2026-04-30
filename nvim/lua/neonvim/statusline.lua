@@ -5,40 +5,40 @@
 --- `\u{...}` escapes so they survive pass-through through tools that
 --- might otherwise strip high-plane UTF-8 bytes.
 
-local M              = {}
+local M               = {}
 
 -- === Glyphs ============================================================
 
-local SEP_R          = "\u{E0B0}" -- section separator, right-pointing solid triangle (left-side)
-local SEP_L          = "\u{E0B2}" -- section separator, left-pointing solid triangle (right-side)
-local COMP_SEP_R     = "\u{E0B1}" -- component separator, thin right-pointing (inside b)
-local COMP_SEP_L     = "\u{E0B3}" -- component separator, thin left-pointing (inside x)
-local ICON_BRANCH    = "\u{E0A0}" --
-local ICON_DIAG_ERR  = "\u{EA76}" --  codicon:error
-local ICON_DIAG_WARN = "\u{EA6C}" --  codicon:warning
-local ICON_DIAG_INFO = "\u{EA74}" --  codicon:info
-local ICON_DIAG_HINT = "\u{EA6B}" --  codicon:lightbulb
-local ICON_LSP       = "\u{F013}" --  fa-cog
-local ICON_LSP_OK    = "\u{2713}" -- ✓
-local ICON_PROGRESS  = "\u{F09F}" --  (progression %)
-local ICON_LOCATION  = "\u{F039}" --  powerline line-number glyph
-local ICON_FF_UNIX   = "\u{F17C}" --  fa-linux
-local ICON_FF_DOS    = "\u{F17A}" --  fa-windows
-local ICON_FF_MAC    = "\u{F179}" --  fa-apple
-local ICON_ARROW     = "\u{F1841}" -- 󱡁 nf-md-bookmark_multiple (matches arrow.nvim)
+local SEP_R           = "\u{E0B0}" -- section separator, right-pointing solid triangle (left-side)
+local SEP_L           = "\u{E0B2}" -- section separator, left-pointing solid triangle (right-side)
+local COMP_SEP_R      = "\u{E0B1}" -- component separator, thin right-pointing (inside b)
+local COMP_SEP_L      = "\u{E0B3}" -- component separator, thin left-pointing (inside x)
+local ICON_BRANCH     = "\u{E0A0}" --
+local ICON_DIAG_ERR   = "\u{EA76}" --  codicon:error
+local ICON_DIAG_WARN  = "\u{EA6C}" --  codicon:warning
+local ICON_DIAG_INFO  = "\u{EA74}" --  codicon:info
+local ICON_DIAG_HINT  = "\u{EA6B}" --  codicon:lightbulb
+local ICON_LSP        = "\u{F013}" --  fa-cog
+local ICON_LSP_OK     = "\u{2713}" -- ✓
+local ICON_PROGRESS   = "\u{F09F}" --  (progression %)
+local ICON_LOCATION   = "\u{F039}" --  powerline line-number glyph
+local ICON_FF_UNIX    = "\u{F17C}" --  fa-linux
+local ICON_FF_DOS     = "\u{F17A}" --  fa-windows
+local ICON_FF_MAC     = "\u{F179}" --  fa-apple
+local ICON_ARROW      = "\u{F1841}" -- 󱡁 nf-md-bookmark_multiple (matches arrow.nvim)
 
 -- Spinner frames for LSP progress (same set as lualine's default:
 -- U+280B, U+2819, U+2839, U+2838, U+283C, U+2834, U+2826, U+2827, U+2807, U+280F).
-local spinner_frames = {
+local spinner_frames  = {
   "\u{280B}", "\u{2819}", "\u{2839}", "\u{2838}", "\u{283C}",
   "\u{2834}", "\u{2826}", "\u{2827}", "\u{2807}", "\u{280F}",
 }
-local spinner_idx    = 1
+local spinner_idx     = 1
 
 -- Mode -> { label, base highlight name }. The mode codes come from
 -- :h mode() — we cover every documented value so the label never falls
 -- back to a raw `CV` / `niI` code in the status pill.
-local mode_info      = {
+local mode_info       = {
   ["n"]     = { "NORMAL", "StModeNormal" },
   ["no"]    = { "O-PEND", "StModeNormal" },
   ["nov"]   = { "O-PEND", "StModeNormal" },
@@ -81,7 +81,7 @@ local mode_info      = {
 -- separator highlight (mode_color over section bg) for every mode.
 -- Operator pills (Yank/Delete/Change/Format/Rchar) mirror modes.nvim's
 -- cursorline tints so the pill colour matches the line flash.
-local mode_color_key = {
+local mode_color_key  = {
   StModeNormal   = "blue",
   StModeInsert   = "green",
   StModeVisual   = "mauve",
@@ -99,7 +99,8 @@ local mode_color_key = {
 -- handlers in M.setup() and consulted by current_mode_info() so the pill
 -- reflects a yank/delete/change/format/replace-char the instant it fires,
 -- instead of flickering through the microsecond-long `no*` mode.
-local transient = nil    ---@type { label: string, hl: string }?
+local transient       = nil ---@type { label: string, hl: string }?
+---@type uv.uv_timer_t?
 local transient_timer = nil
 
 local function show_transient(label, hl, ms)
@@ -108,15 +109,41 @@ local function show_transient(label, hl, ms)
   transient_timer = vim.defer_fn(function()
     transient = nil
     transient_timer = nil
-    pcall(vim.cmd, "redrawstatus")
+    pcall(vim.cmd.redrawstatus)
   end, ms or 400)
-  pcall(vim.cmd, "redrawstatus")
+  pcall(vim.cmd.redrawstatus)
 end
 
 -- User content (filenames, branch names) can contain `%` which the
 -- statusline parser otherwise treats as a format escape.
 local function esc(s)
   return (tostring(s):gsub("%%", "%%%%"))
+end
+
+-- Per-buffer memoization. The statusline re-renders on every cursor move,
+-- mode flip, and CursorHold tick — caching the parts that only change on
+-- specific events (diagnostics counts, filetype label, encoding/fileformat
+-- strings, the resolved filename) keeps each render to a few cheap reads
+-- instead of stat()s and table-walks. Invalidation is wired in M.setup().
+-- Wrapped in a `{ v = ... }` table so a cached `nil`/`false`/`""` still
+-- counts as a hit (otherwise we'd recompute every render).
+local function bcache(bufnr, key, compute)
+  local hit = vim.b[bufnr][key]
+  if hit then return hit.v end
+  local v = compute()
+  vim.b[bufnr][key] = { v = v }
+  return v
+end
+
+local CACHE_KEYS = {
+  "sl_diag", "sl_filetype", "sl_encoding", "sl_fileformat",
+  "sl_disp_short", "sl_disp_full",
+}
+
+local function invalidate_all(bufnr)
+  for _, k in ipairs(CACHE_KEYS) do
+    vim.b[bufnr][k] = nil
+  end
 end
 
 local function setup_highlights()
@@ -230,18 +257,21 @@ local function section_arrow()
 end
 
 local function section_diagnostics()
-  local counts = vim.diagnostic.count(0)
-  local e = counts[vim.diagnostic.severity.ERROR] or 0
-  local w = counts[vim.diagnostic.severity.WARN] or 0
-  local i = counts[vim.diagnostic.severity.INFO] or 0
-  local h = counts[vim.diagnostic.severity.HINT] or 0
-  local parts = {}
-  if e > 0 then table.insert(parts, "%#StDiagError#" .. ICON_DIAG_ERR .. " " .. e) end
-  if w > 0 then table.insert(parts, "%#StDiagWarn#" .. ICON_DIAG_WARN .. " " .. w) end
-  if i > 0 then table.insert(parts, "%#StDiagInfo#" .. ICON_DIAG_INFO .. " " .. i) end
-  if h > 0 then table.insert(parts, "%#StDiagHint#" .. ICON_DIAG_HINT .. " " .. h) end
-  if #parts == 0 then return "" end
-  return "%@v:lua.statusline_click_diag@" .. table.concat(parts, " ") .. "%X"
+  local bufnr = vim.api.nvim_get_current_buf()
+  return bcache(bufnr, "sl_diag", function()
+    local counts = vim.diagnostic.count(bufnr)
+    local e = counts[vim.diagnostic.severity.ERROR] or 0
+    local w = counts[vim.diagnostic.severity.WARN] or 0
+    local i = counts[vim.diagnostic.severity.INFO] or 0
+    local h = counts[vim.diagnostic.severity.HINT] or 0
+    local parts = {}
+    if e > 0 then table.insert(parts, "%#StDiagError#" .. ICON_DIAG_ERR .. " " .. e) end
+    if w > 0 then table.insert(parts, "%#StDiagWarn#" .. ICON_DIAG_WARN .. " " .. w) end
+    if i > 0 then table.insert(parts, "%#StDiagInfo#" .. ICON_DIAG_INFO .. " " .. i) end
+    if h > 0 then table.insert(parts, "%#StDiagHint#" .. ICON_DIAG_HINT .. " " .. h) end
+    if #parts == 0 then return "" end
+    return "%@v:lua.statusline_click_diag@" .. table.concat(parts, " ") .. "%X"
+  end)
 end
 
 -- `filereadable()` is a filesystem stat; calling it from the statusline on
@@ -252,7 +282,7 @@ end
 -- We resolve the buffer via `g:statusline_winid` so the inactive half of
 -- a split shows *its own* buffer name, not whichever buffer happens to be
 -- current at evaluation time.
-local function section_filename()
+local function section_filename(full_path)
   local winid = tonumber(vim.g.statusline_winid)
   local bufnr = (winid and vim.api.nvim_win_is_valid(winid))
       and vim.api.nvim_win_get_buf(winid) or 0
@@ -260,8 +290,14 @@ local function section_filename()
   if special then
     return "%#" .. special.hl .. "#" .. esc(special.label) .. "%#StSecC#"
   end
-  local name = vim.api.nvim_buf_get_name(bufnr)
-  local display = name == "" and "[No Name]" or vim.fn.fnamemodify(name, ":~:.")
+  -- Cache the resolved display path (the only expensive bit). The modified
+  -- glyph and [-]/[+] markers stay live since they flip on every keystroke.
+  local cache_key = full_path and "sl_disp_full" or "sl_disp_short"
+  local display = bcache(bufnr, cache_key, function()
+    local name = vim.api.nvim_buf_get_name(bufnr)
+    local mods = full_path and ":p" or ":~:."
+    return name == "" and "[No Name]" or vim.fn.fnamemodify(name, mods)
+  end)
   local parts = { esc(display) }
   if vim.bo[bufnr].modified then
     table.insert(parts, " \u{25CF}") -- ● matches tabline modified glyph
@@ -269,36 +305,45 @@ local function section_filename()
   if not vim.bo[bufnr].modifiable or vim.bo[bufnr].readonly then
     table.insert(parts, "[-]")
   end
-  if name ~= "" and vim.b[bufnr].statusline_is_new then
+  if vim.api.nvim_buf_get_name(bufnr) ~= "" and vim.b[bufnr].statusline_is_new then
     table.insert(parts, "[+]")
   end
   return table.concat(parts, "")
 end
 
 local function section_encoding()
-  return (vim.bo.fileencoding ~= "" and vim.bo.fileencoding) or vim.o.encoding
+  local bufnr = vim.api.nvim_get_current_buf()
+  return bcache(bufnr, "sl_encoding", function()
+    return (vim.bo[bufnr].fileencoding ~= "" and vim.bo[bufnr].fileencoding) or vim.o.encoding
+  end)
 end
 
 local function section_fileformat()
-  local ff = vim.bo.fileformat
-  local icon = ff == "unix" and ICON_FF_UNIX
-      or ff == "dos" and ICON_FF_DOS
-      or ff == "mac" and ICON_FF_MAC
-      or ""
-  if icon == "" then return ff end
-  return icon .. " " .. ff
+  local bufnr = vim.api.nvim_get_current_buf()
+  return bcache(bufnr, "sl_fileformat", function()
+    local ff = vim.bo[bufnr].fileformat
+    local icon = ff == "unix" and ICON_FF_UNIX
+        or ff == "dos" and ICON_FF_DOS
+        or ff == "mac" and ICON_FF_MAC
+        or ""
+    if icon == "" then return ff end
+    return icon .. " " .. ff
+  end)
 end
 
 local function section_filetype()
-  local ft = vim.bo.filetype
-  if ft == "" then return "" end
-  local icon = ""
-  local ok, mi = pcall(require, "mini.icons")
-  if ok then
-    local ic = mi.get("filetype", ft)
-    if ic then icon = ic .. " " end
-  end
-  return "%@v:lua.statusline_click_filetype@" .. icon .. ft .. "%X"
+  local bufnr = vim.api.nvim_get_current_buf()
+  return bcache(bufnr, "sl_filetype", function()
+    local ft = vim.bo[bufnr].filetype
+    if ft == "" then return "" end
+    local icon = ""
+    local ok, mi = pcall(require, "mini.icons")
+    if ok then
+      local ic = mi.get("filetype", ft)
+      if ic then icon = ic .. " " end
+    end
+    return "%@v:lua.statusline_click_filetype@" .. icon .. ft .. "%X"
+  end)
 end
 
 -- True when any attached LSP client has unfinished progress work. Checked
@@ -419,7 +464,7 @@ function M.active()
 end
 
 function M.inactive()
-  return "%#StFill# " .. section_filename() .. " "
+  return "%#StFill# " .. section_filename(true) .. " "
 end
 
 -- === Globals referenced by `%!` and `%@ ... @` =========================
@@ -436,7 +481,7 @@ function _G.statusline()
   end
   -- Last-resort fallback: never return empty from `%!`.
   return "%#StFill# " ..
-  (vim.fn.bufname("%") ~= "" and vim.fn.fnamemodify(vim.fn.bufname("%"), ":t") or "[No Name]") .. " "
+      (vim.fn.bufname("%") ~= "" and vim.fn.fnamemodify(vim.fn.bufname("%"), ":t") or "[No Name]") .. " "
 end
 
 function _G.statusline_click_branch()
@@ -466,6 +511,7 @@ end
 
 -- === Setup ============================================================
 
+---@type uv.uv_timer_t?
 local spinner_timer = nil
 
 --- @class neonvim.statusline.SpecialName
@@ -503,12 +549,41 @@ function M.setup(opts)
   })
 
   -- Refresh the "file doesn't exist on disk yet" flag only when the buffer
-  -- actually enters, loads, or is written — not on every redraw.
-  vim.api.nvim_create_autocmd({ "BufEnter", "BufReadPost", "BufNewFile", "BufWritePost" }, {
+  -- actually enters, loads, or is written — not on every redraw. Same set
+  -- of events also drops the per-buffer render caches so a freshly-loaded
+  -- buffer recomputes diagnostics/encoding/fileformat/filetype/filename.
+  vim.api.nvim_create_autocmd({ "BufEnter", "BufReadPost", "BufNewFile", "BufWritePost", "BufFilePost" }, {
     group = augroup,
     callback = function(ev)
       local name = vim.api.nvim_buf_get_name(ev.buf)
       vim.b[ev.buf].statusline_is_new = name ~= "" and vim.fn.filereadable(name) == 0
+      invalidate_all(ev.buf)
+    end,
+  })
+
+  -- Fine-grained invalidations: each event flips a single cache without
+  -- having to walk the full set above.
+  vim.api.nvim_create_autocmd("DiagnosticChanged", {
+    group = augroup,
+    callback = function(ev) vim.b[ev.buf].sl_diag = nil end,
+  })
+  vim.api.nvim_create_autocmd("FileType", {
+    group = augroup,
+    callback = function(ev)
+      vim.b[ev.buf].sl_filetype = nil
+      -- special_names is keyed on filetype, so the rendered filename can
+      -- swap to a styled label and back.
+      vim.b[ev.buf].sl_disp_short = nil
+      vim.b[ev.buf].sl_disp_full = nil
+    end,
+  })
+  vim.api.nvim_create_autocmd("OptionSet", {
+    group = augroup,
+    pattern = { "fileencoding", "fileformat" },
+    callback = function()
+      local bufnr = vim.api.nvim_get_current_buf()
+      vim.b[bufnr].sl_encoding = nil
+      vim.b[bufnr].sl_fileformat = nil
     end,
   })
 
@@ -524,9 +599,25 @@ function M.setup(opts)
   -- spinner_timer below repaints during in-flight progress (and the
   -- final ✓ lands within one 300ms tick of "end"), so adding it here
   -- would stack dozens of per-second redraws during indexing.
+  --
+  -- Debounced via vim.schedule so cascades — most notably toggling snacks
+  -- explorer, which fires WinEnter/WinClosed for ~4 floating picker
+  -- windows in rapid succession — collapse into one redraw at the tail
+  -- of the event tick. Each :redrawstatus mid-cascade was flushing the
+  -- screen with the layout still in flux, leaving the main buffer
+  -- visibly painted in its sidebar-narrowed state for one frame after
+  -- the sidebar split had already closed.
+  local redraw_pending = false
   vim.api.nvim_create_autocmd({ "DiagnosticChanged", "LspAttach", "LspDetach", "WinEnter", "WinClosed" }, {
     group = augroup,
-    callback = function() vim.cmd("redrawstatus") end,
+    callback = function()
+      if redraw_pending then return end
+      redraw_pending = true
+      vim.schedule(function()
+        redraw_pending = false
+        pcall(vim.cmd.redrawstatus)
+      end)
+    end,
   })
 
   -- Operator-pending pill. The `*:no*` transition fires the instant the
@@ -573,7 +664,7 @@ function M.setup(opts)
     group = augroup,
     pattern = { "ArrowUpdate", "ArrowMarkUpdate" },
     callback = function()
-      vim.schedule(function() pcall(vim.cmd, "redrawstatus") end)
+      vim.schedule(function() pcall(vim.cmd.redrawstatus) end)
     end,
   })
 
@@ -588,22 +679,39 @@ function M.setup(opts)
     spinner_timer = nil
   end
 
-  -- 300ms heartbeat: drives the LSP spinner animation AND serves as a
-  -- safety net against missed implicit redraws (closing floats, plugin
-  -- callbacks that exit cmdline weirdly, etc.). We use `redrawstatus`
-  -- without the bang — that only repaints the *current* window's status
-  -- row, which is one row per tick. The old implementation used
-  -- `redrawstatus!` (all windows) and was the expensive part; the timer
-  -- itself is fine. Inactive windows' status content is static
-  -- (filename only), so they don't need a heartbeat — WinEnter/WinClosed
-  -- autocmds above cover their transitions.
+  -- 300ms heartbeat for the LSP spinner — only running while an attached
+  -- client has unfinished progress. Starts on LspProgress when work
+  -- appears, stops when the last "end" message lands. The previous version
+  -- ticked unconditionally and walked client progress rings 3x/sec even
+  -- when nothing was in flight; this one stays silent on idle editors.
   spinner_timer = assert(vim.uv.new_timer())
-  spinner_timer:start(300, 300, vim.schedule_wrap(function()
-    if any_lsp_in_progress() then
-      spinner_idx = (spinner_idx % #spinner_frames) + 1
-    end
-    vim.cmd("redrawstatus")
-  end))
+  local spinner_running = false
+
+  local function start_spinner()
+    if spinner_running then return end
+    spinner_running = true
+    spinner_timer:start(300, 300, vim.schedule_wrap(function()
+      if any_lsp_in_progress() then
+        spinner_idx = (spinner_idx % #spinner_frames) + 1
+        pcall(vim.cmd.redrawstatus)
+      else
+        spinner_running = false
+        spinner_timer:stop()
+        -- One last redraw so the spinner frame swaps to ICON_LSP_OK (✓)
+        -- the moment the final "end" lands.
+        pcall(vim.cmd.redrawstatus)
+      end
+    end))
+  end
+
+  vim.api.nvim_create_autocmd({ "LspProgress", "LspAttach" }, {
+    group = augroup,
+    callback = function()
+      if any_lsp_in_progress() then
+        start_spinner()
+      end
+    end,
+  })
 end
 
 -- Expose re-theming helper for 01-catppuccin.lua's reload path.

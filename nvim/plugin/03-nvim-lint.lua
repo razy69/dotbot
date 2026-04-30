@@ -14,11 +14,15 @@ plugin.add({
     }
 
     -- Scan linters/ for Mason-installable linter definitions. Filename
-    -- (minus .lua) is the source of truth for both the nvim-lint linter
-    -- name and the Mason package name — same contract as lsp/.
+    -- (minus .lua) is the nvim-lint linter name. The spec may override
+    -- `package` (Mason package name) and `binary` (executable on PATH)
+    -- when they differ from the linter name — same shape as lsp/. An
+    -- optional `customize(linter)` callback gets the resolved nvim-lint
+    -- linter table for last-mile tweaks (e.g. injecting --config args).
     -- SECURITY: dofile() would execute any .lua dropped here, so we gate
     -- on ownership+permissions before scanning.
-    local mason_linters = {}
+    local lint_specs = {}
+    local customizers = {}
     local linters_dir = vim.fn.stdpath("config") .. "/linters"
     if not utils.is_trusted_dir(linters_dir) then
       vim.notify(
@@ -30,10 +34,16 @@ plugin.add({
         if file:match("%.lua$") then
           local name = file:gsub("%.lua$", "")
           local spec = dofile(linters_dir .. "/" .. file)
-          table.insert(mason_linters, name)
+          table.insert(lint_specs, {
+            pkg = spec.package or name,
+            binary = spec.binary or name,
+          })
           for _, ft in ipairs(spec.ft) do
             linters_by_ft[ft] = linters_by_ft[ft] or {}
             table.insert(linters_by_ft[ft], name)
+          end
+          if type(spec.customize) == "function" then
+            customizers[name] = spec.customize
           end
         end
       end
@@ -41,14 +51,26 @@ plugin.add({
 
     lint.linters_by_ft = linters_by_ft
 
+    -- Apply customizers after linters_by_ft is wired so the linter table
+    -- has been resolved via lint.linters[name] (which lazy-loads the
+    -- built-in spec from nvim-lint's package).
+    for name, fn in pairs(customizers) do
+      local linter = lint.linters[name]
+      if linter then
+        local ok, err = pcall(fn, linter)
+        if not ok then
+          vim.notify(
+            ("nvim-lint: customize(%s) failed: %s"):format(name, err),
+            vim.log.levels.WARN
+          )
+        end
+      end
+    end
+
     -- Declare install specs; actual install is gated behind :LintInstall to
     -- avoid unattended network fetches + package execution on startup.
     -- :MasonStatus lists what's missing; see lua/commands/mason.lua.
     local mason_cmds = require("commands.mason")
-    local lint_specs = {}
-    for _, name in ipairs(mason_linters) do
-      table.insert(lint_specs, { package = name, binary = name })
-    end
     mason_cmds.register("lint", lint_specs)
     mason_cmds.warn_missing("lint")
 
@@ -59,9 +81,27 @@ plugin.add({
     local lint_timers = {}
     local LINT_DEBOUNCE_MS = 250
     local lint_group = utils.augroup("lint")
+    -- Only lint real on-disk files. LSP hover popups, snacks docs, and other
+    -- ephemeral UI buffers may carry a linted filetype (markdown, lua, …) but
+    -- have a non-empty buftype or no backing file — running a linter there is
+    -- noise at best and breaks rendering at worst.
+    local function is_real_file_buf(buf)
+      if vim.bo[buf].buftype ~= "" then
+        return false
+      end
+      local name = vim.api.nvim_buf_get_name(buf)
+      if name == "" then
+        return false
+      end
+      return vim.uv.fs_stat(name) ~= nil
+    end
+
     vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost" }, {
       group = lint_group,
       callback = function(ev)
+        if not is_real_file_buf(ev.buf) then
+          return
+        end
         local t = lint_timers[ev.buf]
         if t then
           t:stop()
@@ -69,7 +109,7 @@ plugin.add({
         end
         lint_timers[ev.buf] = vim.defer_fn(function()
           lint_timers[ev.buf] = nil
-          if vim.api.nvim_buf_is_valid(ev.buf) then
+          if vim.api.nvim_buf_is_valid(ev.buf) and is_real_file_buf(ev.buf) then
             vim.api.nvim_buf_call(ev.buf, function()
               lint.try_lint()
             end)

@@ -21,9 +21,9 @@ plugin.add({
     require("modes").setup({
       set_cursorline = true,
       colors = {
-        copy = palette.yellow,   -- light yellow
+        copy = palette.yellow, -- light yellow
         delete = palette.red,
-        change = palette.teal,   -- dark green
+        change = palette.teal, -- dark green
         format = palette.peach,
         insert = palette.blue,
         replace = palette.blue,

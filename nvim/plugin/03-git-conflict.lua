@@ -4,6 +4,6 @@ plugin.add({
   src = "https://github.com/akinsho/git-conflict.nvim",
   event = plugin.LazyFile,
   config = function()
-    require("git-conflict").setup()
+    require("git-conflict").setup({})
   end
 })

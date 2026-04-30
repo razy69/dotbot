@@ -50,6 +50,58 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Re-sync treesitter, LSP, and the linter when 'filetype' is set (notably
+-- via :set ft=<x> on an already-open buffer). The forward direction is
+-- handled by each plugin's own FileType autocmds — treesitter starts in
+-- plugin/02-treesitter.lua, vim.lsp.enable() attaches matching servers.
+-- What's missing is cleanup of stale state from the previous filetype:
+--   * the old treesitter highlighter stays attached unless we stop() it
+--     before the plugin's autocmd calls start() with the new lang
+--   * LSP clients whose `filetypes` no longer match remain attached
+--   * nvim-lint listens on BufReadPost/BufWritePost, not FileType, so
+--     try_lint() would still run with the previous ft's linter set
+-- Registered from autocmd.lua (sourced via init.lua before plugin/ files),
+-- so this autocmd fires before the treesitter plugin's FileType autocmd —
+-- stop() runs, then start() runs cleanly with the new language.
+vim.api.nvim_create_autocmd("FileType", {
+  group = utils.augroup("filetype_sync"),
+  callback = function(ev)
+    local buf = ev.buf
+    local ft = vim.bo[buf].filetype
+    if ft == "" then return end
+
+    -- Treesitter: drop the prior highlighter; the plugin's own FileType
+    -- autocmd will re-call vim.treesitter.start() for the new ft.
+    pcall(vim.treesitter.stop, buf)
+
+    -- LSP: detach clients whose declared filetypes don't include the new
+    -- ft. Matching servers auto-attach via vim.lsp.enable's FileType
+    -- autocmd, so no explicit re-attach needed here.
+    for _, client in ipairs(vim.lsp.get_clients({ bufnr = buf })) do
+      ---@type vim.lsp.Config?
+      local cfg = vim.lsp.config[client.name]
+      local fts = cfg and cfg.filetypes
+      if fts and not vim.tbl_contains(fts, ft) then
+        vim.lsp.buf_detach_client(buf, client.id)
+      end
+    end
+
+    -- Linter: re-run with the new filetype's linter set. pcall guards the
+    -- pre-LazyFile case where nvim-lint hasn't been loaded yet — in that
+    -- case the plugin's own BufReadPost autocmd will handle the first run.
+    -- Skip non-file buffers: LSP hover popups set ft=markdown for rendering,
+    -- which would otherwise spawn vale on the hover content.
+    local bt = vim.bo[buf].buftype
+    local bname = vim.api.nvim_buf_get_name(buf)
+    if bt == "" and bname ~= "" and vim.uv.fs_stat(bname) then
+      local ok, lint = pcall(require, "lint")
+      if ok then
+        vim.api.nvim_buf_call(buf, function() lint.try_lint() end)
+      end
+    end
+  end,
+})
+
 -- Force spaces over tabs for every filetype (runtime ftplugins like go.vim set noexpandtab).
 -- Makefiles are excluded because recipe lines structurally require a leading tab.
 vim.api.nvim_create_autocmd("FileType", {

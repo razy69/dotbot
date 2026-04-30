@@ -196,9 +196,6 @@ M.check = function()
     if spec.deps then
       table.insert(lines, "deps: " .. fmt_list(spec.deps))
     end
-    if spec.version then
-      table.insert(lines, "version: " .. spec.version)
-    end
     if spec.lazy then
       table.insert(lines, "lazy: true (deferred vim.pack.add)")
     end

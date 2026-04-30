@@ -171,6 +171,7 @@ local function fold_virt_text(result, s, lnum, coloff)
   local hl_map = {}
   pcall(function()
     local parser = vim.treesitter.get_parser(bufnr)
+    if not parser then return end
     parser:parse()
     parser:for_each_tree(function(tstree, ltree)
       local lang = ltree:lang()

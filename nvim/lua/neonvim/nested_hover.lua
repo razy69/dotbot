@@ -57,7 +57,9 @@ local generation = 0
 local function close_latest()
   local idx
   for i = #stack, 1, -1 do
-    if vim.api.nvim_win_is_valid(stack[i].win) then idx = i; break end
+    if vim.api.nvim_win_is_valid(stack[i].win) then
+      idx = i; break
+    end
   end
   if not idx then return end
 
@@ -66,7 +68,9 @@ local function close_latest()
   -- trigger CursorMoved-driven cleanup that could cascade-close more).
   local target
   for j = idx - 1, 1, -1 do
-    if vim.api.nvim_win_is_valid(stack[j].win) then target = stack[j].win; break end
+    if vim.api.nvim_win_is_valid(stack[j].win) then
+      target = stack[j].win; break
+    end
   end
 
   local to_close = stack[idx].win
@@ -75,7 +79,7 @@ local function close_latest()
 end
 
 local function close_all()
-  local snapshot = { unpack(stack) }
+  local snapshot = { table.unpack(stack) }
   for _, e in ipairs(snapshot) do
     if vim.api.nvim_win_is_valid(e.win) then
       pcall(vim.api.nvim_win_close, e.win, false)
@@ -132,13 +136,21 @@ end
 
 -- === Symbol disambiguation ==========================================
 
+-- `locations` is non-standard (the LSP spec only defines singular
+-- `location` on WorkspaceSymbol/SymbolInformation), but some servers
+-- return arrays anyway. Loose alias keeps the defensive read type-clean.
+---@class neonvim.LooseSymbol
+---@field name string
+---@field location? lsp.Location|{ uri: string }
+---@field locations? lsp.Location[]
+
 ---Pick the best workspace/symbol result for `word`, using the parent
 ---hover's context to prefer same-file / same-package matches over
 ---arbitrary fuzzy hits.
----@param syms lsp.WorkspaceSymbol[]|lsp.SymbolInformation[]
+---@param syms neonvim.LooseSymbol[]
 ---@param word string
 ---@param context { uri: string, position: lsp.Position }?
----@return lsp.WorkspaceSymbol|lsp.SymbolInformation?
+---@return neonvim.LooseSymbol?
 local function pick_symbol(syms, word, context)
   local parent_uri = context and context.uri
   local parent_dir = parent_uri and parent_uri:match("(.+)/[^/]+$")
@@ -203,7 +215,9 @@ local function display(result, source_buf, focus_id, context)
       once = true,
       callback = function()
         for i, e in ipairs(stack) do
-          if e.win == winid then table.remove(stack, i); break end
+          if e.win == winid then
+            table.remove(stack, i); break
+          end
         end
       end,
     })
@@ -261,7 +275,7 @@ function M.open_from_word(source_buf)
   end
 
   client:request("workspace/symbol", { query = word }, function(err, syms)
-    if my_gen ~= generation then return end  -- superseded by a newer K
+    if my_gen ~= generation then return end -- superseded by a newer K
     if err or not syms or vim.tbl_isempty(syms) then
       vim.notify("Nested hover: no symbol named '" .. word .. "'", vim.log.levels.INFO)
       return

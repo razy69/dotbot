@@ -4,7 +4,7 @@
 --- pulled per-filetype from mini.icons' color groups (matching snacks
 --- explorer), and the status symbol reflects VSCode-style new/modified/saved.
 
-local M = {}
+local M               = {}
 
 -- Status glyphs (Nerd Font). `SYMBOL_CLOSE` is the always-present × click
 -- target; `SYMBOL_NEW` / `SYMBOL_MODIFIED` sit to its left when applicable.
@@ -146,7 +146,7 @@ function M.setup(opts)
   opts = opts or {}
   exclude_fts = {}
   local default = {
-    "snacks_layout_box",     -- floating container that wraps the picker windows
+    "snacks_layout_box", -- floating container that wraps the picker windows
     "snacks_picker_input",
     "snacks_picker_list",
     "snacks_picker_preview",

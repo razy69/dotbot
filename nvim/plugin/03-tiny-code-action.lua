@@ -14,7 +14,7 @@ plugin.add({
 
     -- Add keymap
     utils.wk_add({
-      { "<leader>ca", function() code_action.code_action() end, desc = "LSP [C]ode [A]ction", mode = { "n" } },
+      { "<leader>ca", function() code_action.code_action({}) end, desc = "LSP [C]ode [A]ction", mode = { "n" } },
     })
   end
 })

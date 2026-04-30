@@ -119,14 +119,18 @@ vim.api.nvim_create_autocmd("UIEnter", {
         pcall(vim.api.nvim_win_set_config, mini_win, {
           hide = false,
           relative = "editor",
-          row = row, col = col,
-          width = width, height = height,
+          row = row,
+          col = col,
+          width = width,
+          height = height,
         })
       else
         mini_win = vim.api.nvim_open_win(mini_buf, false, {
           relative = "editor",
-          row = row, col = col,
-          width = width, height = height,
+          row = row,
+          col = col,
+          width = width,
+          height = height,
           style = "minimal",
           border = "none",
           focusable = false,
@@ -159,16 +163,18 @@ vim.api.nvim_create_autocmd("UIEnter", {
     local function place_search_count(text)
       if text then search_count_text = text end
       if not search_count_text or search_count_text == "" then return end
+      local current = search_count_text
       local buf = vim.api.nvim_get_current_buf()
       local ok_cursor, cursor = pcall(vim.api.nvim_win_get_cursor, 0)
-      if not ok_cursor then return end
+      if not ok_cursor or not cursor then return end
       if search_extmark_buf and search_extmark_buf ~= buf then
         clear_search_count()
+        search_count_text = current
       end
       search_extmark_buf = buf
       local ok, id = pcall(vim.api.nvim_buf_set_extmark, buf, search_ns, cursor[1] - 1, 0, {
         id = search_extmark_id,
-        virt_text = { { " " .. vim.trim(search_count_text), "Ui2SearchCount" } },
+        virt_text = { { " " .. vim.trim(current), "Ui2SearchCount" } },
         virt_text_pos = "eol",
         hl_mode = "combine",
       })
@@ -243,14 +249,18 @@ vim.api.nvim_create_autocmd("UIEnter", {
         pcall(vim.api.nvim_win_set_config, dialog_win, {
           hide = false,
           relative = "editor",
-          row = row, col = col,
-          width = width, height = height,
+          row = row,
+          col = col,
+          width = width,
+          height = height,
         })
       else
         dialog_win = vim.api.nvim_open_win(dialog_buf, false, {
           relative = "editor",
-          row = row, col = col,
-          width = width, height = height,
+          row = row,
+          col = col,
+          width = width,
+          height = height,
           style = "minimal",
           border = "rounded",
           focusable = false,
@@ -473,7 +483,7 @@ vim.api.nvim_create_autocmd("UIEnter", {
     vim.api.nvim_create_autocmd("VimResized", {
       callback = function()
         if ui2.wins.cmd and vim.api.nvim_win_is_valid(ui2.wins.cmd)
-          and not vim.api.nvim_win_get_config(ui2.wins.cmd).hide then
+            and not vim.api.nvim_win_get_config(ui2.wins.cmd).hide then
           show_cmd_window()
         end
       end,
@@ -639,8 +649,8 @@ vim.api.nvim_create_autocmd("UIEnter", {
     end
 
     utils.wk_add({
-      { "<leader>nh", "<cmd>messages<CR>",      desc = "Message history", mode = "n" },
-      { "<leader>nl", "<cmd>normal! g<lt><CR>", desc = "Show last message",       mode = "n" },
+      { "<leader>nh", "<cmd>messages<CR>",      desc = "Message history",   mode = "n" },
+      { "<leader>nl", "<cmd>normal! g<lt><CR>", desc = "Show last message", mode = "n" },
     })
   end,
 })

@@ -12,7 +12,7 @@
 local M = {}
 
 ---@class MasonInstallSpec
----@field package string Mason package name
+---@field pkg string Mason package name
 ---@field binary string Expected executable on PATH (skip install if present)
 
 ---@type table<string, MasonInstallSpec[]>
@@ -45,7 +45,7 @@ function M.warn_missing(kind)
   end
   local names = {}
   for _, e in ipairs(gone) do
-    table.insert(names, e.package)
+    table.insert(names, e.pkg)
   end
   local cmd = kind == "lsp" and ":LspInstall" or ":LintInstall"
   vim.schedule(function()
@@ -66,12 +66,12 @@ end
 local function check_updates(specs, registry)
   local updates = {}
   for _, entry in ipairs(specs) do
-    local pkg_ok, pkg = pcall(registry.get_package, entry.package)
+    local pkg_ok, pkg = pcall(registry.get_package, entry.pkg)
     if pkg_ok and pkg:is_installed() then
       local current = pkg:get_installed_version()
       local latest_ok, latest = pcall(pkg.get_latest_version, pkg)
       if latest_ok and latest and current ~= latest and pkg:is_installable({ version = latest }) then
-        table.insert(updates, { pkg = pkg, name = entry.package, latest = latest })
+        table.insert(updates, { pkg = pkg, name = entry.pkg, latest = latest })
       end
     end
   end
@@ -93,16 +93,17 @@ local function install(kind)
   local all_specs = M._specs[kind]
   local ok, registry = pcall(require, "mason-registry")
   if not ok then
-    vim.notify("Mason: mason-registry not available yet — open a file first to trigger LSP/lint load", vim.log.levels.ERROR)
+    vim.notify("Mason: mason-registry not available yet — open a file first to trigger LSP/lint load",
+      vim.log.levels.ERROR)
     return
   end
   registry.refresh(function()
     ---@type {pkg: table, name: string, action: "install"|"update", version: string?}[]
     local work = {}
     for _, entry in ipairs(missing(all_specs)) do
-      local pkg_ok, pkg = pcall(registry.get_package, entry.package)
+      local pkg_ok, pkg = pcall(registry.get_package, entry.pkg)
       if pkg_ok and not pkg:is_installed() then
-        table.insert(work, { pkg = pkg, name = entry.package, action = "install" })
+        table.insert(work, { pkg = pkg, name = entry.pkg, action = "install" })
       end
     end
     for _, u in ipairs(check_updates(all_specs, registry)) do
@@ -181,7 +182,7 @@ vim.api.nvim_create_user_command("MasonStatus", function()
     else
       local names = {}
       for _, e in ipairs(gone) do
-        table.insert(names, e.package)
+        table.insert(names, e.pkg)
       end
       vim.notify(("Mason %s missing: %s"):format(kind, table.concat(names, ", ")), vim.log.levels.WARN)
     end

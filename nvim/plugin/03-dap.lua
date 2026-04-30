@@ -27,7 +27,7 @@ plugin.add({
       },
     })
     require("dap-go").setup()
-    require("nvim-dap-virtual-text").setup()
+    require("nvim-dap-virtual-text").setup({})
 
     -- nvim-dap-go's default `Debug` and `Debug test` pass `${file}` to delve,
     -- which compiles only that single file as `command-line-arguments` — so
@@ -51,6 +51,7 @@ plugin.add({
     -- configurations by the current buffer's filetype, which is `dap-view`.
     -- We redirect the call to the most recently used code window.
     local orig_continue = dap.continue
+    ---@diagnostic disable-next-line: duplicate-set-field
     dap.continue = function(opts)
       if dap.session() == nil and vim.bo.filetype == "dap-view" then
         for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do

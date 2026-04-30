@@ -20,6 +20,13 @@ local M         = {}
 
 local STATE_DIR = vim.fs.joinpath(vim.fn.stdpath("data"), "arrow_project")
 
+-- Arrow stores file marks as relative paths sometimes prefixed with `./`.
+-- Trim it once here so equality and joinpath aren't fooled by the prefix.
+-- Wrapped in parens so only the string (not the gsub count) is returned.
+local function strip_dot_slash(p)
+  return (p:gsub("^%./", ""))
+end
+
 ---@class arrow_project.Mark
 ---@field line integer 1-based row
 ---@field col integer 0-based column
@@ -33,7 +40,7 @@ local project_root
 ---@type arrow_project.State
 local state       = { files = {}, line_marks = {} }
 local initialized = false
----@type uv_timer_t?
+---@type uv.uv_timer_t?
 local save_timer
 
 -- === Paths =============================================================
@@ -142,12 +149,17 @@ end
 --- Enumerate project files via `git ls-files`. Returns an empty table
 --- outside a git repo — runtime ArrowMarkUpdate still keeps the index
 --- current for whatever files the user marks during the session.
+--- Bounded with a 5s timeout so that a hung git (network filesystem,
+--- corrupted repo) can't stall the deferred seed indefinitely.
 local function project_tracked_files()
   if not project_root then return {} end
-  local out = vim.fn.systemlist({ "git", "-C", project_root, "ls-files" })
-  if vim.v.shell_error ~= 0 then return {} end
+  local result = vim.system(
+    { "git", "-C", project_root, "ls-files" },
+    { text = true }
+  ):wait(5000)
+  if result.code ~= 0 or not result.stdout then return {} end
   local files = {}
-  for _, rel in ipairs(out) do
+  for rel in result.stdout:gmatch("[^\r\n]+") do
     if rel ~= "" then
       files[#files + 1] = vim.fs.joinpath(project_root, rel)
     end
@@ -233,7 +245,7 @@ function M.has_mark(path)
 
   local has_file = false
   for _, f in ipairs(state.files or {}) do
-    local fn = f:gsub("^%./", "")
+    local fn = strip_dot_slash(f)
     if fn == rel or fn == abs or fn == path then
       has_file = true
       break
@@ -260,7 +272,7 @@ end
 ---@param rel string
 ---@return string
 local function abs_from_rel(rel)
-  local clean = (rel:gsub("^%./", ""))
+  local clean = strip_dot_slash(rel)
   if vim.startswith(clean, "/") or not project_root then
     return clean
   end
@@ -346,7 +358,7 @@ function M.pick()
         vim.cmd.edit(vim.fn.fnameescape(item.file))
         if item.pos then
           pcall(vim.api.nvim_win_set_cursor, 0, { item.pos[1], item.pos[2] or 0 })
-          pcall(vim.cmd, "normal! zz")
+          pcall(function() vim.cmd("normal! zz") end)
         end
       end
     end,
@@ -402,9 +414,7 @@ function M.dashboard_items(opts)
 
   for i = 1, shown do
     local rel = files[i]
-    -- Parens around gsub so only the string value (not the gsub count) is
-    -- passed to joinpath, which would otherwise trip on the trailing number.
-    local clean_rel = (rel:gsub("^%./", ""))
+    local clean_rel = strip_dot_slash(rel)
     local abs = (project_root and not vim.startswith(rel, "/"))
         and vim.fs.joinpath(project_root, clean_rel)
         or rel

@@ -45,10 +45,10 @@ local function wrap_search(key)
 end
 
 utils.wk_add({
-  { "u", wrap_change("u",     "GlowUndo"),  desc = "Undo with highlight",        mode = "n" },
+  { "u", wrap_change("u", "GlowUndo"),      desc = "Undo with highlight",        mode = "n" },
   { "U", wrap_change("<C-r>", "GlowRedo"),  desc = "Redo with highlight",        mode = "n" },
-  { "p", wrap_change("p",     "GlowPaste"), desc = "Paste below with highlight", mode = "n" },
-  { "P", wrap_change("P",     "GlowPaste"), desc = "Paste above with highlight", mode = "n" },
+  { "p", wrap_change("p", "GlowPaste"),     desc = "Paste below with highlight", mode = "n" },
+  { "P", wrap_change("P", "GlowPaste"),     desc = "Paste above with highlight", mode = "n" },
   { "n", wrap_search("n"),                  desc = "Search next with highlight", mode = "n" },
   { "N", wrap_search("N"),                  desc = "Search prev with highlight", mode = "n" },
   { "*", wrap_search("*"),                  desc = "Search star with highlight", mode = "n" },

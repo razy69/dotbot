@@ -10,68 +10,45 @@ plugin.add({
   src = {
     "https://github.com/L3MON4D3/LuaSnip",
     "https://github.com/rafamadriz/friendly-snippets",
-    -- Pin to v1.x: main branch has moved to an unreleased v2 rewrite with
-    -- breaking config-API changes. Latest released tag as of writing is
-    -- v1.10.2. vim.version.range("1") resolves to the highest v1.* tag.
-    { src = "https://github.com/saghen/blink.cmp", version = vim.version.range("1") },
+    "https://github.com/saghen/blink.lib",
+    "https://github.com/xzbdmw/colorful-menu.nvim",
+    { src = "https://github.com/saghen/blink.cmp" },
   },
   build = function(info)
     if info.name == "LuaSnip" then
       vim.cmd("make install_jsregexp")
     elseif info.name == "blink.cmp" then
-      local ext = jit.os == "OSX" and "dylib" or (jit.os == "Windows" and "dll" or "so")
-      local lib = vim.fs.joinpath(info.path, "target", "release", "libblink_cmp_fuzzy." .. ext)
-      if info.kind == "install" or not vim.uv.fs_stat(lib) then
-        vim.system({ "cargo", "build", "--release" }, { cwd = info.path }):wait()
-      else
-        vim.system({ "cargo", "build", "--release" }, { cwd = info.path }, function(r)
-          local lvl = r.code == 0 and vim.log.levels.INFO or vim.log.levels.ERROR
-          vim.notify("blink.cmp: fuzzy build " .. (r.code == 0 and "ok" or "failed"), lvl)
-        end)
-      end
+      -- Non-blocking: cmp.build() returns a task that runs cargo async,
+      -- moves the artifact from target/release/ to v2's lib/ cache, and
+      -- loads it in-process. No :wait() so PackInstall/PackUpdate don't
+      -- stall the editor; lua fuzzy serves until the rust lib is ready.
+      require("blink.cmp").build()
     end
   end,
   config = function()
-    -- Build the Rust fuzzy library in background if missing (first install or wiped data dir).
-    -- Completion works immediately via Lua fallback; native speed after restart.
-    local blink_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "site", "pack", "core", "opt", "blink.cmp")
-    local ext = jit.os == "OSX" and "dylib" or (jit.os == "Windows" and "dll" or "so")
-    local blink_lib = vim.fs.joinpath(blink_dir, "target", "release", "libblink_cmp_fuzzy." .. ext)
-    local rust_ready = vim.uv.fs_stat(blink_lib) ~= nil
-    if vim.uv.fs_stat(blink_dir) and not rust_ready then
-      vim.notify("blink.cmp: building fuzzy library in background (first install)...", vim.log.levels.INFO)
-      vim.system({ "cargo", "build", "--release" }, { cwd = blink_dir }, function(result)
-        local lvl = result.code == 0 and vim.log.levels.INFO or vim.log.levels.ERROR
-        local msg = result.code == 0
-            and "blink.cmp: fuzzy library built (restart for native speed)"
-            or "blink.cmp: fuzzy library build failed\n" .. (result.stderr or "")
-        vim.schedule(function()
-          vim.notify(msg, lvl)
-        end)
-      end)
-    end
-
     -- Load friendly snippets
     require("luasnip.loaders.from_vscode").lazy_load()
 
-    -- Configure blink.cmp
-    require("blink.cmp").setup({
+    local blink = require("blink.cmp")
+
+    -- Runtime safety net for in-place v1->v2 upgrades: the build hook
+    -- only fires on PackChanged (install/update), so an already-installed
+    -- blink.cmp keeps its v1-era target/release/ artifact and v2 looks
+    -- under lib/. library_available() checks the v2 cache; if it's
+    -- missing we kick off the build async (same task as the build hook).
+    if not blink.library_available() then
+      blink.build()
+    end
+
+    blink.setup({
       enabled = function()
         -- Disable for some filetypes
-        return not vim.tbl_contains({ "markdown", "neo-tree" }, vim.bo.filetype)
+        return not vim.tbl_contains({ "markdown" }, vim.bo.filetype)
             and vim.bo.buftype ~= "prompt"
             and vim.b.completion ~= false
       end,
       fuzzy = {
-        -- Pin to Lua when the rust binary isn't on disk yet. blink.cmp's
-        -- download path will set_implementation("rust") mid-session, but the
-        -- worker threads spawned by buffer-source parsing and fuzzy.access
-        -- can't `require('blink.cmp.fuzzy.rust')` cleanly (the module's
-        -- init.lua rewrites package.cpath via debug.getinfo, which fails
-        -- inside uv.new_work's fresh Lua state) — surfacing as stray
-        -- "Luv thread:\n[NULL]" lines. After restart the .so is present
-        -- and native speed kicks in without the race.
-        implementation = rust_ready and "prefer_rust_with_warning" or "lua",
+        implementation = "prefer_rust_with_warning",
         -- exact matches are always prioritized
         sorts = {
           "exact",
@@ -134,7 +111,31 @@ plugin.add({
                   return hl
                 end,
               },
-            },
+              label = {
+                width = { fill = true, max = 60 },
+                text = function(ctx)
+                  local highlights_info = require("colorful-menu").blink_highlights(ctx)
+                  if highlights_info ~= nil then
+                    -- Or you want to add more item to label
+                    return highlights_info.label
+                  else
+                    return ctx.label
+                  end
+                end,
+                highlight = function(ctx)
+                  local highlights = {}
+                  local highlights_info = require("colorful-menu").blink_highlights(ctx)
+                  if highlights_info ~= nil then
+                    highlights = highlights_info.highlights
+                  end
+                  for _, idx in ipairs(ctx.label_matched_indices) do
+                    table.insert(highlights, { idx, idx + 1, group = "BlinkCmpLabelMatch" })
+                  end
+                  -- Do something else
+                  return highlights
+                end,
+              },
+            }
           },
         },
         trigger = {
@@ -174,7 +175,7 @@ plugin.add({
           return require("luasnip").in_snippet()
         end,
         jump = function(direction)
-          require("luasnip").jump(direction)
+          return require("luasnip").jump(direction)
         end,
         score_offset = -1,
       },

@@ -82,7 +82,8 @@ function M.search_match()
   local pattern = vim.fn.getreg("/")
   if pattern == "" then return end
   local bufnr = vim.api.nvim_get_current_buf()
-  local row, col = unpack(vim.fn.searchpos(pattern, "cnw"))
+  local pos = vim.fn.searchpos(pattern, "cnw")
+  local row, col = pos[1], pos[2]
   if row == 0 then return end
   local match = vim.fn.matchstr(vim.fn.getline(row), pattern)
   if match == "" then return end

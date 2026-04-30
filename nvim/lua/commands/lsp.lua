@@ -34,7 +34,7 @@ vim.api.nvim_create_user_command("LspRestart", function()
   for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
     client:stop(true)
     if vim.tbl_count(client.attached_buffers) > 0 then
-      detach_clients[client.name] = { client, vim.lsp.get_buffers_by_client_id(client.id) }
+      detach_clients[client.name] = { client, vim.tbl_keys(client.attached_buffers) }
     end
   end
   vim.wait(5000, function()
