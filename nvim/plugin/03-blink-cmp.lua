@@ -22,7 +22,7 @@ plugin.add({
       -- moves the artifact from target/release/ to v2's lib/ cache, and
       -- loads it in-process. No :wait() so PackInstall/PackUpdate don't
       -- stall the editor; lua fuzzy serves until the rust lib is ready.
-      require("blink.cmp").build()
+      require("blink.cmp").build():pwait(60000)
     end
   end,
   config = function()

@@ -34,12 +34,12 @@ end
 -- entry doesn't punch a hole in the array.
 local function dashboard_keys(snacks)
   local keys = {
-    { icon = " ", key = "n", desc = "New File",     action = ":ene | startinsert" },
-    { icon = " ", key = "f", desc = "Find File",    action = ":lua Snacks.dashboard.pick('files')" },
-    { icon = " ", key = "g", desc = "Find Text",    action = ":lua Snacks.dashboard.pick('live_grep')" },
-    { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
+    { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
+    { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
+    { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
+    { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
     {
-      icon = " ",
+      icon = " ",
       key = "c",
       desc = "Config",
       action = function()
@@ -56,16 +56,16 @@ local function dashboard_keys(snacks)
       action = function() require("neonvim.arrow_project").pick() end,
     })
   end
-  table.insert(keys, { icon = " ", key = "q", desc = "Quit", action = ":qa" })
+  table.insert(keys, { icon = " ", key = "q", desc = "Quit", action = ":qa" })
   return keys
 end
 
 local function dashboard_sections()
   local sections = {
     { section = "header" },
-    { icon = " ",        title = "Keymaps",      section = "keys",         indent = 2, padding = 1 },
-    { icon = " ",        title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
-    { icon = " ",        title = "Projects",     section = "projects",     indent = 2, padding = 1 },
+    { icon = " ", title = "Keymaps", section = "keys", indent = 2, padding = 1 },
+    { icon = " ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
+    { icon = " ", title = "Projects", section = "projects", indent = 2, padding = 1 },
   }
   if arrow_enabled then
     table.insert(sections, {
@@ -104,14 +104,14 @@ plugin.add({
         enabled = true,
         icons = {
           git = {
-            added     = "",
+            added     = "",
             deleted   = "󰅙",
-            modified  = "",
-            renamed   = "",
-            untracked = "",
+            modified  = "",
+            renamed   = "",
+            untracked = "",
             ignored   = "󰎂",
             staged    = "󰄳",
-            unmerged  = "",
+            unmerged  = "",
           },
         },
         sources = {
