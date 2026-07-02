@@ -109,6 +109,11 @@ end
 local function fetch_one(plugin, on_handle, on_done)
   local cwd = plugin.path
   local local_rev = plugin.rev
+  -- A version range (vim.version.range()) pins the plugin to the newest
+  -- matching *tag*, which is what vim.pack.update() checks out — not the
+  -- branch tip. spec.version holds that range for version-pinned specs and is
+  -- nil for branch-tracking ones. (Available with vim.pack.get info=false.)
+  local version_range = type(plugin.spec.version) == "table" and plugin.spec.version or nil
 
   -- Defensive: on fresh install, vim.pack.get() can return plugins whose
   -- working tree doesn't exist yet (install still in progress). Skip them
@@ -126,33 +131,69 @@ local function fetch_one(plugin, on_handle, on_done)
     on_handle(handle, true)
   end
 
+  -- Given the resolved remote target rev, compute the changelog and finish.
+  local function emit(remote_rev)
+    if remote_rev == "" or remote_rev == local_rev then
+      return on_done(nil)
+    end
+    sys({
+      "git", "log", "--oneline", "--no-decorate", "--no-color",
+      "-n", tostring(LOG_LIMIT),
+      local_rev .. ".." .. remote_rev,
+    }, function(log_res)
+      on_done({
+        name = plugin.spec.name,
+        local_rev = local_rev,
+        remote_rev = remote_rev,
+        log = vim.trim(log_res.stdout or ""),
+      })
+    end)
+  end
+
   sys(
     { "git", "-c", "gc.auto=0", "fetch", "--quiet", "--tags", "--force", "origin" },
     function(fetch_res)
       if fetch_res.code ~= 0 then
         return on_done(nil)
       end
-      sys({ "git", "rev-parse", "origin/HEAD" }, function(rev_res)
-        if rev_res.code ~= 0 then
-          return on_done(nil)
-        end
-        local remote_rev = vim.trim(rev_res.stdout or "")
-        if remote_rev == "" or remote_rev == local_rev then
-          return on_done(nil)
-        end
-        sys({
-          "git", "log", "--oneline", "--no-decorate", "--no-color",
-          "-n", tostring(LOG_LIMIT),
-          local_rev .. ".." .. remote_rev,
-        }, function(log_res)
-          on_done({
-            name = plugin.spec.name,
-            local_rev = local_rev,
-            remote_rev = remote_rev,
-            log = vim.trim(log_res.stdout or ""),
-          })
+      if version_range then
+        -- Target = newest tag satisfying the range. Comparing to origin/HEAD
+        -- instead would flag unreleased commits past the latest tag as a
+        -- phantom update that vim.pack.update() never applies (it stays on the
+        -- pinned tag), leaving a listed-but-never-updated plugin.
+        sys({ "git", "tag", "--list" }, function(tag_res)
+          if tag_res.code ~= 0 then
+            return on_done(nil)
+          end
+          local best_tag, best_ver
+          for raw in (tag_res.stdout or ""):gmatch("[^\n]+") do
+            local tag = vim.trim(raw)
+            local ok, parsed = pcall(vim.version.parse, tag)
+            if ok and parsed and version_range:has(parsed) then
+              if not best_ver or parsed > best_ver then
+                best_ver, best_tag = parsed, tag
+              end
+            end
+          end
+          if not best_tag then
+            return on_done(nil)
+          end
+          -- ^{commit} peels annotated tags to their commit for the comparison.
+          sys({ "git", "rev-parse", best_tag .. "^{commit}" }, function(rev_res)
+            if rev_res.code ~= 0 then
+              return on_done(nil)
+            end
+            emit(vim.trim(rev_res.stdout or ""))
+          end)
         end)
-      end)
+      else
+        sys({ "git", "rev-parse", "origin/HEAD" }, function(rev_res)
+          if rev_res.code ~= 0 then
+            return on_done(nil)
+          end
+          emit(vim.trim(rev_res.stdout or ""))
+        end)
+      end
     end
   )
 end
@@ -398,6 +439,14 @@ vim.api.nvim_create_user_command("PackUpdate", function(ctx)
     end
     table.sort(names)
 
+    -- Snapshot changelog details: PackChangedPre fires async during
+    -- vim.pack.update(), after the `updates` cache is cleared below, so the
+    -- callback must not depend on that shared table.
+    local details = {}
+    for _, u in ipairs(collected) do
+      details[u.name] = u
+    end
+
     local total = #names
     local started, finished = 0, 0
     local group = vim.api.nvim_create_augroup("pack_update_notify", { clear = true })
@@ -411,7 +460,7 @@ vim.api.nvim_create_user_command("PackUpdate", function(ctx)
         started = started + 1
         local idx = started
         local name = ev.data.spec.name
-        local u = updates[name]
+        local u = details[name]
 
         -- Defer UI work: PackChangedPre fires inside vim.pack's async
         -- coroutine, and vim.notify touches the UI. vim.schedule takes us

@@ -10,17 +10,15 @@ plugin.add({
     "https://github.com/saghen/blink.lib",
     { src = "https://github.com/saghen/blink.pairs", version = vim.version.range("*") },
   },
-  build = function(info)
-    if info.name == "blink.pairs" then
-      -- Use build() (compile via cargo), not download(): blink.lib v0.6.0's
-      -- download() is broken for dotted tags — it parses "v0.6.0" down to "0"
-      -- (git_tag uses (%w+) which drops the dots), yielding a 404 URL, and its
-      -- task never chains resolve/reject so it just hangs until timeout.
-      -- build() avoids both bugs and needs only a Rust toolchain.
-      require("blink.pairs").build():pwait(120000)
-    end
-  end,
   config = function()
+    -- blink.pairs v0.6+ loads a native parser lib. For vim.pack the lib must be
+    -- present before setup() (setup() errors otherwise), so we ensure it here
+    -- on every startup rather than only from a PackChanged build hook.
+    -- download() fetches the prebuilt binary (no Rust toolchain) and is a cheap
+    -- idempotent no-op once the matching version is installed — after an update
+    -- the lib filename embeds the git commit, so a version bump re-fetches
+    -- automatically.
+    require("blink.pairs").download():pwait(60000)
     require("blink.pairs").setup({
       mappings = {
         enabled = true,

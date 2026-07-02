@@ -46,7 +46,7 @@
       "src": "https://github.com/stevearc/conform.nvim"
     },
     "diffview.nvim": {
-      "rev": "3a2c27e42a59aed9c3a3ba28a4de795c88654cb0",
+      "rev": "bcf4b62b4acc36a7c3d19e423713a220c838a668",
       "src": "https://github.com/dlyongemallo/diffview.nvim"
     },
     "dropbar.nvim": {
@@ -70,7 +70,7 @@
       "src": "https://github.com/akinsho/git-conflict.nvim"
     },
     "gitsigns.nvim": {
-      "rev": "2038c666bd9d8a0b7349a0b6ee00dc83104b9ecf",
+      "rev": "eb60cc7b94c46005237fd34170d76f3a089a90aa",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "go.nvim": {
@@ -78,7 +78,7 @@
       "src": "https://github.com/ray-x/go.nvim"
     },
     "guihua.lua": {
-      "rev": "f8e06bd8a26dee3377d63c2adf1e57cdb58ac474",
+      "rev": "3f52d57bce17e2c4bfdd957a7142b71eb23a3d93",
       "src": "https://github.com/ray-x/guihua.lua"
     },
     "hlargs.nvim": {
@@ -114,7 +114,7 @@
       "src": "https://github.com/danymat/neogen"
     },
     "neotest": {
-      "rev": "ff5437f7d9af801917bed119082934b0eb6ee0e9",
+      "rev": "639fb9eea9f1b045b5977d9154706ce6bc8e1a55",
       "src": "https://github.com/nvim-neotest/neotest"
     },
     "neotest-golang": {
