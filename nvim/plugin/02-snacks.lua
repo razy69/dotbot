@@ -117,7 +117,16 @@ plugin.add({
         sources = {
           explorer = {
             auto_close = true,
+            show_empty = true,
+            hidden = true,
+            ignored = true,
+            follow_file = true,
+            supports_live = true,
             replace_netrw = true,
+            watch = true,
+            diagnostics_open = true,
+            diagnostics = true,
+            jump = { close = true },
             format = explorer_format,
             -- Use the documented `sidebar` preset, but override position to
             -- nil + col/row to 0. snacks' default `position = "left"` flips

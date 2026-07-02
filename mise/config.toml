@@ -1,6 +1,5 @@
 [settings]
 activate_aggressive = true
-paranoid = false
 
 [settings.python]
 compile = false
