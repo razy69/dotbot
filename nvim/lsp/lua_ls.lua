@@ -13,16 +13,14 @@ return {
   -- lua_ls already analyses everything in workspace.library, so the
   -- marginal cost is small — diagnostics just need to be triggered.
   workspace_scan = true,
-  root_dir = vim.fs.root(0, {
+  root_markers = {
     ".luarc.json",
     ".luarc.jsonc",
     ".luacheckrc",
     ".stylua.toml",
     "stylua.toml",
     ".git",
-  }),
-  single_file_support = true,
-  log_level = vim.lsp.protocol.MessageType.Warning,
+  },
   settings = {
     Lua = {
       runtime = {
@@ -34,7 +32,7 @@ return {
       diagnostics = {
         globals = { "vim", "lfs", "Snacks", "jit", "bit" },
         -- Suppress noisy warnings from incomplete type annotations in plugins
-        disable = { "missing-parameters", "missing-fields", "different-requires" },
+        disable = { "missing-parameter", "missing-fields", "different-requires" },
         -- Library files (VIMRUNTIME, lazydev-injected plugin sources) are
         -- only used for type resolution — never diagnose them. Without
         -- this, `vim` shows up as undefined in runtime/*.lua and any
@@ -50,7 +48,6 @@ return {
       workspace = {
         checkThirdParty = false,
         library = {
-          "lua",
           "${3rd}/luv/library",
           "${3rd}/luassert/library",
           "${3rd}/lfs/library",

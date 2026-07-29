@@ -13,11 +13,10 @@ plugin.add({
         changedelete = { text = '▍' },
         untracked    = { text = '▍' },
       },
+      -- Off: blame is on demand via the gitsigns keymaps. The *_blame_opts /
+      -- *_blame_formatter settings that used to sit here were dead while this
+      -- is false, so they are gone — re-add them if you turn it back on.
       current_line_blame = false,
-      current_line_blame_opts = {
-        delay = 50,
-      },
-      current_line_blame_formatter = "\t <author> (<author_time:%R>) - <summary>",
       -- Disable threaded diffs: the worker's string.dump'd closure loses
       -- upvalues when re-loaded inside uv.new_work, and any error surfaces
       -- as stray "Luv thread:\n[NULL]" lines in :messages. Running the diff

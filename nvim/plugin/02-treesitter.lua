@@ -6,25 +6,19 @@ plugin.add({
     "https://github.com/nvim-treesitter/nvim-treesitter-context",
     "https://github.com/JoosepAlviste/nvim-ts-context-commentstring",
   },
+  event = plugin.LazyFile,
   build = function(info)
     if info.name == "nvim-treesitter" and info.kind == "update" then
       require("nvim-treesitter").update()
     end
   end,
   config = function()
-    -- Configure treesitter
-    require("nvim-treesitter").setup({
-      sync_install = false,
-      auto_install = true,
-      highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = false,
-      },
-      endwise = { enable = true },
-      autotag = { enable = true },
-      matchup = { enable = true },
-      folds = { enable = true },
-    })
+    -- No setup() call: on the pinned `main` branch TSConfig has exactly one
+    -- field, `install_dir` (lua/nvim-treesitter/config.lua), which we do not
+    -- override. Every other key previously passed here (sync_install,
+    -- auto_install, highlight, endwise, autotag, matchup, folds) was silently
+    -- discarded — highlighting comes from the explicit vim.treesitter.start()
+    -- below, and endwise/autotag/matchup are options of plugins we don't have.
 
     -- Parsers to guarantee are installed; missing ones are installed on startup.
     local ensure_installed = {
@@ -106,26 +100,39 @@ plugin.add({
     -- (plugin/01-blink-pairs.lua) and also strips indent off plain <CR>s inside
     -- balanced pairs. Vim's built-in ftplugin indentexprs (GetLuaIndent,
     -- GetJavascriptIndent, GetPythonIndent, …) handle these cases correctly.
+    local function start_for_buf(buf)
+      local ft = vim.bo[buf].ft
+      if ft == "" then return end
+
+      local ok = pcall(vim.treesitter.start, buf)
+      if not ok then return end
+
+      -- Force hlargs to (re)initialise now that the treesitter parser exists.
+      -- Guards against the race where hlargs' BufEnter fires before the parser
+      -- is available and caches `ignore = true` for the buffer; the FileType
+      -- retry inside hlargs only fires when the filetype *changes*, so without
+      -- this call a fresh buffer may never get arg highlights.
+      local hl_ok, hlargs = pcall(require, "hlargs")
+      if hl_ok and type(hlargs.enable_buf) == "function" then
+        pcall(hlargs.enable_buf, buf)
+      end
+    end
+
     vim.api.nvim_create_autocmd("FileType", {
+      group = utils.augroup("treesitter"),
       pattern = "*",
       callback = function(ev)
-        local buf = ev.buf
-        local ft = vim.bo[buf].ft
-        if ft == "" then return end
-
-        local ok = pcall(vim.treesitter.start, buf)
-        if not ok then return end
-
-        -- Force hlargs to (re)initialise now that the treesitter parser exists.
-        -- Guards against the race where hlargs' BufEnter fires before the parser
-        -- is available and caches `ignore = true` for the buffer; the FileType
-        -- retry inside hlargs only fires when the filetype *changes*, so without
-        -- this call a fresh buffer may never get arg highlights.
-        local hl_ok, hlargs = pcall(require, "hlargs")
-        if hl_ok and type(hlargs.enable_buf) == "function" then
-          pcall(hlargs.enable_buf, buf)
-        end
+        start_for_buf(ev.buf)
       end,
     })
+
+    -- Catch up on buffers that already exist: this plugin now loads on
+    -- BufReadPost/BufNewFile, by which point FileType has already fired for the
+    -- triggering buffer, so the autocmd above would never see it.
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+      if vim.api.nvim_buf_is_loaded(buf) then
+        start_for_buf(buf)
+      end
+    end
   end,
 })

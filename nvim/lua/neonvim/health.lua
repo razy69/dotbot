@@ -24,7 +24,8 @@ local function describe_triggers(spec)
   if spec.keys then
     local lhs_list = {}
     for _, k in ipairs(spec.keys) do
-      table.insert(lhs_list, k[1])
+      -- A malformed keys entry (no lhs) must not blow up the report.
+      table.insert(lhs_list, tostring(k[1] or "?"))
     end
     table.insert(parts, "keys: " .. fmt_list(lhs_list))
   end
@@ -50,6 +51,8 @@ end
 local function source_names(spec)
   local src = spec.src
   if type(src) == "string" then src = { src } end
+  -- A spec with no `src` (or a non-table one) would make ipairs() throw.
+  if type(src) ~= "table" then return {} end
   local names = {}
   for _, s in ipairs(src) do
     local url = type(s) == "table" and s.src or s
@@ -96,7 +99,21 @@ M.check = function()
   vim.health.start("LSP servers")
 
   local lsp_dir = vim.fn.stdpath("config") .. "/lsp"
-  local lsp_files = vim.fn.readdir(lsp_dir) or {}
+  -- readdir() raises E484 when the directory is missing, which would abort the
+  -- rest of the health run. Stat first, and still pcall for the unreadable
+  -- (permission) case: a health check must report, never throw.
+  local lsp_files, lsp_dir_ok = {}, false
+  if not vim.uv.fs_stat(lsp_dir) then
+    vim.health.warn("No lsp/ directory at " .. lsp_dir)
+  else
+    local read_ok, files = pcall(vim.fn.readdir, lsp_dir)
+    if read_ok then
+      lsp_files, lsp_dir_ok = files or {}, true
+    else
+      vim.health.warn("Could not read " .. lsp_dir .. ": " .. tostring(files))
+    end
+  end
+
   local lsp_servers = {}
   for _, file in ipairs(lsp_files) do
     if file:match("%.lua$") then
@@ -106,7 +123,9 @@ M.check = function()
   end
 
   if #lsp_servers == 0 then
-    vim.health.warn("No LSP server configs found in lsp/")
+    if lsp_dir_ok then
+      vim.health.warn("No LSP server configs found in lsp/")
+    end
   else
     vim.health.ok(#lsp_servers .. " LSP server configs found")
     for _, server in ipairs(lsp_servers) do
@@ -128,8 +147,17 @@ M.check = function()
   -- ── Plugin Registry ─────────────────────────────────────────────────
   vim.health.start("Plugin registry")
 
-  local specs = plugin._specs
-  local loaded = plugin._loaded
+  -- `plugin` is a global set by init.lua. Indexing it blind would throw if
+  -- health ran before init (e.g. `-u NONE` plus a manual require).
+  -- Report and fall through with empty tables rather than returning, so the
+  -- Treesitter and Configuration sections below still render.
+  local registry = type(plugin) == "table" and plugin or {}
+  if not registry._specs then
+    vim.health.error("plugin registry not available (init.lua not loaded?)")
+  end
+  local specs = registry._specs or {}
+  local loaded = registry._loaded or {}
+  local loading = registry._loading or {}
 
   -- Collect and sort plugin names
   local names = {}
@@ -182,7 +210,7 @@ M.check = function()
       status = "disabled"
     elseif loaded[name] then
       status = "loaded"
-    elseif plugin._loading[name] then
+    elseif loading[name] then
       status = "loading"
     else
       status = "pending"
@@ -192,7 +220,7 @@ M.check = function()
     local lines = {}
     table.insert(lines, "status: " .. status)
     table.insert(lines, "trigger: " .. describe_triggers(spec))
-    table.insert(lines, "sources: " .. table.concat(source_names(spec), ", "))
+    table.insert(lines, "sources: " .. fmt_list(source_names(spec)))
     if spec.deps then
       table.insert(lines, "deps: " .. fmt_list(spec.deps))
     end
@@ -238,7 +266,9 @@ M.check = function()
   vim.health.start("Configuration")
 
   vim.health.info("Leader: " .. vim.inspect(vim.g.mapleader))
-  vim.health.info("Colorscheme: " .. vim.g.colors_name)
+  -- `colors_name` is unset until a colorscheme is actually applied; a raw
+  -- concat there threw and aborted this whole section.
+  vim.health.info("Colorscheme: " .. (vim.g.colors_name or "none"))
   vim.health.info("Background: " .. vim.o.background)
   vim.health.info("Clipboard: " .. vim.o.clipboard)
   vim.health.info("Shell: " .. vim.o.shell)

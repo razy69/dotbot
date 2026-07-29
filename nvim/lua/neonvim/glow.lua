@@ -85,9 +85,16 @@ function M.search_match()
   local pos = vim.fn.searchpos(pattern, "cnw")
   local row, col = pos[1], pos[2]
   if row == 0 then return end
-  local match = vim.fn.matchstr(vim.fn.getline(row), pattern)
-  if match == "" then return end
-  M.region(bufnr, row - 1, col - 1, row - 1, col - 1 + #match, "GlowSearch", 400)
+  -- `searchpos` located one specific occurrence, but `matchstr(line, pattern)`
+  -- returns the *first* one — on a line holding two matches of different
+  -- lengths that produced a flash of the wrong width at `col`. Re-match from
+  -- `col` instead and use the reported byte extent, so the highlight always
+  -- covers the occurrence we actually found. `matchstrpos` indices are
+  -- 0-indexed with an exclusive end, exactly what extmarks want.
+  local m = vim.fn.matchstrpos(vim.fn.getline(row), pattern, col - 1)
+  local text, s, e = m[1], m[2], m[3]
+  if text == "" or s < 0 then return end
+  M.region(bufnr, row - 1, s, row - 1, e, "GlowSearch", 400)
 end
 
 return M

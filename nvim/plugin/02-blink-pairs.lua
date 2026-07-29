@@ -3,9 +3,14 @@
 -- installs insert-mode <CR>/<BS>/<Space> keymaps that blink.cmp's keymap
 -- chain captures as its "fallback". That's how <CR> between ({[ pairs gets
 -- routed into blink.pairs' CR-split handler (blink.pairs/mappings/ops.lua:190).
--- Loaded synchronously as a dep of blink_cmp; no InsertEnter event needed.
+-- Ordering is guaranteed by `deps`, not by the filename prefix: blink_cmp
+-- declares blink_pairs as a dependency and dependency resolution is always
+-- synchronous, so pairs' mappings exist before blink.cmp builds its keymap
+-- chain. `lazy` keeps that off the startup path — this file was the single
+-- most expensive one sourced at startup (~7ms), mostly the download() probe.
 plugin.add({
   name = "blink_pairs",
+  lazy = true,
   src = {
     "https://github.com/saghen/blink.lib",
     { src = "https://github.com/saghen/blink.pairs", version = vim.version.range("*") },

@@ -16,8 +16,6 @@ local function resolve_venv()
   return python, venv
 end
 
-local python_path, venv_path = resolve_venv()
-
 ---@type table
 local settings = {
   basedpyright = {
@@ -35,14 +33,6 @@ local settings = {
   },
 }
 
-if python_path and venv_path then
-  settings.python = {
-    pythonPath = python_path,
-    venvPath = vim.fs.dirname(venv_path),
-    venv = vim.fs.basename(venv_path),
-  }
-end
-
 ---@type vim.lsp.Config
 return {
   -- Mason package is `basedpyright`; the binary it ships is
@@ -50,7 +40,7 @@ return {
   mason = "basedpyright",
   cmd = { "basedpyright-langserver", "--stdio" },
   filetypes = { "python" },
-  root_dir = vim.fs.root(0, {
+  root_markers = {
     "pyproject.toml",
     "setup.py",
     "setup.cfg",
@@ -58,7 +48,23 @@ return {
     "Pipfile",
     "pyrightconfig.json",
     ".git",
-  }),
-  single_file_support = true,
+  },
   settings = settings,
+  -- Resolve the interpreter per client start, not at file-load time: Neovim
+  -- caches this config for the whole session, so a venv activated later (or a
+  -- switch to another project) would otherwise keep the first pythonPath.
+  before_init = function(_, config)
+    local python_path, venv_path = resolve_venv()
+    if not (python_path and venv_path) then
+      return
+    end
+    -- Extend into a fresh table so the module-level `settings` stays pristine
+    -- for the next client start.
+    config.settings = vim.tbl_deep_extend("force", config.settings or {}, {
+      python = {
+        pythonPath = python_path,
+        venvPath = vim.fs.dirname(venv_path),
+      },
+    })
+  end,
 }

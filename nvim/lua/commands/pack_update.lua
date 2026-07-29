@@ -17,6 +17,13 @@ local LOG_LIMIT = 50
 --- Max commit log lines rendered per per-plugin update notification.
 local NOTIFY_LOG_LIMIT = 10
 
+--- Wall-clock budget (ms) for the per-plugin `:PackUpdate` notifications.
+--- `vim.pack.update()` has no completion callback and a plugin whose checkout
+--- fails never emits `PackChanged`, so the notify augroup needs a hard stop.
+local NOTIFY_GROUP_TTL = 5 * 60 * 1000
+
+local utils = require("utils")
+
 -- State ---------------------------------------------------------------------
 
 ---@class PackUpdateInfo
@@ -29,7 +36,6 @@ local NOTIFY_LOG_LIMIT = 10
 local updates = {}
 
 local running = false
-local watchdog_timer = nil
 -- Set by run_check while a check is active; cleared on success or cancel.
 -- Holds the cancellation closure for the current run so :PackCancel and
 -- the watchdog can abort only *this* run. The previous design used a
@@ -200,19 +206,28 @@ end
 
 --- Run the fetch+compare pipeline across all installed plugins.
 --- Refreshes the module-level `updates` cache and invokes `on_complete`.
+--- `on_complete(collected, ok)` — `ok = false` means the run never happened
+--- (another check was already in flight). It is always invoked exactly once,
+--- so callers never sit waiting on a callback that will not arrive.
 ---@param opts { show_progress?: boolean }
----@param on_complete fun(collected: PackUpdateInfo[])
+---@param on_complete fun(collected: PackUpdateInfo[], ok: boolean)
 local function run_check(opts, on_complete)
   opts = opts or {}
   if running then
-    vim.notify("update check already running", vim.log.levels.WARN, { title = "vim.pack" })
+    vim.notify(
+      "update check already running — this request was dropped, retry when it finishes (:PackCancel aborts it)",
+      vim.log.levels.WARN, { title = "vim.pack" }
+    )
+    -- Signal the failure rather than returning silently: callers used to get
+    -- no callback at all, so :PackUpdate warned and then did nothing.
+    on_complete({}, false)
     return
   end
 
   -- vim.pack.get() with info=false skips per-plugin branch/tag lookups.
   local plugins = vim.pack.get(nil, { info = false })
   if #plugins == 0 then
-    on_complete({})
+    on_complete({}, true)
     return
   end
 
@@ -225,15 +240,19 @@ local function run_check(opts, on_complete)
   -- run_check has started.
   local my_cancelled = false
   local my_handles = {}
+  -- Closure-scoped like the rest of the per-run state. As a module-level
+  -- variable, a new run overwrote the handle and stop_watchdog() then closed
+  -- whichever watchdog happened to be current — the same cross-run
+  -- contamination the `cancelled` flag was moved in here to avoid.
+  ---@type uv.uv_timer_t?
+  local my_watchdog = nil
   local progress = opts.show_progress and new_progress("Checking for updates") or nil
   local total = #plugins
   local done = 0
 
   local function stop_watchdog()
-    if watchdog_timer and not watchdog_timer:is_closing() then
-      watchdog_timer:close()
-      watchdog_timer = nil
-    end
+    utils.close_timer(my_watchdog)
+    my_watchdog = nil
   end
 
   local function on_handle(handle, add)
@@ -265,8 +284,8 @@ local function run_check(opts, on_complete)
   current_cancel = cancel
 
   -- Watchdog: force-cancel if check hangs (network timeout, git deadlock).
-  watchdog_timer = assert(vim.uv.new_timer())
-  watchdog_timer:start(60000, 0, vim.schedule_wrap(function()
+  my_watchdog = assert(vim.uv.new_timer())
+  my_watchdog:start(60000, 0, vim.schedule_wrap(function()
     if my_cancelled then return end
     cancel()
     vim.notify("update check timed out", vim.log.levels.ERROR, { title = "vim.pack" })
@@ -296,7 +315,7 @@ local function run_check(opts, on_complete)
       current_cancel = nil
       stop_watchdog()
       record_check()
-      on_complete(collected)
+      on_complete(collected, true)
     end
   end
 
@@ -360,7 +379,8 @@ vim.api.nvim_create_autocmd("VimEnter", {
     if os.time() - last_check_at() < FREQUENCY then
       return
     end
-    run_check({ show_progress = false }, function(collected)
+    run_check({ show_progress = false }, function(collected, ok)
+      if not ok then return end
       render_summary(collected)
     end)
   end,
@@ -369,7 +389,10 @@ vim.api.nvim_create_autocmd("VimEnter", {
 -- User commands -------------------------------------------------------------
 
 vim.api.nvim_create_user_command("PackCheckUpdates", function()
-  run_check({ show_progress = true }, function(collected)
+  run_check({ show_progress = true }, function(collected, ok)
+    -- Without the `ok` guard a dropped request rendered a bogus
+    -- "All plugins up to date" from an empty result set.
+    if not ok then return end
     render_summary(collected, { notify_when_empty = true })
   end)
 end, { desc = "Check for plugin updates (async, with progress bar)" })
@@ -425,7 +448,8 @@ end, {
 --- from a..b" plus the cached commit log. Cleanup is done on the matching
 --- `PackChanged` event — or on the next `:PackUpdate` via `clear = true`.
 vim.api.nvim_create_user_command("PackUpdate", function(ctx)
-  run_check({ show_progress = true }, function(collected)
+  run_check({ show_progress = true }, function(collected, ok)
+    if not ok then return end -- request dropped; run_check already warned
     if #collected == 0 then
       vim.notify("All plugins up to date", vim.log.levels.INFO, { title = "vim.pack" })
       return
@@ -449,7 +473,22 @@ vim.api.nvim_create_user_command("PackUpdate", function(ctx)
 
     local total = #names
     local started, finished = 0, 0
-    local group = vim.api.nvim_create_augroup("pack_update_notify", { clear = true })
+    local group = utils.augroup("pack_update_notify")
+    local group_alive = true
+    ---@type uv.uv_timer_t?
+    local group_timer = nil
+
+    --- Drop the notify augroup (and its backstop timer) exactly once. The old
+    --- code only deleted it on `finished >= total`, so a plugin that failed to
+    --- update — no PackChanged event — left the autocmds live until the next
+    --- :PackUpdate happened to clear the group.
+    local function teardown()
+      if not group_alive then return end
+      group_alive = false
+      utils.close_timer(group_timer)
+      group_timer = nil
+      pcall(vim.api.nvim_del_augroup_by_id, group)
+    end
 
     vim.api.nvim_create_autocmd("PackChangedPre", {
       group = group,
@@ -498,16 +537,36 @@ vim.api.nvim_create_user_command("PackUpdate", function(ctx)
         end
         finished = finished + 1
         if finished >= total then
-          vim.schedule(function()
-            pcall(vim.api.nvim_del_augroup_by_id, group)
-          end)
+          vim.schedule(teardown)
         end
       end,
     })
 
+    -- Backstop for the partial-failure path: vim.pack.update() reports no
+    -- completion, so tear the group down on a wall clock and say which
+    -- plugins never reported back.
+    group_timer = assert(vim.uv.new_timer())
+    group_timer:start(NOTIFY_GROUP_TTL, 0, vim.schedule_wrap(function()
+      if not group_alive then return end
+      if finished < total then
+        vim.notify(
+          ("Update notifications stopped: only %d/%d plugin%s reported done"):format(
+            finished, total, total == 1 and "" or "s"
+          ),
+          vim.log.levels.WARN, { title = "vim.pack" }
+        )
+      end
+      teardown()
+    end))
+
     -- force = true skips confirm buffer; vim.pack emits "Applying updates"
     -- progress via the same nvim_echo mechanism as our "Checking for updates".
-    vim.pack.update(names, { offline = true, force = not ctx.bang })
+    local upd_ok, upd_err = pcall(vim.pack.update, names, { offline = true, force = not ctx.bang })
+    if not upd_ok then
+      teardown()
+      vim.notify("update failed: " .. tostring(upd_err), vim.log.levels.ERROR, { title = "vim.pack" })
+      return
+    end
 
     -- Clear stale changelog entries immediately — the updates are now in
     -- flight and these local_rev/remote_rev comparisons are outdated.

@@ -4,8 +4,7 @@ return {
   mason = "dockerfile-language-server",
   cmd = { "docker-langserver", "--stdio" },
   filetypes = { "dockerfile" },
-  root_dir = vim.fs.root(0, {
-    "Dockerfile",
-  }),
-  single_file_support = true,
+  -- `.git` fallback matters: a bare "Dockerfile" marker misses Dockerfile.dev,
+  -- Containerfile, and Dockerfiles living in a subdirectory.
+  root_markers = { "Dockerfile", ".git" },
 }

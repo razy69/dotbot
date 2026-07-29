@@ -2,6 +2,7 @@
 plugin.add({
   name = "conform",
   src = "https://github.com/stevearc/conform.nvim",
+  cmd = { "Format" },
   keys = {
     { "<leader>f", desc = "Format buffer" },
   },
@@ -16,10 +17,7 @@ plugin.add({
       },
       notify_on_error = true,
       notify_no_formatters = true,
-      formatters = {
-        injected = { options = { ignore_errors = true } },
-      },
-      formatter_by_ft = {
+      formatters_by_ft = {
         ["_"] = { "trim_newlines", "trim_whitespace" },
         go = { "goimports", "gofmt" },
         json = { "fixjson" },
@@ -33,6 +31,19 @@ plugin.add({
     })
 
     vim.o.formatexpr = "v:lua.require('conform').formatexpr()"
+
+    -- Declare the Mason-installable formatters so :FormatInstall / :MasonStatus
+    -- can see them, matching how lsp/ and linters/ are handled. Omitted on
+    -- purpose: gofmt and rustfmt ship with their toolchains, terraform_fmt uses
+    -- the terraform binary, ruff is already declared by linters/ruff.lua, and
+    -- trim_newlines/trim_whitespace are built into conform.
+    require("commands.mason").register("format", {
+      { pkg = "stylua",    binary = "stylua" },
+      { pkg = "goimports", binary = "goimports" },
+      { pkg = "shfmt",     binary = "shfmt" },
+      { pkg = "fixjson",   binary = "fixjson" },
+      { pkg = "yamlfix",   binary = "yamlfix" },
+    })
 
     -- Format buffer using Conform.nvim
     vim.api.nvim_create_user_command(

@@ -3,9 +3,8 @@
 return {
   cmd = { "marksman", "server" },
   filetypes = { "markdown" },
-  root_dir = vim.fs.root(0, {
+  root_markers = {
     ".marksman.toml",
     ".git",
-  }),
-  single_file_support = true,
+  },
 }

@@ -3,7 +3,7 @@
 return {
   cmd = { "gopls" },
   filetypes = { "go", "gomod", "gowork" },
-  root_dir = vim.fs.root(0, {
+  root_markers = {
     ".golangci.yml",
     ".golangci.yaml",
     ".golangci.toml",
@@ -11,7 +11,7 @@ return {
     "go.work",
     "go.mod",
     ".git",
-  }),
+  },
   settings = {
     gopls = {
       completeUnimported = true,

@@ -70,6 +70,15 @@ vim.api.nvim_create_autocmd("FileType", {
     local ft = vim.bo[buf].filetype
     if ft == "" then return end
 
+    -- Only act on an actual *change* of filetype. On the first FileType for a
+    -- buffer there is no stale state to clean up: nothing is attached yet, and
+    -- nvim-lint's own BufReadPost run covers the initial lint — running here too
+    -- linted every file twice on open. This also skips the redundant re-fire
+    -- that plugin.lua's ft trigger performs via nvim_exec_autocmds.
+    local prev_ft = vim.b[buf].neonvim_prev_ft
+    vim.b[buf].neonvim_prev_ft = ft
+    if prev_ft == nil or prev_ft == ft then return end
+
     -- Treesitter: drop the prior highlighter; the plugin's own FileType
     -- autocmd will re-call vim.treesitter.start() for the new ft.
     pcall(vim.treesitter.stop, buf)

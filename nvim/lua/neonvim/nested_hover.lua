@@ -52,6 +52,22 @@ local stack = {}
 -- empirically far more reliable.
 local generation = 0
 
+-- Dedicated group for the per-hover source-buffer cleanup autocmds. Being in
+-- a group means each one is individually deletable (see `display`) and the
+-- whole set is clearable at once — a groupless autocmd is neither.
+local cleanup_group = require("utils").augroup("NestedHover")
+
+---Render an `lsp.ResponseError` for a notification. Servers are inconsistent
+---about populating `message`, so fall back to the code and then to inspect().
+---@param err lsp.ResponseError|table
+---@return string
+local function err_msg(err)
+  if type(err) ~= "table" then return tostring(err) end
+  if type(err.message) == "string" and err.message ~= "" then return err.message end
+  if err.code then return ("code %s"):format(tostring(err.code)) end
+  return vim.inspect(err)
+end
+
 -- === Stack helpers ==================================================
 
 local function close_latest()
@@ -155,9 +171,8 @@ local function pick_symbol(syms, word, context)
   local parent_uri = context and context.uri
   local parent_dir = parent_uri and parent_uri:match("(.+)/[^/]+$")
 
-  local same_file, same_pkg, exact_anywhere, first
+  local same_file, same_pkg, exact_anywhere
   for _, s in ipairs(syms) do
-    if not first then first = s end
     if s.name == word then
       local sloc = s.location or (s.locations and s.locations[1])
       local suri = sloc and sloc.uri
@@ -169,7 +184,11 @@ local function pick_symbol(syms, word, context)
       if not exact_anywhere then exact_anywhere = s end
     end
   end
-  return same_file or same_pkg or exact_anywhere or first
+  -- No `first` fallback: workspace/symbol fuzzy-matches, so the top hit for
+  -- `Foo` can easily be an unrelated `FooBarBaz`. Hovering that would claim
+  -- to document the word under the cursor while showing something else —
+  -- returning nil surfaces an honest "no symbol named 'Foo'" instead.
+  return same_file or same_pkg or exact_anywhere
 end
 
 -- === Display =========================================================
@@ -204,11 +223,29 @@ local function display(result, source_buf, focus_id, context)
 
   if winid and vim.api.nvim_win_is_valid(winid) then
     local h = vim.api.nvim_win_get_height(winid)
+    -- Grow a too-short float up to MIN_HEIGHT, but never past max_height.
+    -- With HOVER_OPTS.max_height = 25 this reduces to MIN_HEIGHT; the min()
+    -- is kept as the clamp so a max_height configured below MIN_HEIGHT still
+    -- wins instead of the float overshooting it.
     local target = math.min(MIN_HEIGHT, opts.max_height or MIN_HEIGHT)
     if h < target then pcall(vim.api.nvim_win_set_height, winid, target) end
   end
 
   if winid then
+    -- Source-anchored cleanup: close this hover the next time the cursor
+    -- actually moves in the source buffer. `once` so it self-removes after
+    -- firing. Deliberately not listening to BufLeave.
+    local cleanup_id = vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+      group = cleanup_group,
+      buffer = source_buf,
+      once = true,
+      callback = function()
+        if vim.api.nvim_win_is_valid(winid) then
+          pcall(vim.api.nvim_win_close, winid, false)
+        end
+      end,
+    })
+
     table.insert(stack, { win = winid, context = context })
     vim.api.nvim_create_autocmd("WinClosed", {
       pattern = tostring(winid),
@@ -219,6 +256,11 @@ local function display(result, source_buf, focus_id, context)
             table.remove(stack, i); break
           end
         end
+        -- Closing via q / Q (or any other route that isn't a source cursor
+        -- move) never fires the autocmd above, so it would stay live for the
+        -- rest of the session and pile up one per hover. Delete it here;
+        -- pcall covers the case where it already fired and self-removed.
+        pcall(vim.api.nvim_del_autocmd, cleanup_id)
       end,
     })
   end
@@ -238,21 +280,6 @@ local function display(result, source_buf, focus_id, context)
   vim.keymap.set("n", "Q", close_all, {
     buffer = bufnr, nowait = true, silent = true, desc = "Close all hovers",
   })
-
-  -- Source-anchored cleanup: close this hover the next time the cursor
-  -- actually moves in the source buffer. `once` so each hover's autocmd
-  -- self-removes after firing. Deliberately not listening to BufLeave.
-  if winid then
-    vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-      buffer = source_buf,
-      once = true,
-      callback = function()
-        if vim.api.nvim_win_is_valid(winid) then
-          pcall(vim.api.nvim_win_close, winid, false)
-        end
-      end,
-    })
-  end
 end
 
 -- === Public entries =================================================
@@ -276,14 +303,25 @@ function M.open_from_word(source_buf)
 
   client:request("workspace/symbol", { query = word }, function(err, syms)
     if my_gen ~= generation then return end -- superseded by a newer K
-    if err or not syms or vim.tbl_isempty(syms) then
+    -- A transport/server failure is not the same thing as "that symbol does
+    -- not exist" — collapsing both into one INFO made a wedged gopls look
+    -- like a clean miss, with `err` never surfaced anywhere.
+    if err then
+      vim.notify("Nested hover: workspace/symbol failed: " .. err_msg(err), vim.log.levels.WARN)
+      return
+    end
+    if not syms or vim.tbl_isempty(syms) then
       vim.notify("Nested hover: no symbol named '" .. word .. "'", vim.log.levels.INFO)
       return
     end
     local pick = pick_symbol(syms, word, parent_ctx)
-    if not pick then return end
-    local loc = pick.location or (pick.locations and pick.locations[1])
-    if not loc then return end
+    -- Results came back but none of them is actually named `word` (fuzzy hits
+    -- only), or the pick carries no location we can hover at.
+    local loc = pick and (pick.location or (pick.locations and pick.locations[1]))
+    if not loc then
+      vim.notify("Nested hover: no symbol named '" .. word .. "'", vim.log.levels.INFO)
+      return
+    end
 
     local focus_id = ("neonvim.hover:%s:%d:%d"):format(
       loc.uri, loc.range.start.line, loc.range.start.character
@@ -295,7 +333,11 @@ function M.open_from_word(source_buf)
       position = loc.range.start,
     }, function(err2, hover)
       if my_gen ~= generation then return end
-      if err2 or not hover or not hover.contents then
+      if err2 then
+        vim.notify("Nested hover: textDocument/hover failed: " .. err_msg(err2), vim.log.levels.WARN)
+        return
+      end
+      if not hover or not hover.contents then
         vim.notify("Nested hover: no docs for '" .. word .. "'", vim.log.levels.INFO)
         return
       end
@@ -325,7 +367,12 @@ function M.open()
   local params = vim.lsp.util.make_position_params(source_win, client.offset_encoding or "utf-16")
   client:request("textDocument/hover", params, function(err, result)
     if my_gen ~= generation then return end
-    if err or not result or not result.contents then
+    -- Same split as in open_from_word: a failed request is reported as such.
+    if err then
+      vim.notify("LSP hover failed: " .. err_msg(err), vim.log.levels.WARN)
+      return
+    end
+    if not result or not result.contents then
       vim.notify("LSP hover: no info", vim.log.levels.INFO)
       return
     end

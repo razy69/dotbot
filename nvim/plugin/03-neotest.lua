@@ -6,10 +6,21 @@ plugin.add({
     "https://github.com/nvim-neotest/neotest",
   },
   deps = { "nvim_nio", "plenary", "dap" },
+  -- Every key registered in config() must be listed here, otherwise it stays
+  -- dead until one of the listed keys loads the plugin.
   keys = {
-    { "<leader>tn", desc = "test nearest" },
+    { "<leader>ta", desc = "test attach" },
+    { "<leader>tA", desc = "test all files" },
+    { "<leader>td", desc = "debug nearest test" },
+    { "<leader>tD", desc = "debug current file" },
     { "<leader>tf", desc = "test file" },
+    { "<leader>tl", desc = "test last" },
+    { "<leader>tn", desc = "test nearest" },
+    { "<leader>to", desc = "test output" },
+    { "<leader>tO", desc = "test output panel" },
     { "<leader>ts", desc = "test summary" },
+    { "<leader>tS", desc = "test suite" },
+    { "<leader>tt", desc = "test terminate" },
   },
   config = function()
     -- Configure neotest
@@ -47,8 +58,6 @@ plugin.add({
       { "<leader>tt", function() neotest.run.stop() end,                                        desc = "[t]est [t]erminate",       mode = { "n" } },
       { "<leader>td", function() neotest.run.run({ suite = false, strategy = "dap" }) end,      desc = "Debug nearest test",       mode = { "n" } },
       { "<leader>tD", function() neotest.run.run({ vim.fn.expand("%"), strategy = "dap" }) end, desc = "Debug current file",       mode = { "n" } },
-      { "<leader>tc", function() require("coverage").toggle() end,                              desc = "[t]est [c]overage toggle", mode = { "n" } },
-      { "<leader>tC", function() require("coverage").load(true) end,                            desc = "[t]est [C]overage load",   mode = { "n" } },
     })
   end
 })

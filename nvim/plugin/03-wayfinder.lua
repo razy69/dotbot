@@ -1,9 +1,8 @@
 -- Guided code exploration tool for the current symbol
 plugin.add({
-  disabled = false,
   name = "wayfinder",
   src = "https://github.com/error311/wayfinder.nvim",
-  cmd = { "WayfinderOpen" },
+  cmd = { "Wayfinder", "WayfinderOpen" },
   keys = {
     { "<leader>wf", desc = "Wayfinder" },
   },

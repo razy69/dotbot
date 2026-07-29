@@ -194,15 +194,5 @@ plugin.add({
       { "<leader>gg", function() snacks.terminal("lazygit", { cwd = snacks.git.get_root() }) end, desc = "Lazygit",         mode = "n" },
     })
 
-    -- Per-project ShaDa file: stores marks, registers, etc. scoped to each git repo
-    -- so jumping between projects doesn't pollute each other's state.
-    do
-      local data = tostring(vim.fn.stdpath("data"))
-      local git_root = require("snacks.git").get_root()
-      local cwd = git_root or vim.fn.getcwd()
-      local file = vim.fs.joinpath(data, "project_shada", vim.base64.encode(cwd))
-      vim.fn.mkdir(vim.fs.dirname(file), "p")
-      vim.opt.shadafile = file
-    end
   end,
 })

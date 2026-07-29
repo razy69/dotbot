@@ -43,6 +43,14 @@ local initialized = false
 ---@type uv.uv_timer_t?
 local save_timer
 
+--- Lookup set for M.has_mark: every spelling of a file mark (relative,
+--- absolute, and the raw stored string) maps to true. Rebuilt whenever
+--- state.files changes. has_mark is called once per item per render by the
+--- snacks explorer formatter, so a linear scan over the mark list made
+--- rendering O(items x marks).
+---@type table<string, true>
+local file_mark_set = {}
+
 -- === Paths =============================================================
 
 local function get_root()
@@ -85,25 +93,43 @@ end
 -- Debounce persistence: rapid-fire events (deleting several bookmarks in
 -- sequence, arrow's redraw-then-sync cycle) collapse into one disk write.
 local function schedule_save()
-  if save_timer then
-    pcall(function() save_timer:stop() end)
-    pcall(function() save_timer:close() end)
+  require("utils").close_timer(save_timer)
+  local timer = assert(vim.uv.new_timer())
+  save_timer = timer
+  timer:start(200, 0, vim.schedule_wrap(function()
+    -- Close *our own* handle. The previous version closed the module-level
+    -- `save_timer`, so a schedule_save() landing between this timer firing
+    -- and this body running closed the freshly-created replacement — and
+    -- that pending save never happened.
+    require("utils").close_timer(timer)
+    if save_timer ~= timer then return end
     save_timer = nil
-  end
-  save_timer = assert(vim.uv.new_timer())
-  save_timer:start(200, 0, vim.schedule_wrap(function()
     save_state_now()
-    if save_timer then
-      pcall(function() save_timer:close() end)
-      save_timer = nil
-    end
   end))
 end
 
 -- === Runtime sync ======================================================
 
+--- Rebuild `file_mark_set` from `state.files`. Each mark is indexed under
+--- its stored form, its project-relative form and its absolute form, so
+--- has_mark() can answer with a single table index whichever spelling the
+--- caller passes.
+local function rebuild_file_mark_set()
+  local set = {}
+  for _, f in ipairs(state.files or {}) do
+    local clean = strip_dot_slash(f)
+    set[f] = true
+    set[clean] = true
+    if project_root and not vim.startswith(clean, "/") then
+      set[vim.fs.joinpath(project_root, clean)] = true
+    end
+  end
+  file_mark_set = set
+end
+
 local function refresh_files()
   state.files = vim.deepcopy(vim.g.arrow_filenames or {})
+  rebuild_file_mark_set()
   schedule_save()
 end
 
@@ -146,73 +172,96 @@ local function arrow_save_path()
   return (vim.fn.stdpath("cache") .. "/arrow"):gsub("/$", "")
 end
 
---- Enumerate project files via `git ls-files`. Returns an empty table
---- outside a git repo — runtime ArrowMarkUpdate still keeps the index
---- current for whatever files the user marks during the session.
---- Bounded with a 5s timeout so that a hung git (network filesystem,
---- corrupted repo) can't stall the deferred seed indefinitely.
-local function project_tracked_files()
-  if not project_root then return {} end
-  local result = vim.system(
-    { "git", "-C", project_root, "ls-files" },
-    { text = true }
-  ):wait(5000)
-  if result.code ~= 0 or not result.stdout then return {} end
-  local files = {}
-  for rel in result.stdout:gmatch("[^\r\n]+") do
-    if rel ~= "" then
-      files[#files + 1] = vim.fs.joinpath(project_root, rel)
-    end
+--- Enumerate project files via `git ls-files`, asynchronously. Yields an
+--- empty list outside a git repo — runtime ArrowMarkUpdate still keeps the
+--- index current for whatever files the user marks during the session.
+---
+--- Async rather than `:wait(5000)`: the only caller runs from the startup
+--- seed path, so a slow or hung git (network filesystem, corrupted repo,
+--- cold index) used to block the main loop — and with it the whole UI — for
+--- up to five seconds during startup.
+---@param cb fun(files: string[]) Invoked on the main loop.
+local function project_tracked_files(cb)
+  if not project_root then
+    cb({})
+    return
   end
-  return files
+  local root = project_root
+  local ok = pcall(vim.system,
+    { "git", "-C", root, "ls-files" },
+    { text = true },
+    function(result)
+      local files = {}
+      if result.code == 0 and result.stdout then
+        for rel in result.stdout:gmatch("[^\r\n]+") do
+          if rel ~= "" then
+            files[#files + 1] = vim.fs.joinpath(root, rel)
+          end
+        end
+      end
+      -- on_exit runs in a fast-event context; hop to the main loop before
+      -- the callback touches module state or any vim.fn API. Bail out if the
+      -- project root moved while git was running — the paths would be stale.
+      vim.schedule(function()
+        if project_root ~= root then
+          cb({})
+        else
+          cb(files)
+        end
+      end)
+    end)
+  if not ok then cb({}) end
 end
 
-local function seed_line_marks()
+--- Re-seed `state.line_marks` from arrow's on-disk cache. Async, because
+--- the file enumeration is.
+---@param done? fun() Invoked once the seed has been applied (or skipped).
+local function seed_line_marks(done)
   local ok_util, arrow_util = pcall(require, "arrow.utils")
   local ok_json, arrow_json = pcall(require, "arrow.json")
-  if not (ok_util and ok_json) then return end
+  if not (ok_util and ok_json) then
+    if done then done() end
+    return
+  end
   local save_path = arrow_save_path()
-  if vim.fn.isdirectory(save_path) == 0 then return end
+  if vim.fn.isdirectory(save_path) == 0 then
+    if done then done() end
+    return
+  end
 
-  local new_marks = {}
-  for _, abs_path in ipairs(project_tracked_files()) do
-    local cache_file = save_path .. "/" .. arrow_util.normalize_path_to_filename(abs_path)
-    if vim.fn.filereadable(cache_file) == 1 then
-      local ok, content = pcall(vim.fn.readfile, cache_file)
-      if ok and content and #content > 0 then
-        local ok2, decoded = pcall(arrow_json.decode, table.concat(content, "\n"))
-        if ok2 and type(decoded) == "table" and #decoded > 0 then
-          local clean = {}
-          for _, m in ipairs(decoded) do
-            if type(m) == "table" and m.line then
-              clean[#clean + 1] = { line = m.line, col = m.col or 0 }
+  project_tracked_files(function(files)
+    local new_marks = {}
+    for _, abs_path in ipairs(files) do
+      local cache_file = save_path .. "/" .. arrow_util.normalize_path_to_filename(abs_path)
+      if vim.fn.filereadable(cache_file) == 1 then
+        local ok, content = pcall(vim.fn.readfile, cache_file)
+        if ok and content and #content > 0 then
+          local ok2, decoded = pcall(arrow_json.decode, table.concat(content, "\n"))
+          if ok2 and type(decoded) == "table" and #decoded > 0 then
+            local clean = {}
+            for _, m in ipairs(decoded) do
+              if type(m) == "table" and m.line then
+                clean[#clean + 1] = { line = m.line, col = m.col or 0 }
+              end
             end
-          end
-          if #clean > 0 then
-            new_marks[abs_path] = clean
+            if #clean > 0 then
+              new_marks[abs_path] = clean
+            end
           end
         end
       end
     end
-  end
-  state.line_marks = new_marks
+    -- Only overwrite when we actually enumerated something; an empty result
+    -- (not a git repo, git failed, root changed) must not wipe marks that
+    -- runtime ArrowMarkUpdate events recorded while git was running.
+    if #files > 0 then
+      state.line_marks = new_marks
+    end
+    if done then done() end
+  end)
 end
 
 -- === Public API ========================================================
-
-function M.get_root()
-  return project_root
-end
-
----@return string[]
-function M.get_files()
-  return state.files or {}
-end
-
----@return table<string, arrow_project.Mark[]>
-function M.get_line_marks()
-  return state.line_marks or {}
-end
 
 ---@return {files:integer, line_marks:integer, files_with_lines:integer}
 function M.count()
@@ -243,14 +292,9 @@ function M.has_mark(path)
     end
   end
 
-  local has_file = false
-  for _, f in ipairs(state.files or {}) do
-    local fn = strip_dot_slash(f)
-    if fn == rel or fn == abs or fn == path then
-      has_file = true
-      break
-    end
-  end
+  -- Single table index per spelling instead of a scan over every mark: the
+  -- snacks explorer formatter calls this once per rendered item.
+  local has_file = file_mark_set[rel] or file_mark_set[abs] or file_mark_set[path] or false
   local lines = (state.line_marks or {})[abs]
   local has_lines = lines and #lines > 0
 
@@ -261,11 +305,16 @@ function M.has_mark(path)
 end
 
 --- Re-seed the index from arrow's on-disk cache. Use after editing
---- arrow's files directly or when the index looks stale.
-function M.refresh()
+--- arrow's files directly or when the index looks stale. The re-seed is
+--- asynchronous (it shells out to `git ls-files`), so callers that need to
+--- act on the result pass a callback.
+---@param done? fun() Invoked once the re-seed has been applied.
+function M.refresh(done)
   refresh_files()
-  seed_line_marks()
-  schedule_save()
+  seed_line_marks(function()
+    schedule_save()
+    if done then done() end
+  end)
 end
 
 --- Resolve a project-relative file mark to its absolute path.
@@ -374,8 +423,11 @@ function M.pick()
         picker:find({ refresh = true })
       end,
       refresh_index = function(picker)
-        M.refresh()
-        picker:find({ refresh = true })
+        -- Re-seed is async, so repopulate the list from its callback rather
+        -- than immediately (which would refresh from the pre-seed index).
+        M.refresh(function()
+          pcall(function() picker:find({ refresh = true }) end)
+        end)
       end,
     },
     win = {
@@ -474,18 +526,22 @@ function M.setup()
   refresh_files()
   if vim.tbl_isempty(state.line_marks) then
     vim.schedule(function()
-      seed_line_marks()
-      schedule_save()
-      vim.schedule(function()
-        vim.cmd("redrawstatus")
+      -- seed_line_marks() is async now; its callback already runs on the
+      -- main loop, so the UI work goes straight in there.
+      seed_line_marks(function()
+        schedule_save()
+        -- pcall like every other redraw in the config: this fires from a
+        -- scheduled callback, where the window layout may have moved on.
+        pcall(function() vim.cmd("redrawstatus") end)
         pcall(function() require("snacks").dashboard.update() end)
       end)
     end)
   end
 
   vim.api.nvim_create_user_command("ArrowProjectRefresh", function()
-    M.refresh()
-    vim.notify("arrow_project: re-seeded from arrow cache", vim.log.levels.INFO)
+    M.refresh(function()
+      vim.notify("arrow_project: re-seeded from arrow cache", vim.log.levels.INFO)
+    end)
   end, { desc = "Re-seed arrow_project index from arrow's on-disk cache" })
 end
 

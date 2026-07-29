@@ -19,7 +19,7 @@ plugin.add({
         },
       },
       search = {
-        pattern = [[\b(KEYWORDS)(\(\w*\))?*:]],
+        pattern = [[\b(KEYWORDS)(\(\w*\))?:]],
         command = "rg",
         args = {
           "--color=never",

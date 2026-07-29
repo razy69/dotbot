@@ -18,16 +18,22 @@ plugin.add({
     if info.name == "LuaSnip" then
       vim.cmd("make install_jsregexp")
     elseif info.name == "blink.cmp" then
-      -- Non-blocking: cmp.build() returns a task that runs cargo async,
-      -- moves the artifact from target/release/ to v2's lib/ cache, and
-      -- loads it in-process. No :wait() so PackInstall/PackUpdate don't
-      -- stall the editor; lua fuzzy serves until the rust lib is ready.
+      -- cmp.build() runs cargo, moves the artifact from target/release/ to
+      -- v2's lib/ cache, and loads it in-process. This DOES block, for up to
+      -- 60s — deliberately: it only runs from a PackChanged install/update
+      -- (never at startup), and waiting there means the rust fuzzy lib is
+      -- ready when :PackUpdate returns rather than silently falling back to
+      -- the slower lua implementation for the rest of the session.
       require("blink.cmp").build():pwait(60000)
     end
   end,
   config = function()
-    -- Load friendly snippets
-    require("luasnip.loaders.from_vscode").lazy_load()
+    -- Load friendly snippets off the critical path: this config runs on the
+    -- first InsertEnter/CmdlineEnter, and the loader scans the snippets
+    -- directory tree, so doing it inline added that cost to the first keystroke.
+    vim.schedule(function()
+      require("luasnip.loaders.from_vscode").lazy_load()
+    end)
 
     local blink = require("blink.cmp")
 

@@ -30,22 +30,36 @@ end, {
 
 -- Restart
 vim.api.nvim_create_user_command("LspRestart", function()
+  -- Snapshot the attached buffers *before* stopping: `stop()` tears the
+  -- list down, so reading client.attached_buffers afterwards could see it
+  -- already empty and silently skip restarting that client.
   local detach_clients = {}
   for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
-    client:stop(true)
-    if vim.tbl_count(client.attached_buffers) > 0 then
-      detach_clients[client.name] = { client, vim.tbl_keys(client.attached_buffers) }
+    local buffers = vim.tbl_keys(client.attached_buffers or {})
+    if #buffers > 0 then
+      detach_clients[client.name] = { config = client.config, id = client.id, buffers = buffers }
     end
+    client:stop(true)
   end
+
   vim.wait(5000, function()
     for name, info in pairs(detach_clients) do
-      local client_id = vim.lsp.start(info[1].config, { attach = false })
-      if client_id then
-        for _, buf in ipairs(info[2]) do
-          vim.lsp.buf_attach_client(buf, client_id)
+      -- Wait until the old client is genuinely gone before starting its
+      -- replacement. vim.lsp.start() looks for a reuse_client match first,
+      -- and a still-stopping client can still match — in which case it
+      -- hands back the *dying* client's id, we attach buffers to it, report
+      -- "restarted", and end up with no live server at all.
+      if vim.lsp.get_client_by_id(info.id) == nil then
+        local client_id = vim.lsp.start(info.config, { attach = false })
+        if client_id then
+          for _, buf in ipairs(info.buffers) do
+            if vim.api.nvim_buf_is_valid(buf) then
+              vim.lsp.buf_attach_client(buf, client_id)
+            end
+          end
+          vim.notify(name .. ": restarted", vim.log.levels.INFO)
+          detach_clients[name] = nil
         end
-        vim.notify(name .. ": restarted", vim.log.levels.INFO)
-        detach_clients[name] = nil
       end
     end
     return next(detach_clients) == nil
@@ -71,16 +85,13 @@ end, {
   desc = "Get all the information about all LSP attached",
 })
 
--- Log level
-local log_levels = { "OFF", "ERROR", "WARN", "INFO", "DEBUG", "TRACE" }
-local log_level_map = {
-  OFF = vim.log.levels.OFF,
-  ERROR = vim.log.levels.ERROR,
-  WARN = vim.log.levels.WARN,
-  INFO = vim.log.levels.INFO,
-  DEBUG = vim.log.levels.DEBUG,
-  TRACE = vim.log.levels.TRACE,
-}
+-- Log level. Derived from vim.log.levels rather than hand-written twice —
+-- it is a plain name -> number map (no reverse entries), so the completion
+-- list is just its keys sorted most-severe-first, matching the previous
+-- hard-coded order: OFF, ERROR, WARN, INFO, DEBUG, TRACE.
+local log_level_map = vim.deepcopy(vim.log.levels)
+local log_levels = vim.tbl_keys(log_level_map)
+table.sort(log_levels, function(a, b) return log_level_map[a] > log_level_map[b] end)
 
 vim.api.nvim_create_user_command("LspLogLevel", function(opts)
   if opts.args == "" then

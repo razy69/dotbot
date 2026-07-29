@@ -47,15 +47,36 @@ vim.opt.report = 9999                      -- Suppress "N lines changed" message
 vim.opt.ruler = false                      -- Hide cursor position (statusline shows it)
 vim.opt.scrolloff = 4                      -- Keep 4 lines visible above/below cursor
 vim.opt.shada = {
-  '"50',                                   -- Save up to 50 lines for each register
   "'50",                                   -- Remember marks for the last 50 edited files
   "/50",                                   -- Save up to 50 search patterns
   ":50",                                   -- Save up to 50 command-line history entries
-  "<50",                                   -- Save up to 50 lines for each register (alt syntax)
+  "<50",                                   -- Save up to 50 lines for each register
   "@50",                                   -- Save up to 50 input-line history entries
   "f1",                                    -- Store file marks (uppercase marks persist across sessions)
   "h",                                     -- Disable hlsearch effect when loading shada
 }
+-- Per-project ShaDa file: marks, registers and histories scoped to each git
+-- repo so jumping between projects doesn't pollute each other's state.
+--
+-- Must be set before Neovim reads the ShaDa file (startup step 16, after
+-- plugin scripts are sourced), which is why it lives here — options.lua is
+-- required from init.lua — rather than in a plugin/ config, where it worked
+-- only for as long as that plugin happened to load eagerly.
+--
+-- Keyed by sha256 rather than base64: base64 is case-sensitive while APFS is
+-- case-insensitive by default, so two cwds differing only in letter case
+-- resolved to the same file.
+do
+  local root = vim.fs.root(0, ".git") or vim.uv.cwd()
+  local file = vim.fs.joinpath(
+    tostring(vim.fn.stdpath("data")),
+    "project_shada",
+    vim.fn.sha256(root)
+  )
+  vim.fn.mkdir(vim.fs.dirname(file), "p")
+  vim.opt.shadafile = file
+end
+
 vim.opt.shortmess:append({                 -- Suppress messages:
   A = true,                                -- Skip swap file warnings
   C = true,                                -- Skip ins-completion scanning messages

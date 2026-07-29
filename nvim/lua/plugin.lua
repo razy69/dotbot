@@ -171,6 +171,13 @@ end
 ---@param spec PluginSpec Plugin specification
 ---@param trigger? string Why this load was triggered (for profiling)
 local function do_load(name, spec, trigger)
+  -- Belt-and-braces: M.load is the only intended entry point and already
+  -- guards on _loaded, but a double vim.pack.add + config() is destructive
+  -- enough (duplicate autocmds, duplicate keymaps) to re-check here.
+  if M._loaded[name] then
+    return
+  end
+
   local t_begin = vim.uv.hrtime()
 
   local pack_specs = build_pack_specs(spec)
@@ -228,6 +235,25 @@ function M.load(name, sync, trigger)
     return
   end
 
+  local spec = M._specs[name]
+  if not spec then
+    return
+  end
+
+  -- Defer the *whole* load (deps included) to the main loop. Re-entering
+  -- M.load rather than calling do_load directly matters: it re-checks
+  -- _loaded, so a dependency that force-loaded this plugin synchronously in
+  -- the meantime turns the scheduled call into a no-op instead of a second
+  -- vim.pack.add + config(). It also means _loading is not held across the
+  -- schedule boundary, which would otherwise make any dep-triggered load in
+  -- that window look like a dependency cycle.
+  if spec.lazy and not sync then
+    vim.schedule(function()
+      M.load(name, true, trigger)
+    end)
+    return
+  end
+
   -- Re-entrant load for an already-in-flight plugin means a dependency
   -- cycle (A -> B -> ... -> A). Report the full path so the author can
   -- break the cycle instead of silently returning and leaving a half-loaded
@@ -238,31 +264,26 @@ function M.load(name, sync, trigger)
     return
   end
 
-  local spec = M._specs[name]
-  if not spec then
-    return
-  end
-
   M._loading[name] = true
   table.insert(M._load_stack, name)
 
-  -- Resolve dependencies first (always synchronous to guarantee availability)
+  -- Resolve dependencies first (always synchronous to guarantee availability).
+  -- An unregistered dep name is a typo, not a no-op: warn loudly rather than
+  -- letting the parent load against a dependency that was never installed.
   if spec.deps then
     for _, dep in ipairs(spec.deps) do
+      if not M._specs[dep] then
+        vim.notify(
+          ("plugin %s: unknown dependency '%s' (no spec registered under that name)"):format(name, dep),
+          vim.log.levels.WARN
+        )
+      end
       M.load(dep, true, "dep:" .. name)
     end
   end
 
-  if spec.lazy and not sync then
-    vim.schedule(function()
-      do_load(name, spec, trigger)
-    end)
-  else
-    do_load(name, spec, trigger)
-  end
+  do_load(name, spec, trigger)
 
-  -- Pop the stack regardless of lazy scheduling; _loading is cleared inside
-  -- do_load when the actual load completes.
   for i = #M._load_stack, 1, -1 do
     if M._load_stack[i] == name then
       table.remove(M._load_stack, i)

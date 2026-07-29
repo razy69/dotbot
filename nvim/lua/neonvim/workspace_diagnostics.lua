@@ -64,8 +64,9 @@ local DIR_IGNORE = {
 
 ---@class workspace_diag.State
 ---@field queues table<integer, workspace_diag.Entry[]>  per-client work queues
----@field loaded table<string, integer>                  path -> mtime of files we opened
----@field bytes_loaded integer                           cumulative bytes opened
+---@field loaded table<string, integer>                  path -> mtime of files we opened (cumulative, drives dedup + delta())
+---@field bytes_loaded integer                           bytes opened by the current scan
+---@field files_loaded integer                           files opened by the current scan
 ---@field timer uv.uv_timer_t?
 ---@field paused boolean
 ---@field on_key_ns integer?
@@ -77,6 +78,7 @@ local state = {
   queues = {},
   loaded = {},
   bytes_loaded = 0,
+  files_loaded = 0,
   timer = nil,
   paused = false,
   on_key_ns = nil,
@@ -139,11 +141,7 @@ local function render_bar(pct)
   return "[" .. string.rep("█", filled) .. string.rep("░", width - filled) .. "]"
 end
 
-local function close_timer(t)
-  if not t then return end
-  pcall(function() t:stop() end)
-  pcall(function() t:close() end)
-end
+local close_timer = require("utils").close_timer
 
 local function get_root()
   local ok, snacks_git = pcall(require, "snacks.git")
@@ -331,7 +329,7 @@ local function tick()
           M.cancel()
           done_notify(
             ("hit memory cap (%d MB) · %d files loaded · scan stopped"):format(
-              math.floor(MAX_BYTES_TOTAL / 1024 / 1024), vim.tbl_count(state.loaded)
+              math.floor(MAX_BYTES_TOTAL / 1024 / 1024), state.files_loaded
             ),
             vim.log.levels.WARN
           )
@@ -339,6 +337,7 @@ local function tick()
         end
         if open_file(entry.path, entry.mtime) then
           state.bytes_loaded = state.bytes_loaded + entry.size
+          state.files_loaded = state.files_loaded + 1
         end
         processed = processed + 1
       end
@@ -356,7 +355,9 @@ local function tick()
   end
 
   if not any_left then
-    local count = vim.tbl_count(state.loaded)
+    -- Files/bytes opened by *this* scan, not the session-cumulative
+    -- registry — the latter made repeat scans report inflated figures.
+    local count = state.files_loaded
     M.cancel()
     done_notify(
       ("scan complete · %s 100%% · %d files · %.1f MB · scope=%s"):format(
@@ -388,17 +389,18 @@ end
 local function install_keypause()
   if state.on_key_ns then return end
   state.on_key_ns = vim.api.nvim_create_namespace("workspace_diagnostics_pause")
+  -- One timer for the lifetime of the scan, simply restarted on each
+  -- keystroke. The previous version allocated and closed a fresh libuv
+  -- handle per keypress, which is pure churn while typing.
+  state.resume_timer = vim.uv.new_timer()
   vim.on_key(function()
     state.paused = true
-    close_timer(state.resume_timer)
-    state.resume_timer = vim.uv.new_timer()
-    if state.resume_timer then
-      state.resume_timer:start(IDLE_RESUME_MS, 0, vim.schedule_wrap(function()
-        state.paused = false
-        close_timer(state.resume_timer)
-        state.resume_timer = nil
-      end))
-    end
+    local t = state.resume_timer
+    if not t or t:is_closing() then return end
+    t:stop()
+    t:start(IDLE_RESUME_MS, 0, vim.schedule_wrap(function()
+      state.paused = false
+    end))
   end, state.on_key_ns)
 end
 
@@ -409,6 +411,12 @@ local function uninstall_keypause()
   end
   close_timer(state.resume_timer)
   state.resume_timer = nil
+  -- Must clear the flag: on_key pauses on *any* keypress, so a scan that
+  -- completes or aborts while paused would otherwise leave paused=true with
+  -- no resume timer left to reset it — and the next scan's tick() would
+  -- return immediately, making no progress until the user happened to
+  -- press a key.
+  state.paused = false
 end
 
 -- Public ------------------------------------------------------------------
@@ -453,19 +461,50 @@ function M.scan(opts)
     notify(err or "no scope", vim.log.levels.WARN)
     return
   end
-  state.scope = scope
 
+  -- Build the per-client entry lists up front but keep them off `state`
+  -- until we know there is real work. Committing the scope (and empty
+  -- queues) before the total_queued check made
+  -- :LspWorkspaceScanStatus report a scope for a scan that never ran.
+  local queued = {}
   local total_queued = 0
   for _, client in ipairs(clients) do
-    state.queues[client.id] = state.queues[client.id] or {}
     local entries = filter_for_client(client, files)
-    vim.list_extend(state.queues[client.id], entries)
-    total_queued = total_queued + #entries
+    if #entries > 0 then
+      queued[client.id] = entries
+      total_queued = total_queued + #entries
+    end
   end
 
   if total_queued == 0 then
     notify(("scope=%s but no files matched any client filetypes"):format(scope))
     return
+  end
+
+  -- Reset the per-scan accumulators, but only for a genuinely fresh scan —
+  -- scan() is re-entrant and a second call while work is in flight just
+  -- adds to the running totals. These were previously never reset, so
+  -- bytes grew for the whole session until every scan tripped
+  -- MAX_BYTES_TOTAL and reported "hit memory cap" with a session-cumulative
+  -- MB figure. `state.loaded` deliberately stays cumulative: it is the
+  -- dedup registry and the set M.delta() re-stats, so clearing it would
+  -- make us forget buffers a previous scan opened.
+  local in_flight = false
+  for _, q in pairs(state.queues) do
+    if #q > 0 then
+      in_flight = true
+      break
+    end
+  end
+  if not state.timer and not in_flight then
+    state.bytes_loaded = 0
+    state.files_loaded = 0
+  end
+
+  state.scope = scope
+  for client_id, entries in pairs(queued) do
+    state.queues[client_id] = state.queues[client_id] or {}
+    vim.list_extend(state.queues[client_id], entries)
   end
 
   -- Snapshot total for progress %; account for any queue carried from a
@@ -524,13 +563,17 @@ function M.detach(client_id)
 end
 
 --- Re-stat loaded paths and trigger a reload for those whose mtime moved.
---- Bounded to MAX_DELTA per call so a huge external rewrite (git checkout
---- on a big repo) doesn't stall the editor in one shot.
+--- Bounded to MAX_DELTA *examined* paths per call. The counter used to be
+--- incremented only inside the changed-mtime branch, which capped reloads
+--- but not the fs_stat() walk — so every call synchronously stat'ed all of
+--- state.loaded (up to MAX_FILES_FULL paths), and the caller is a
+--- FocusGained autocmd, i.e. every alt-tab back into the editor.
 function M.delta()
   if vim.tbl_isempty(state.loaded) then return end
   local checked = 0
   for path, prev_mtime in pairs(state.loaded) do
     if checked >= MAX_DELTA then break end
+    checked = checked + 1
     local stat = vim.uv.fs_stat(path)
     if stat and stat.mtime.sec ~= prev_mtime then
       local bufnr = vim.fn.bufnr(path)
@@ -541,7 +584,6 @@ function M.delta()
           vim.cmd("checktime")
         end)
         state.loaded[path] = stat.mtime.sec
-        checked = checked + 1
       else
         -- Buffer was wiped externally; forget it.
         state.loaded[path] = nil

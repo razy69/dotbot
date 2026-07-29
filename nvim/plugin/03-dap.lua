@@ -3,14 +3,27 @@ plugin.add({
   name = "dap",
   src = {
     "https://github.com/mfussenegger/nvim-dap",
-    "https://github.com/theHamsta/nvim-dap-virtual-text",
     "https://github.com/leoluz/nvim-dap-go",
     "https://github.com/igorlfs/nvim-dap-view",
   },
-  deps = { "nvim_nio" },
+  -- Every key registered in config() must be listed here, otherwise it stays
+  -- dead until one of the listed keys loads the plugin.
   keys = {
     { "<leader>db", desc = "toggle debug breakpoint" },
+    { "<leader>dB", desc = "debug breakpoint condition" },
     { "<leader>dc", desc = "debug continue" },
+    { "<leader>dC", desc = "debug to cursor" },
+    { "<leader>dg", desc = "debug go to line" },
+    { "<leader>do", desc = "debug step over" },
+    { "<leader>dO", desc = "debug step out" },
+    { "<leader>di", desc = "debug step into" },
+    { "<leader>dj", desc = "debug jump down" },
+    { "<leader>dk", desc = "debug jump up" },
+    { "<leader>dl", desc = "debug last" },
+    { "<leader>dp", desc = "debug pause" },
+    { "<leader>dr", desc = "debug repl" },
+    { "<leader>dR", desc = "debug remove breakpoints" },
+    { "<leader>dt", desc = "debug terminate" },
     { "<leader>dv", desc = "dap view" },
   },
   config = function()
@@ -27,7 +40,6 @@ plugin.add({
       },
     })
     require("dap-go").setup()
-    require("nvim-dap-virtual-text").setup({})
 
     -- nvim-dap-go's default `Debug` and `Debug test` pass `${file}` to delve,
     -- which compiles only that single file as `command-line-arguments` — so
@@ -78,12 +90,11 @@ plugin.add({
       { "<leader>dO", function() dap.step_out() end,                                             desc = "[d]ebug step [O]ut",              mode = { "n" } },
       { "<leader>di", function() dap.step_into() end,                                            desc = "[d]ebug [i]nto",                  mode = { "n" } },
       { "<leader>dj", function() dap.down() end,                                                 desc = "[d]ebug [j]ump down",             mode = { "n" } },
-      { "<leader>dk", function() dap.up() end,                                                   desc = "[d]ebug [k]ump up",               mode = { "n" } },
+      { "<leader>dk", function() dap.up() end,                                                   desc = "[d]ebug jump up ([k])",           mode = { "n" } },
       { "<leader>dl", function() dap.run_last() end,                                             desc = "[d]ebug [l]ast",                  mode = { "n" } },
       { "<leader>dp", function() dap.pause() end,                                                desc = "[d]ebug [p]ause",                 mode = { "n" } },
       { "<leader>dr", function() dap.repl.toggle() end,                                          desc = "[d]ebug [r]epl",                  mode = { "n" } },
       { "<leader>dR", function() dap.clear_breakpoints() end,                                    desc = "[d]ebug [R]emove breakpoints",    mode = { "n" } },
-      { "<leader>ds", function() dap.session() end,                                              desc = "[d]ebug [s]ession",               mode = { "n" } },
       { "<leader>dt", function() dap.terminate() end,                                            desc = "[d]ebug [t]erminate",             mode = { "n" } },
       { "<leader>dv", function() dap_view.toggle() end,                                          desc = "[d]ap [v]iew",                    mode = { "n" } },
     })

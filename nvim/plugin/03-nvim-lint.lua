@@ -38,9 +38,19 @@ plugin.add({
             pkg = spec.package or name,
             binary = spec.binary or name,
           })
-          for _, ft in ipairs(spec.ft) do
-            linters_by_ft[ft] = linters_by_ft[ft] or {}
-            table.insert(linters_by_ft[ft], name)
+          -- Guard `ft`: a spec missing it would throw here, and because this runs
+          -- inside config() the failure would take down the whole nvim-lint
+          -- setup (autocmds, :Lint, keymap) rather than just that one linter.
+          if type(spec.ft) ~= "table" then
+            vim.notify(
+              ("nvim-lint: linters/%s is missing an `ft` list; skipped"):format(file),
+              vim.log.levels.WARN
+            )
+          else
+            for _, ft in ipairs(spec.ft) do
+              linters_by_ft[ft] = linters_by_ft[ft] or {}
+              table.insert(linters_by_ft[ft], name)
+            end
           end
           if type(spec.customize) == "function" then
             customizers[name] = spec.customize

@@ -67,7 +67,7 @@ plugin.add({
       { "<leader>w",    "<cmd>w<cr>",                desc = "Save buffer",                     mode = { "n" } },
       { "<leader>qq",   "<cmd>confirm q<cr>",        desc = "Quit buffer",                     mode = { "n" } },
       { "<leader>qa",   "<cmd>confirm qall<cr>",     desc = "Quit all buffers",                mode = { "n" } },
-      { "<leader><bs>", "za<cr>",                    desc = "Fold/Unfold code",                mode = { "n" } },
+      { "<leader><bs>", "za",                        desc = "Fold/Unfold code",                mode = { "n" } },
       { "<leader>bg",   "<cmd>BackgroundToggle<cr>", desc = "Toggle background light/dark",    mode = { "n" } },
       { "<leader>qf",   "<cmd>copen<cr>",            desc = "Open quickfix",                   mode = { "n" } },
       { "+",            "<C-a>",                     desc = "Increment Numbers",               mode = { "n" } },
@@ -80,7 +80,7 @@ plugin.add({
       { "<leader>?",    ":S/",                       desc = "Substitute (rev)",                mode = { "x" } },
       { "<bs>",         "^",                         desc = "Go to first non-blank character", mode = { "n", "v" } },
       { "<bs><space>",  "$",                         desc = "Go to last character",            mode = { "n", "v" } },
-      { "<leader>6",    "<cmd>bNext<cr>",            desc = "Next",                            mode = { "n" } },
+      { "<leader>6",    "<cmd>bnext<cr>",            desc = "Next buffer",                     mode = { "n" } },
     })
   end,
 })

@@ -2,7 +2,7 @@
 plugin.add({
   name = "refactoring",
   src = "https://github.com/ThePrimeagen/refactoring.nvim",
-  deps = { "async", "treesitter" },
+  deps = { "treesitter" },
   keys = {
     { "<leader>re", desc = "Extract function" },
     { "<leader>rf", desc = "Extract function to file" },

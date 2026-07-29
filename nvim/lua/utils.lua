@@ -11,6 +11,16 @@ function M.augroup(name)
   return vim.api.nvim_create_augroup("razyvim_" .. name, { clear = true })
 end
 
+--- Stop and close a libuv timer handle, tolerating nil and
+--- already-closed handles. Stopping alone leaks the handle — libuv only
+--- releases it on close — so every timer teardown must do both.
+---@param timer uv.uv_timer_t? Timer handle (nil is a no-op)
+function M.close_timer(timer)
+  if not timer then return end
+  pcall(function() timer:stop() end)
+  pcall(function() timer:close() end)
+end
+
 --- Add which-key mappings that work both pre- and post-VimEnter.
 --- which-key v3's top-level `require("which-key").add()` only appends to
 --- a queue (which-key/init.lua:48-50); the queue is drained exactly once

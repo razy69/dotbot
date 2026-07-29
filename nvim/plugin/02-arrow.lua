@@ -5,7 +5,9 @@
 -- ; or m.
 plugin.add({
   name = "arrow",
-  deps = { "mini.icons" },
+  -- No `deps = { "mini.icons" }`: that is a src entry of the catppuccin spec,
+  -- not a registered spec name, so the dep resolved to nothing. mini.icons is
+  -- on the rtp regardless — 01-catppuccin.lua is sourced before any 02- file.
   src = { "https://github.com/otavioschwanck/arrow.nvim" },
   config = function()
     require("arrow").setup({

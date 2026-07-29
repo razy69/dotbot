@@ -34,6 +34,11 @@ local spinner_frames  = {
   "\u{2834}", "\u{2826}", "\u{2827}", "\u{2807}", "\u{280F}",
 }
 local spinner_idx     = 1
+-- True while the 300ms spinner heartbeat is ticking, i.e. while at least
+-- one client somewhere has unfinished progress. Module-level (not a
+-- setup() local) so section_lsp can use it as a cheap guard before doing
+-- any progress-ring work. Owned by start_spinner() in M.setup().
+local spinner_running = false
 
 -- Mode -> { label, base highlight name }. The mode codes come from
 -- :h mode() — we cover every documented value so the label never falls
@@ -103,14 +108,29 @@ local transient       = nil ---@type { label: string, hl: string }?
 ---@type uv.uv_timer_t?
 local transient_timer = nil
 
+-- Bumped on every pill so a superseded timer's already-scheduled callback
+-- can tell it no longer owns `transient` and bail out instead of wiping
+-- the pill that replaced it.
+local transient_seq   = 0
+
 local function show_transient(label, hl, ms)
   transient = { label = label, hl = hl }
-  if transient_timer then pcall(function() transient_timer:stop() end) end
-  transient_timer = vim.defer_fn(function()
+  -- Stop *and* close. `:stop()` alone leaks the libuv handle (libuv only
+  -- releases it on close), and `vim.defer_fn` closes its handle from
+  -- inside its own callback — which never runs for a superseded pill. A
+  -- rapid y/d/c burst inside the 400ms window leaked one handle each.
+  require("utils").close_timer(transient_timer)
+  transient_seq = transient_seq + 1
+  local seq = transient_seq
+  local timer = assert(vim.uv.new_timer())
+  transient_timer = timer
+  timer:start(ms or 400, 0, vim.schedule_wrap(function()
+    require("utils").close_timer(timer)
+    if seq ~= transient_seq then return end
     transient = nil
     transient_timer = nil
     pcall(vim.cmd.redrawstatus)
-  end, ms or 400)
+  end))
   pcall(vim.cmd.redrawstatus)
 end
 
@@ -137,8 +157,13 @@ end
 
 local CACHE_KEYS = {
   "sl_diag", "sl_filetype", "sl_encoding", "sl_fileformat",
-  "sl_disp_short", "sl_disp_full",
+  "sl_disp_short", "sl_disp_full", "sl_lsp_names",
 }
+
+-- Caches keyed on the cwd-relative rendering of the buffer name. Cleared
+-- for every buffer on :cd / :tcd / :lcd, which changes what ":~:." resolves
+-- to without firing any buffer-local event.
+local CWD_CACHE_KEYS = { "sl_disp_short", "sl_disp_full" }
 
 local function invalidate_all(bufnr)
   for _, k in ipairs(CACHE_KEYS) do
@@ -375,25 +400,80 @@ local function any_lsp_in_progress()
   return lsp_in_progress(clients)
 end
 
+-- The attached-client *names* only change on attach/detach, so they're
+-- memoized per buffer and invalidated from the LspAttach/LspDetach
+-- autocmds in M.setup(). Previously this ran get_clients() + built a name
+-- table + walked every progress ring on every redraw — and the format
+-- contains `%l:%c`, so "every redraw" means every cursor move.
 local function section_lsp()
-  local clients = vim.lsp.get_clients({ bufnr = 0 })
-  if #clients == 0 then return "" end
-  local names = {}
-  for _, c in ipairs(clients) do
-    table.insert(names, c.name)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local names = bcache(bufnr, "sl_lsp_names", function()
+    local clients = vim.lsp.get_clients({ bufnr = bufnr })
+    if #clients == 0 then return "" end
+    local out = {}
+    for _, c in ipairs(clients) do
+      out[#out + 1] = c.name
+    end
+    return table.concat(out, " ")
+  end)
+  if names == "" then return "" end
+  -- The spinner frame has to stay live (it advances on the 300ms
+  -- heartbeat), but the ring walk is now gated on the module-level
+  -- `spinner_running` flag: when nothing is in flight anywhere — the
+  -- overwhelming majority of redraws — we skip get_clients() and the walk
+  -- entirely. The icon shown is identical either way, since the spinner
+  -- only ever runs while some client reports progress.
+  local icon = ICON_LSP_OK
+  if spinner_running and lsp_in_progress(vim.lsp.get_clients({ bufnr = bufnr })) then
+    icon = spinner_frames[spinner_idx]
   end
-  local icon = lsp_in_progress(clients) and spinner_frames[spinner_idx] or ICON_LSP_OK
-  return "%@v:lua.statusline_click_lsp@" .. ICON_LSP .. " " .. table.concat(names, " ") .. "%X" .. " " .. icon
+  return "%@v:lua.statusline_click_lsp@" .. ICON_LSP .. " " .. names .. "%X" .. " " .. icon
 end
 
+-- `wordcount().visual_chars` walks the *whole buffer* on every redraw
+-- while a selection is active. The same figure is reproducible from the
+-- selected lines alone, which is O(selection) instead of O(buffer):
+-- charwise counts the partial first/last lines plus one newline per line
+-- break, linewise counts every line plus one newline each (verified
+-- against wordcount()). Blockwise still defers to wordcount() — its
+-- column math has to honour curswant/`$`, virtualedit and tab widths, and
+-- reimplementing that isn't worth the risk for a mode that is rare and
+-- short-lived.
 local function section_selcount()
   local m = vim.api.nvim_get_mode().mode
   local c = m:sub(1, 1)
   if not (c == "v" or c == "V" or c == "s" or c == "S" or c == "\22" or c == "\19") then
     return ""
   end
-  local lines = math.abs(vim.fn.line(".") - vim.fn.line("v")) + 1
-  local chars = vim.fn.wordcount().visual_chars or 0
+
+  local sl, el = vim.fn.line("v"), vim.fn.line(".")
+  local sc, ec = vim.fn.charcol("v"), vim.fn.charcol(".")
+  if sl > el or (sl == el and sc > ec) then
+    sl, el, sc, ec = el, sl, ec, sc
+  end
+  local lines = el - sl + 1
+
+  if c == "\22" or c == "\19" then
+    return lines .. "L " .. (vim.fn.wordcount().visual_chars or 0) .. "C"
+  end
+
+  local chars
+  if c == "V" or c == "S" then
+    chars = lines -- one newline per selected line
+    for _, l in ipairs(vim.api.nvim_buf_get_lines(0, sl - 1, el, false)) do
+      chars = chars + vim.fn.strchars(l)
+    end
+  elseif lines == 1 then
+    chars = ec - sc + 1
+  else
+    local buf_lines = vim.api.nvim_buf_get_lines(0, sl - 1, el, false)
+    local first = buf_lines[1] or ""
+    chars = math.max(0, vim.fn.strchars(first) - sc + 1) + ec + (lines - 1)
+    for i = 2, #buf_lines - 1 do
+      chars = chars + vim.fn.strchars(buf_lines[i])
+    end
+  end
+
   return lines .. "L " .. chars .. "C"
 end
 
@@ -514,6 +594,11 @@ end
 ---@type uv.uv_timer_t?
 local spinner_timer = nil
 
+-- Stable namespace for the `r<x>` on_key handler. nvim_create_namespace is
+-- idempotent for a given name, so re-running setup() reuses this id and
+-- overwrites the previous callback rather than stacking another one.
+local ON_KEY_NS = vim.api.nvim_create_namespace("razyvim_statusline_on_key")
+
 --- @class neonvim.statusline.SpecialName
 --- @field label string Text shown in place of the filename.
 --- @field hl string Highlight group for the label; bg should match StSecC.
@@ -577,6 +662,29 @@ function M.setup(opts)
       vim.b[ev.buf].sl_disp_full = nil
     end,
   })
+  -- `:cd` / `:tcd` / `:lcd` changes what the cached ":~:." display path
+  -- resolves to, but fires no buffer-local event — without this the
+  -- statusline keeps showing paths relative to the *old* directory. Every
+  -- loaded buffer's cache has to go, not just the current one.
+  vim.api.nvim_create_autocmd("DirChanged", {
+    group = augroup,
+    callback = function()
+      for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+        for _, k in ipairs(CWD_CACHE_KEYS) do
+          vim.b[bufnr][k] = nil
+        end
+      end
+      pcall(vim.cmd.redrawstatus)
+    end,
+  })
+
+  -- Attached client names are memoized by section_lsp; they only change
+  -- when a client attaches or detaches.
+  vim.api.nvim_create_autocmd({ "LspAttach", "LspDetach" }, {
+    group = augroup,
+    callback = function(ev) vim.b[ev.buf].sl_lsp_names = nil end,
+  })
+
   vim.api.nvim_create_autocmd("OptionSet", {
     group = augroup,
     pattern = { "fileencoding", "fileformat" },
@@ -645,14 +753,16 @@ function M.setup(opts)
 
   -- Single-char replace (`r<x>`) doesn't fire ModeChanged — Neovim handles
   -- it in one keystroke. vim.on_key lets us surface it the same way
-  -- modes.nvim does for its cursorline tint.
+  -- modes.nvim does for its cursorline tint. Registered under a stable
+  -- namespace so a second setup() (dev reload, :luafile) *replaces* the
+  -- handler instead of installing a second, unremovable one.
   vim.on_key(function(key)
     if key ~= "r" then return end
     local m = vim.api.nvim_get_mode().mode
     if m == "n" or m:match("^ni") or m:match("^[vV\22]") then
       show_transient("R-CHAR", "StModeRchar")
     end
-  end)
+  end, ON_KEY_NS)
 
   -- Arrow mark changes don't surface through any standard event; the plugin
   -- fires User autocmds after every update, so hook those too. The redraw
@@ -673,11 +783,9 @@ function M.setup(opts)
   -- Stop a prior timer if setup() is called again (e.g. after :luafile or
   -- a dev reload) — otherwise timers accumulate and the spinner ticks N
   -- times faster than intended.
-  if spinner_timer then
-    pcall(function() spinner_timer:stop() end)
-    pcall(function() spinner_timer:close() end)
-    spinner_timer = nil
-  end
+  require("utils").close_timer(spinner_timer)
+  spinner_timer = nil
+  spinner_running = false
 
   -- 300ms heartbeat for the LSP spinner — only running while an attached
   -- client has unfinished progress. Starts on LspProgress when work
@@ -685,7 +793,6 @@ function M.setup(opts)
   -- ticked unconditionally and walked client progress rings 3x/sec even
   -- when nothing was in flight; this one stays silent on idle editors.
   spinner_timer = assert(vim.uv.new_timer())
-  local spinner_running = false
 
   local function start_spinner()
     if spinner_running then return end
@@ -704,9 +811,15 @@ function M.setup(opts)
     end))
   end
 
+  -- Hottest path in the config: gopls/lua_ls emit hundreds of LspProgress
+  -- messages per second while indexing. The `spinner_running` check has to
+  -- come first — once the heartbeat is up there is nothing left to do, and
+  -- any_lsp_in_progress() walks every client's progress ring inside a
+  -- pcall, which is far too expensive to run per message.
   vim.api.nvim_create_autocmd({ "LspProgress", "LspAttach" }, {
     group = augroup,
     callback = function()
+      if spinner_running then return end
       if any_lsp_in_progress() then
         start_spinner()
       end
@@ -714,7 +827,12 @@ function M.setup(opts)
   })
 end
 
--- Expose re-theming helper for 01-catppuccin.lua's reload path.
+-- Expose re-theming helper for 01-catppuccin.lua's reload path. The
+-- ColorScheme autocmd registered in setup() is the primary path — it
+-- already fires on the `:colorscheme catppuccin` that the reload path runs
+-- — so calling this as well just re-applies the same highlights a second
+-- time. Kept for compatibility; it is idempotent (plain nvim_set_hl
+-- overwrites) and cheap enough that the duplicate is harmless.
 M.refresh_highlights = setup_highlights
 
 return M

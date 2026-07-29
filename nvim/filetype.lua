@@ -3,10 +3,10 @@
   Description: Custom filetype definition.
 ]]
 
--- Define gitconfig ft for '.git/config'
+-- Core already maps '.git/config' via a pattern, and only handles
+-- '/etc/gitconfig' for the bare name — hence just the basename here.
 vim.filetype.add({
   filename = {
-    [".git/config"] = "gitconfig",
     ["gitconfig"] = "gitconfig",
   },
 })

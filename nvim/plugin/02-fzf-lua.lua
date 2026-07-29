@@ -2,6 +2,16 @@
 plugin.add({
   name = "fzf_lua",
   src = "https://github.com/ibhagwan/fzf-lua",
+  -- Every entry point is one of these keys or a `deps = { "fzf_lua" }` consumer
+  -- (03-tiny-code-action), so there is nothing to do at startup.
+  keys = {
+    { "<leader>O",  desc = "Show recent files" },
+    { "<leader>o",  desc = "Search for a file" },
+    { "<leader>i",  desc = "Go to previous location" },
+    { "<leader>gr", desc = "Find string in project" },
+    { "<leader>b",  desc = "Show all buffers" },
+    { "<leader>gt", desc = "Grep todos" },
+  },
   config = function()
     -- Configure fzf_lua
     local fzf_lua = require("fzf-lua")
@@ -9,6 +19,9 @@ plugin.add({
     fzf_lua.setup({
       "fzf-native",
       fzf_colors = true, -- derive from current colorscheme (adapts to dark/light)
+      ui_select = false, -- let snacks.picker own vim.ui.select; avoids a
+      -- duplicate-registration warning at startup (which the ext_messages UI
+      -- surfaces as a blocking "Press any key to continue" dialog).
       file_icon_padding = " ",
       winopts = {
         preview    = {
@@ -51,18 +64,6 @@ plugin.add({
       },
     })
 
-    -- Register UI select
-    fzf_lua.register_ui_select(function(_, items)
-      local min_h, max_h = 0.15, 0.70
-      local h = (#items + 4) / vim.o.lines
-      if h < min_h then
-        h = min_h
-      elseif h > max_h then
-        h = max_h
-      end
-      return { winopts = { height = h, width = 0.60, row = 0.40 } }
-    end)
-
     -- Add keymap
     utils.wk_add({
       { "<leader>O",    function() fzf_lua.oldfiles() end,                         desc = "Show recent files",       mode = "n" },
@@ -70,7 +71,9 @@ plugin.add({
       { "<leader>i",    function() fzf_lua.jumps() end,                            desc = "Go to previous location", mode = "n" },
       { "<leader>gr",   function() fzf_lua.live_grep({ multiprocess = true }) end, desc = "Find string in project",  mode = "n" },
       { "<leader>b",    function() fzf_lua.buffers() end,                          desc = "Show all buffers",        mode = "n" },
-      { "<leader>todo", "<cmd>TodoFzf<cr>",                                        desc = "Todo things",             mode = "n" },
+      -- Not <leader>todo: that prefix shadows <leader>to / <leader>tO (neotest
+      -- output) and made the whole <leader>t namespace wait on timeoutlen.
+      { "<leader>gt",   "<cmd>TodoFzf<cr>",                                        desc = "Grep todos",              mode = "n" },
     })
   end,
 })

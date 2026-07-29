@@ -2,7 +2,10 @@
 -- Mason itself is set up in plugin/02-mason.lua and pulled in via deps.
 plugin.add({
   name = "lsp",
-  deps = { "mason" },
+  -- blink_cmp must be a dep, not merely hoped for: capabilities are baked in
+  -- below and sent once at client start. Without it, LazyFile beats blink's
+  -- own InsertEnter trigger and servers start without completion capabilities.
+  deps = { "mason", "blink_cmp" },
   event = plugin.LazyFile,
   src = {
     "https://github.com/Bekaboo/dropbar.nvim",
@@ -51,14 +54,14 @@ plugin.add({
     mason_cmds.register("lsp", install_specs)
     mason_cmds.warn_missing("lsp")
 
-    -- Merge default capabilities with blink.cmp completions, foldingRange support,
-    -- and workspace file operation notifications (rename tracking).
-    local blink_ok, blink_cmp = pcall(require, "blink.cmp")
+    -- Merge default capabilities with blink.cmp completions and workspace file
+    -- operation notifications (rename tracking). blink.cmp is a declared dep, so
+    -- a require failure here is a real misconfiguration and must not be hidden.
     local capabilities = vim.tbl_deep_extend(
       "force",
       {},
       vim.lsp.protocol.make_client_capabilities(),
-      blink_ok and blink_cmp.get_lsp_capabilities() or {},
+      require("blink.cmp").get_lsp_capabilities(),
       {
         workspace = {
           didChangeWatchedFiles = {
@@ -71,9 +74,16 @@ plugin.add({
           symbol = {
             dynamicRegistration = true,
             symbolKind = {
+              -- Derived from the protocol table so a spec that adds kinds is
+              -- picked up automatically instead of silently under-reporting.
               valueSet = (function()
                 local kinds = {}
-                for i = 1, 26 do kinds[i] = i end
+                for _, v in pairs(vim.lsp.protocol.SymbolKind) do
+                  if type(v) == "number" then
+                    table.insert(kinds, v)
+                  end
+                end
+                table.sort(kinds)
                 return kinds
               end)(),
             },
@@ -83,17 +93,9 @@ plugin.add({
             },
           },
         },
-        textDocument = {
-          completion = {
-            completionItem = {
-              snippetSupport = true,
-            },
-          },
-          foldingRange = {
-            dynamicRegistration = true,
-            lineFoldingOnly = true,
-          },
-        },
+        -- No textDocument block: snippetSupport comes from blink.cmp's
+        -- capabilities and foldingRange from make_client_capabilities(), so
+        -- restating either here only duplicated the merge base.
       }
     )
 
@@ -138,10 +140,18 @@ plugin.add({
           end
         end
 
-        -- Deferred requires (cached by Lua module system after first call)
-        local fzf_lua = require("fzf-lua")
-        local fzf_lua_actions = require("fzf-lua.actions")
-        local hlargs = require("hlargs")
+        -- fzf-lua is keys-triggered, and the LSP navigation maps below are not
+        -- in its `keys` list, so nothing would have loaded the pack by the time
+        -- one is pressed. Resolve it at keypress time instead of attach time:
+        -- plugin.load is idempotent, so this is a no-op once loaded.
+        local function fzf()
+          plugin.load("fzf_lua", true, "api")
+          return require("fzf-lua")
+        end
+        local function fzf_actions()
+          plugin.load("fzf_lua", true, "api")
+          return require("fzf-lua.actions")
+        end
 
         -- Folding intentionally uses treesitter (set globally in options.lua),
         -- not LSP. Many servers report foldingRange with lineFoldingOnly in a
@@ -163,7 +173,8 @@ plugin.add({
         local caps = client.server_capabilities
         if caps and caps.semanticTokensProvider and caps.semanticTokensProvider.full then
           if vim.tbl_contains(keep_semantic_tokens, client.name) then
-            hlargs.disable_buf(bufnr)
+            -- Required here rather than per-attach: only this branch uses it.
+            require("hlargs").disable_buf(bufnr)
           else
             client.server_capabilities.semanticTokensProvider = nil
           end
@@ -179,7 +190,7 @@ plugin.add({
             -- Declarations
             {
               "gD",
-              function() fzf_lua.lsp_declarations({ sync = true, jump1 = true, jump1_action = fzf_lua_actions
+              function() fzf().lsp_declarations({ sync = true, jump1 = true, jump1_action = fzf_actions()
                 .file_vsplit }) end,
               desc = "LSP Go to declaration (vsplit)",
               buffer = bufnr,
@@ -187,7 +198,7 @@ plugin.add({
             },
             {
               "gvD",
-              function() fzf_lua.lsp_declarations({ sync = true, jump1 = true, jump1_action = fzf_lua_actions.file_split }) end,
+              function() fzf().lsp_declarations({ sync = true, jump1 = true, jump1_action = fzf_actions().file_split }) end,
               desc = "LSP Go to declaration (split)",
               buffer = bufnr,
               mode = "n"
@@ -196,12 +207,12 @@ plugin.add({
             {
               "gd",
               function()
-                fzf_lua.lsp_definitions({
+                fzf().lsp_definitions({
                   sync = true,
                   ignore_current_line = true,
                   jump1 = true,
                   jump1_action =
-                      fzf_lua_actions.file_vsplit
+                      fzf_actions().file_vsplit
                 })
               end,
               desc = "LSP Go to definition (vsplit)",
@@ -211,12 +222,12 @@ plugin.add({
             {
               "gvd",
               function()
-                fzf_lua.lsp_definitions({
+                fzf().lsp_definitions({
                   sync = true,
                   ignore_current_line = true,
                   jump1 = true,
                   jump1_action =
-                      fzf_lua_actions.file_split
+                      fzf_actions().file_split
                 })
               end,
               desc = "LSP Go to definition (split)",
@@ -226,7 +237,7 @@ plugin.add({
             -- References (excludes current line and declaration for "show other usages" behavior)
             {
               "gr",
-              function() fzf_lua.lsp_references({ ignore_current_line = true, includeDeclaration = false }) end,
+              function() fzf().lsp_references({ ignore_current_line = true, includeDeclaration = false }) end,
               desc = "LSP References",
               buffer = bufnr,
               mode = "n"
@@ -234,7 +245,7 @@ plugin.add({
             -- Implementations
             {
               "gi",
-              function() fzf_lua.lsp_implementations({ ignore_current_line = true, jump1 = true }) end,
+              function() fzf().lsp_implementations({ ignore_current_line = true, jump1 = true }) end,
               desc = "LSP Implementations",
               buffer = bufnr,
               mode = "n"
@@ -242,7 +253,7 @@ plugin.add({
             -- Workspace symbols
             {
               "<leader>ls",
-              function() fzf_lua.lsp_live_workspace_symbols() end,
+              function() fzf().lsp_live_workspace_symbols() end,
               desc = "LSP Live Symbols",
               buffer = bufnr,
               mode = { "n", "v" }

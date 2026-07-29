@@ -15,8 +15,4 @@ return {
     },
   },
   filetypes = { "bash", "sh", "zsh" },
-  root_dir = vim.fs.root(0, {
-    ".git",
-  }),
-  single_file_support = true,
 }

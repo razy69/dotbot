@@ -2,7 +2,10 @@
 plugin.add({
   name = "symbol_usage",
   src = "https://github.com/Wansmer/symbol-usage.nvim",
-  event = { "BufReadPre" },
+  -- LSP-driven (the plugin attaches on LspAttach internally), so BufReadPre was
+  -- both too early — it fires before the buffer is even read — and missing
+  -- BufNewFile entirely.
+  event = { "LspAttach" },
   config = function()
     local function text_format(symbol)
       local res = {}
