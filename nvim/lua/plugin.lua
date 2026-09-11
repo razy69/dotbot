@@ -392,7 +392,7 @@ local function setup_keys_trigger(spec)
     if type(modes) == "string" then
       modes = { modes }
     end
-    vim.keymap.set(modes, lhs, function()
+    local handler = function()
       -- Remove all placeholder keymaps for this binding
       for _, m in ipairs(modes) do
         pcall(vim.keymap.del, m, lhs)
@@ -401,10 +401,16 @@ local function setup_keys_trigger(spec)
       -- Replay the original key sequence
       local encoded = vim.api.nvim_replace_termcodes(lhs, true, true, true)
       vim.api.nvim_feedkeys(encoded, "m", false)
-    end, { desc = "Lazy: " .. (key.desc or spec.name) })
+    end
+    vim.keymap.set(modes, lhs, handler, { desc = "Lazy: " .. (key.desc or spec.name) })
     add_cleanup(spec.name, function()
       for _, m in ipairs(modes) do
-        pcall(vim.keymap.del, m, lhs)
+        -- Only remove our placeholder: a plugin that registered a real
+        -- mapping on this lhs during vim.pack.add must survive cleanup.
+        local ma = vim.fn.maparg(lhs, m, false, true)
+        if ma and ma.callback == handler then
+          pcall(vim.keymap.del, m, lhs)
+        end
       end
     end)
   end
@@ -417,6 +423,9 @@ end
 ---@param src_entry string|table A single source entry (URL string or {src=...} table)
 ---@return string Pack name (last URL segment)
 local function pack_name_from_src(src_entry)
+  if type(src_entry) == "table" and src_entry.name then
+    return src_entry.name
+  end
   local url = type(src_entry) == "table" and src_entry.src or src_entry
   if type(url) ~= "string" then
     return ""

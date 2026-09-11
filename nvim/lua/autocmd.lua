@@ -10,6 +10,15 @@ vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
   end,
 })
 
+-- Resync $PWD after :cd/:lcd so subprocesses (delve et al.) keep
+-- resolving $PWD the way init.lua's startup hack intended.
+vim.api.nvim_create_autocmd("DirChanged", {
+  group = utils.augroup("pwd"),
+  callback = function()
+    vim.env.PWD = vim.fn.getcwd()
+  end,
+})
+
 -- Restore cursor to last known position when opening a buffer (see :h last-position-jump)
 local buffer_group = utils.augroup("buffer")
 vim.api.nvim_create_autocmd({ "BufWinEnter", "FileType" }, {
@@ -167,7 +176,7 @@ vim.api.nvim_create_autocmd("FileType", {
         vim.cmd("close")
         pcall(vim.api.nvim_buf_delete, event.buf, { force = true })
       end, {
-        buffer = event.buf,
+        buf = event.buf,
         silent = true,
         nowait = true,
         desc = "Quit buffer",

@@ -122,44 +122,45 @@ vim.opt.ttimeoutlen = 200 -- Wait 200ms for terminal key codes
 --- captures would render `}` in `@punctuation.bracket` grey while the
 --- unfolded buffer shows it in the rainbow pair color — a visible
 --- discrepancy between the folded summary and the live syntax colors.
---- Returns the chosen hl_group string or nil if no extmark wins over
---- the treesitter capture at (lnum, col).
+--- Returns a buf_col -> hl_group map for the raw-byte window
+--- [coloff, coloff + len) on row lnum — one query instead of one per byte.
 ---@param bufnr integer
 ---@param lnum integer 0-indexed row
----@param col integer 0-indexed column
----@return string? hl_group
-local function extmark_hl_at(bufnr, lnum, col)
+---@param coloff integer First raw-byte column of the slice being rendered
+---@param len integer Raw-byte length of the slice
+---@return table<integer, string>
+local function extmark_hl_range(bufnr, lnum, coloff, len)
+  local out, best_priority = {}, {}
   -- `overlap = true` is too permissive: it returns marks whose end_col
-  -- is exactly `col` as well, bleeding e.g. a `(` at [5,6) into `c` at
-  -- col 6. We re-check the mark's actual range below and drop any whose
-  -- half-open [col, end_col) doesn't strictly contain `col`.
+  -- is exactly `coloff` as well, bleeding e.g. a `(` at [5,6) into `c` at
+  -- col 6. The per-mark range clamp below drops any whose half-open
+  -- [m_col, m_end_col) doesn't strictly intersect the window.
   local ok, marks = pcall(vim.api.nvim_buf_get_extmarks, bufnr, -1,
-    { lnum, col }, { lnum, col },
+    { lnum, coloff }, { lnum, coloff + len },
     { details = true, overlap = true, type = "highlight" })
-  if not ok or not marks or #marks == 0 then return nil end
+  if not ok or not marks then return out end
 
-  local best_hl, best_priority = nil, -1
   for _, m in ipairs(marks) do
     local m_col = m[3]
     local d = m[4] or {}
     local m_end_col = d.end_col or (m_col + 1)
     local hl = d.hl_group
-    -- Strict containment: extmark range [m_col, m_end_col) must contain col.
-    -- Also skip plugin decorations that aren't meaningful in a fold summary
+    -- Skip plugin decorations that aren't meaningful in a fold summary
     -- (squiggly diagnostics, transient cursor/search highlights).
-    if m_col <= col and col < m_end_col
-        and hl
+    if hl
         and not hl:find("^Diagnostic") and not hl:find("^LspDiagnostic")
         and not hl:find("^Cursor") and not hl:find("^IncSearch")
         and not hl:find("^Search") then
       local priority = d.priority or 0
-      if priority > best_priority then
-        best_priority = priority
-        best_hl = hl
+      for col = math.max(m_col, coloff), math.min(m_end_col - 1, coloff + len - 1) do
+        if priority > (best_priority[col] or -1) then
+          best_priority[col] = priority
+          out[col] = hl
+        end
       end
     end
   end
-  return best_hl
+  return out
 end
 
 --- Build syntax-highlighted virtual text for a single line of a fold.
@@ -226,11 +227,11 @@ local function fold_virt_text(result, s, lnum, coloff)
   -- because we only run this for short fold anchor strings. Any extmark
   -- with priority > 100 takes precedence over the treesitter capture,
   -- mirroring Neovim's highlight-stacking rules.
+  local em_hl = extmark_hl_range(bufnr, lnum, coloff, #s)
   for i = 1, #s do
-    local buf_col = coloff + i - 1
-    local em_hl = extmark_hl_at(bufnr, lnum, buf_col)
-    if em_hl then
-      hl_map[i] = em_hl
+    local hl = em_hl[coloff + i - 1]
+    if hl then
+      hl_map[i] = hl
     end
   end
 
@@ -411,17 +412,9 @@ vim.g.loaded_rrhelper = 0   -- Unused: remote plugin helper
 -- Diagnostic signs only (full diagnostic config lives in plugin/03-lsp.lua)
 vim.diagnostic.config({
   signs = {
-    text = {
-      [vim.diagnostic.severity.ERROR] = "",
-      [vim.diagnostic.severity.WARN] = "",
-      [vim.diagnostic.severity.INFO] = "",
-      [vim.diagnostic.severity.HINT] = "",
-    },
-    texthl = {
-      [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
-      [vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
-      [vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
-      [vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
-    },
+    [vim.diagnostic.severity.ERROR] = { text = "", texthl = "DiagnosticSignError" },
+    [vim.diagnostic.severity.WARN] = { text = "", texthl = "DiagnosticSignWarn" },
+    [vim.diagnostic.severity.INFO] = { text = "", texthl = "DiagnosticSignInfo" },
+    [vim.diagnostic.severity.HINT] = { text = "", texthl = "DiagnosticSignHint" },
   },
 })

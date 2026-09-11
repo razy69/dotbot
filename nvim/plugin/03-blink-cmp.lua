@@ -16,7 +16,7 @@ plugin.add({
   },
   build = function(info)
     if info.name == "LuaSnip" then
-      vim.cmd("make install_jsregexp")
+      vim.system({ "make", "install_jsregexp" }, { cwd = info.path }):wait(30000)
     elseif info.name == "blink.cmp" then
       -- cmp.build() runs cargo, moves the artifact from target/release/ to
       -- v2's lib/ cache, and loads it in-process. This DOES block, for up to
@@ -36,6 +36,16 @@ plugin.add({
     end)
 
     local blink = require("blink.cmp")
+
+    local cm_cache = setmetatable({}, { __mode = "k" })
+    local function cm_highlights(ctx)
+      local hit = cm_cache[ctx.item]
+      if hit == nil then
+        hit = require("colorful-menu").blink_highlights(ctx) or false
+        cm_cache[ctx.item] = hit
+      end
+      return hit or nil
+    end
 
     -- Runtime safety net for in-place v1->v2 upgrades: the build hook
     -- only fires on PackChanged (install/update), so an already-installed
@@ -120,7 +130,7 @@ plugin.add({
               label = {
                 width = { fill = true, max = 60 },
                 text = function(ctx)
-                  local highlights_info = require("colorful-menu").blink_highlights(ctx)
+                  local highlights_info = cm_highlights(ctx)
                   if highlights_info ~= nil then
                     -- Or you want to add more item to label
                     return highlights_info.label
@@ -130,7 +140,7 @@ plugin.add({
                 end,
                 highlight = function(ctx)
                   local highlights = {}
-                  local highlights_info = require("colorful-menu").blink_highlights(ctx)
+                  local highlights_info = cm_highlights(ctx)
                   if highlights_info ~= nil then
                     highlights = highlights_info.highlights
                   end

@@ -266,19 +266,19 @@ local function display(result, source_buf, focus_id, context)
   end
 
   vim.keymap.set("n", "K", function() M.open_from_word(source_buf) end, {
-    buffer = bufnr, nowait = true, silent = true, desc = "Nested LSP hover",
+    buf = bufnr, nowait = true, silent = true, desc = "Nested LSP hover",
   })
   vim.keymap.set("n", "<Tab>", function() cycle_hover(1) end, {
-    buffer = bufnr, nowait = true, silent = true, desc = "Next hover",
+    buf = bufnr, nowait = true, silent = true, desc = "Next hover",
   })
   vim.keymap.set("n", "<S-Tab>", function() cycle_hover(-1) end, {
-    buffer = bufnr, nowait = true, silent = true, desc = "Previous hover",
+    buf = bufnr, nowait = true, silent = true, desc = "Previous hover",
   })
   vim.keymap.set("n", "q", close_latest, {
-    buffer = bufnr, nowait = true, silent = true, desc = "Close topmost hover",
+    buf = bufnr, nowait = true, silent = true, desc = "Close topmost hover",
   })
   vim.keymap.set("n", "Q", close_all, {
-    buffer = bufnr, nowait = true, silent = true, desc = "Close all hovers",
+    buf = bufnr, nowait = true, silent = true, desc = "Close all hovers",
   })
 end
 

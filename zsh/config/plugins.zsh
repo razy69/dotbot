@@ -17,3 +17,6 @@ source "${ZSH}/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.
 
 # Zsh-z jump
 source "${ZSH}/plugins/zsh-z/zsh-z.plugin.zsh"
+
+# Direnv — per-directory env, replaces manual `agora-*` export functions over time
+(( $+commands[direnv] )) && eval "$(direnv hook zsh)"

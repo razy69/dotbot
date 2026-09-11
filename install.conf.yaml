@@ -34,8 +34,6 @@
       path: zsh/config
     ~/.zsh/plugins:
       path: zsh/plugins
-    ~/.zsh/keymaps:
-      path: zsh/keymaps
     ~/.tmux.conf:
       path: tmux/tmux.conf
     ~/.tmux.theme.conf:
@@ -69,7 +67,7 @@
 - shell:
     -
       command: '
-        for bin in bat delta erd exa fd git tmux nvim rg zsh; do
+        for bin in bat delta erd eza fd git tmux nvim rg zsh mosh; do
           if ! command -v "$bin" &> /dev/null; then
             echo "\033[1;33mx $bin is not installed\033[0m";
           fi;

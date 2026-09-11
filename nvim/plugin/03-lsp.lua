@@ -317,6 +317,10 @@ plugin.add({
       require("neonvim.workspace_diagnostics").abort()
     end, { desc = "Cancel an in-progress simulated workspace scan" })
 
+    vim.api.nvim_create_user_command("LspWorkspaceScanUnload", function()
+      require("neonvim.workspace_diagnostics").unload()
+    end, { desc = "Release hidden buffers opened by workspace scans" })
+
     vim.api.nvim_create_user_command("LspWorkspaceScanStatus", function()
       local s = require("neonvim.workspace_diagnostics").stats()
       vim.notify(string.format(
@@ -329,7 +333,9 @@ plugin.add({
     -- External edits (git pull, formatter ran outside Neovim, branch
     -- checkout) — re-stat loaded files and trigger reload for changed
     -- ones. Bounded; see neonvim.workspace_diagnostics.delta().
-    vim.api.nvim_create_autocmd("FocusGained", {
+    -- VimResume covers terminals without focus-report support (e.g. tmux
+    -- without `focus-events on`), where FocusGained never fires.
+    vim.api.nvim_create_autocmd({ "FocusGained", "VimResume" }, {
       group = autocmd_lsp_group,
       callback = function()
         local ok, wd = pcall(require, "neonvim.workspace_diagnostics")
@@ -341,6 +347,9 @@ plugin.add({
     vim.api.nvim_create_autocmd("LspDetach", {
       group = autocmd_lsp_group,
       callback = function(ev)
+        if ev.data and ev.data.client_id then
+          workspace_diag_triggered[ev.data.client_id] = nil
+        end
         local ok, wd = pcall(require, "neonvim.workspace_diagnostics")
         if ok and ev.data and ev.data.client_id then
           wd.detach(ev.data.client_id)

@@ -22,7 +22,7 @@ fi
 
 # Utils
 function uuid_gen() {
-  if [[ $+commands[fzf] ]]; then
+  if (( $+commands[uuidgen] )); then
     tr '[:upper:]' '[:lower:]' <<< $(uuidgen)
   else
     python3 -c 'import uuid; print(uuid.uuid4())'
@@ -124,7 +124,7 @@ _fzf_comprun() {
   shift
 
   case "$command" in
-    cd)           fzf "$@" --preview 'exa -T --icons {}' ;;
+    cd)           fzf "$@" --preview 'eza -T --icons {}' ;;
     *)            fzf "$@" ;;
   esac
 }
@@ -160,7 +160,7 @@ function fz() {
               echo "change-prompt(Files: )+reload(fd --hidden --exclude \".git\" --type file)+transform-preview-label(echo [ File Preview ])" ||
               echo "change-prompt(Directories: )+reload(fd --hidden --exclude \".git\" --type directory)+transform-preview-label(echo [ Directory Stats ])"' \
       --bind='ctrl-/:change-preview-window(75%||25%|hidden)' \
-      --preview='[[ $FZF_PROMPT =~ Files ]] && bat --color=always {} || exa -RTFmahlUgu --octal-permissions --git --icons --long -F {}' \
+      --preview='[[ $FZF_PROMPT =~ Files ]] && bat --color=always {} || eza -R -T -F -m -a -h -l -U -g -u --octal-permissions --git --icons --long {}' \
       --preview-label='[ File Preview ]' \
       --bind='enter:become(nvim {1} +{2})'
 }

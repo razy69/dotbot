@@ -2,8 +2,7 @@
 # Keymap
 ##
 
-term_profile="${ZSH}/keymaps/${TERM}-${${DISPLAY:t}:-${VENDOR}-${OSTYPE}}"
-[[ ! -f "${term_profile}" ]] || source "${term_profile}"
+zmodload zsh/terminfo 2>/dev/null
 
 
 ##
@@ -13,32 +12,42 @@ term_profile="${ZSH}/keymaps/${TERM}-${${DISPLAY:t}:-${VENDOR}-${OSTYPE}}"
 bindkey -e
 bindkey '^u' backward-kill-line
 
-# [Home] - Start of line
-[[ -n ${key[Home]} ]] && bindkey "${key[Home]}" beginning-of-line
+# [Home] - Start of line (terminfo + xterm variants)
+for seq in "${terminfo[khome]:-}" '^[OH' '^[[H'; do
+  [[ -n "${seq}" ]] && bindkey "${seq}" beginning-of-line
+done
 
 # [End] - End of line
-[[ -n ${key[End]} ]] && bindkey "${key[End]}" end-of-line
+for seq in "${terminfo[kend]:-}" '^[OF' '^[[F'; do
+  [[ -n "${seq}" ]] && bindkey "${seq}" end-of-line
+done
 
 # [Delete] - Delete char
-[[ -n ${key[Delete]} ]] && bindkey "${key[Delete]}" delete-char
+for seq in "${terminfo[kdch1]:-}" '^[[3~'; do
+  [[ -n "${seq}" ]] && bindkey "${seq}" delete-char
+done
 
 # [Up] - Previous command
-[[ -n ${key[Up]} ]] && bindkey "${key[Up]}" up-line-or-local-history
 up-line-or-local-history() {
   zle set-local-history 1
   zle up-line-or-history
   zle set-local-history 0
 }
 zle -N up-line-or-local-history
+for seq in "${terminfo[kcuu1]:-}" '^[OA' '^[[A'; do
+  [[ -n "${seq}" ]] && bindkey "${seq}" up-line-or-local-history
+done
 
 # [Down] - Next command
-[[ -n ${key[Down]} ]] && bindkey "${key[Down]}" down-line-or-local-history
 down-line-or-local-history() {
   zle set-local-history 1
   zle down-line-or-history
   zle set-local-history 0
 }
 zle -N down-line-or-local-history
+for seq in "${terminfo[kcud1]:-}" '^[OB' '^[[B'; do
+  [[ -n "${seq}" ]] && bindkey "${seq}" down-line-or-local-history
+done
 
 # [Ctrl-X, Ctrl-E] - Edit the current command line in $EDITOR
 autoload -Uz edit-command-line

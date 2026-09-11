@@ -101,7 +101,7 @@ vim.api.nvim_create_user_command("PackProfile", function(ctx)
   vim.wo.relativenumber = false
   vim.wo.signcolumn = "no"
   vim.wo.wrap = false
-  vim.keymap.set("n", "q", "<cmd>bd<cr>", { buffer = bufnr, silent = true, desc = "Close PackProfile" })
+  vim.keymap.set("n", "q", "<cmd>bd<cr>", { buf = bufnr, silent = true, desc = "Close PackProfile" })
 end, {
   desc = "Show startup profile (per-plugin load timings)",
   nargs = "?",

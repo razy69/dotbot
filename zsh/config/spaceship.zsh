@@ -31,7 +31,7 @@ SPACESHIP_GIT_STATUS_STASHED="%F{blue}󰏦%F{blue} "
 SPACESHIP_GIT_STATUS_BEHIND="%F{cyan}󰬧%F{cyan} "
 SPACESHIP_GIT_STATUS_AHEAD="%F{cyan}󰬭%F{cyan} "
 SPACESHIP_GIT_STATUS_DIVERGED="%F{magenta}󰮍%F{magenta} "
-SPACESHIP_GIT_STATUS_RENAMED="%F{blue}󰿢%F{blue } "
+SPACESHIP_GIT_STATUS_RENAMED="%F{blue}󰿢%F{blue} "
 SPACESHIP_GIT_STATUS_UNMERGED="%F{red}󱀗%F{red} "
 
 # Execution time

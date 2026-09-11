@@ -14,6 +14,7 @@ vim.api.nvim_create_autocmd("UIEnter", {
 
     local hl_ns = vim.api.nvim_create_namespace("ui2_cmdline_hl")
     local search_ns = vim.api.nvim_create_namespace("ui2_search_count")
+    local aug = utils.augroup("ui2")
 
     -- Catppuccin-themed highlights.
     local function setup_highlights()
@@ -28,10 +29,12 @@ vim.api.nvim_create_autocmd("UIEnter", {
     end
     setup_highlights()
     vim.api.nvim_create_autocmd("ColorScheme", {
+      group = aug,
       callback = setup_highlights,
     })
 
     vim.api.nvim_create_autocmd("FileType", {
+      group = aug,
       pattern = "cmd",
       callback = function()
         vim.wo.winhighlight = "Normal:Ui2Cmdline,Search:,CurSearch:,IncSearch:"
@@ -481,6 +484,7 @@ vim.api.nvim_create_autocmd("UIEnter", {
     ui2.cmd = cmd
 
     vim.api.nvim_create_autocmd("VimResized", {
+      group = aug,
       callback = function()
         if ui2.wins.cmd and vim.api.nvim_win_is_valid(ui2.wins.cmd)
             and not vim.api.nvim_win_get_config(ui2.wins.cmd).hide then
@@ -498,6 +502,7 @@ vim.api.nvim_create_autocmd("UIEnter", {
     local lsp_spinner_idx = 0
 
     vim.api.nvim_create_autocmd("LspProgress", {
+      group = aug,
       callback = function(ev)
         local val = ev.data and ev.data.params and ev.data.params.value
         if not val then return end
@@ -559,6 +564,7 @@ vim.api.nvim_create_autocmd("UIEnter", {
     end
 
     vim.api.nvim_create_autocmd("CmdlineLeave", {
+      group = aug,
       callback = clear_search_count,
     })
 
@@ -645,7 +651,7 @@ vim.api.nvim_create_autocmd("UIEnter", {
       vim.api.nvim_win_set_buf(0, buf)
       vim.api.nvim_win_set_height(0, math.min(#lines, math.floor(vim.o.lines * 0.4)))
       vim.cmd("normal! G")
-      vim.keymap.set("n", "q", "<cmd>close<CR>", { buffer = buf, nowait = true })
+      vim.keymap.set("n", "q", "<cmd>close<CR>", { buf = buf, nowait = true })
     end
 
     utils.wk_add({

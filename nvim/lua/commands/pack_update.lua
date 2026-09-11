@@ -319,13 +319,29 @@ local function run_check(opts, on_complete)
     end
   end
 
-  for _, p in ipairs(plugins) do
-    if not p.rev then
-      on_one_done(p.spec.name, nil)
-    else
-      fetch_one(p, on_handle, function(info) on_one_done(p.spec.name, info) end)
+  -- Bounded pump: spawning one `git fetch` per plugin simultaneously
+  -- saturates network/disk across ~40 repos (cf. MAX_CONCURRENT in
+  -- commands/mason.lua).
+  local FETCH_CONCURRENCY = 4
+  local next_idx, inflight = 0, 0
+  local pump
+  pump = function()
+    while inflight < FETCH_CONCURRENCY and next_idx < total and not my_cancelled and done < total do
+      next_idx = next_idx + 1
+      local p = plugins[next_idx]
+      if not p.rev then
+        on_one_done(p.spec.name, nil)
+      else
+        inflight = inflight + 1
+        fetch_one(p, on_handle, function(info)
+          inflight = inflight - 1
+          on_one_done(p.spec.name, info)
+          pump()
+        end)
+      end
     end
   end
+  pump()
 end
 
 --- Render the default "updates available" summary notification.

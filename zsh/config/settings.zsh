@@ -14,13 +14,12 @@ setopt AUTOCD
 setopt INTERACTIVE_COMMENTS
 
 unsetopt BEEP
-unsetopt MULTIBYTE
 
-HISTFILE="${ZSH}/.history"
+export HISTFILE="${ZSH}/.history"
 HISTORY_IGNORE="(cd(| *)|ls(| *)|pwd|exit)"
 HISTSIZE=10000
 SAVEHIST=10000
-COMPLETION_WAITING_DOTS="false"
+unset COMPLETION_WAITING_DOTS
 
 export LC_ALL="en_US.UTF-8"
 export LANG="en_US.UTF-8"
@@ -29,8 +28,10 @@ export MANPATH="/usr/local/man:${MANPATH}"
 export BAT_CONFIG_PATH="${HOME}/.config/bat/config"
 export K9S_CONFIG_DIR="${HOME}/.config/k9s"
 export THEME_MODE=$(cat ~/.theme_mode 2>/dev/null || echo "dark")
-export FZF_DEFAULT_COMMAND="fd --hidden --exclude '.git'"
+export FZF_DEFAULT_COMMAND="fd --type f --hidden --exclude '.git'"
 export FZF_CTRL_R_OPTS="--prompt='History: ' --height=10% --preview='echo {} | bat --color=always -l zsh -p --decorations never' --preview-window down:3:hidden:wrap --bind 'ctrl-/:toggle-preview'"
+export OPENCODE_EXPERIMENTAL=true
+export OPENCODE_ENABLE_EXA=1
 
 FZF_DEFAULT="
 --ansi \
@@ -63,7 +64,11 @@ FZF_COLOR_LIGHT="
 FZF_OPTS_DARK_MODE="${FZF_DEFAULT}${FZF_COLOR_DARK}"
 FZF_OPTS_LIGHT_MODE="${FZF_DEFAULT}${FZF_COLOR_LIGHT}"
 
-export FZF_DEFAULT_OPTS=$FZF_OPTS_DARK_MODE
+if [[ "${THEME_MODE}" == "light" ]]; then
+  export FZF_DEFAULT_OPTS=$FZF_OPTS_LIGHT_MODE
+else
+  export FZF_DEFAULT_OPTS=$FZF_OPTS_DARK_MODE
+fi
 
 # GPG or SSH Agent
 if [[ $+commands[gpg-agent] ]]; then

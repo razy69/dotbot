@@ -74,6 +74,7 @@ local DIR_IGNORE = {
 ---@field scope string?                                  "full"|"package"|"dir"
 ---@field total_queued integer                           snapshot of queue size at scan start (for progress %)
 ---@field last_progress_pct integer                      last percentage we emitted, to throttle notifies
+---@field order (string|false)[]                         ordered mirror of loaded paths for delta rotation; false = dead slot
 local state = {
   queues = {},
   loaded = {},
@@ -86,7 +87,10 @@ local state = {
   scope = nil,
   total_queued = 0,
   last_progress_pct = -1,
+  order = {},
 }
+
+local delta_cursor = 0
 
 local PROGRESS_ID = "neonvim.workspace_diagnostics"
 local DONE_ID = "neonvim.workspace_diagnostics.done"
@@ -168,19 +172,23 @@ local function find_package_dir(start_path, repo_root)
   return nil
 end
 
-local function git_ls_files(root)
-  local result = vim.system(
+local function git_ls_files(root, cb)
+  vim.system(
     { "git", "-C", root, "ls-files", "--cached", "--others", "--exclude-standard" },
-    { text = true }
-  ):wait(5000)
-  if result.code ~= 0 or not result.stdout then return nil end
-  local files = {}
-  for rel in result.stdout:gmatch("[^\r\n]+") do
-    if rel ~= "" then
-      files[#files + 1] = vim.fs.joinpath(root, rel)
+    { text = true },
+    function(res)
+      vim.schedule(function()
+        if res.code ~= 0 or not res.stdout then return cb(nil) end
+        local files = {}
+        for rel in res.stdout:gmatch("[^\r\n]+") do
+          if rel ~= "" then
+            files[#files + 1] = vim.fs.joinpath(root, rel)
+          end
+        end
+        cb(files)
+      end)
     end
-  end
-  return files
+  )
 end
 
 -- Recursive directory walk with hardcoded ignore list. Used only outside
@@ -208,52 +216,53 @@ local function fs_walk(root)
   return files
 end
 
--- Cascade: full → package → dir → refuse. Returns (scope, files, error).
-local function pick_scope(repo_root, current_path)
+-- Cascade: full → package → dir → refuse. Invokes cb(scope, files, error).
+local function pick_scope(repo_root, current_path, cb)
   local home = vim.uv.os_homedir() or ""
   if repo_root == home or repo_root == "/" or repo_root == "" then
-    return nil, nil, "refused (root is " .. repo_root .. ")"
+    return cb(nil, nil, "refused (root is " .. repo_root .. ")")
   end
 
-  local all = git_ls_files(repo_root)
-  if not all then all = fs_walk(repo_root) end
-  if not all or #all == 0 then return nil, nil, "no files enumerated" end
+  git_ls_files(repo_root, function(all)
+    if not all then all = fs_walk(repo_root) end
+    if not all or #all == 0 then return cb(nil, nil, "no files enumerated") end
 
-  if #all > MAX_FILES_HARD_REFUSE then
-    return nil, nil, ("refused (%d files, hard cap %d)"):format(#all, MAX_FILES_HARD_REFUSE)
-  end
+    if #all > MAX_FILES_HARD_REFUSE then
+      return cb(nil, nil, ("refused (%d files, hard cap %d)"):format(#all, MAX_FILES_HARD_REFUSE))
+    end
 
-  if #all <= MAX_FILES_FULL then
-    return "full", all, nil
-  end
+    if #all <= MAX_FILES_FULL then
+      return cb("full", all, nil)
+    end
 
-  if current_path and current_path ~= "" then
-    local pkg = find_package_dir(current_path, repo_root)
-    if pkg then
-      local in_pkg = {}
-      local prefix = pkg .. "/"
-      for _, p in ipairs(all) do
-        if vim.startswith(p, prefix) then in_pkg[#in_pkg + 1] = p end
+    if current_path and current_path ~= "" then
+      local pkg = find_package_dir(current_path, repo_root)
+      if pkg then
+        local in_pkg = {}
+        local prefix = pkg .. "/"
+        for _, p in ipairs(all) do
+          if vim.startswith(p, prefix) then in_pkg[#in_pkg + 1] = p end
+        end
+        if #in_pkg > 0 and #in_pkg <= MAX_FILES_PACKAGE then
+          return cb("package:" .. pkg, in_pkg, nil)
+        end
       end
-      if #in_pkg > 0 and #in_pkg <= MAX_FILES_PACKAGE then
-        return "package:" .. pkg, in_pkg, nil
+
+      local dir = vim.fs.dirname(current_path)
+      if dir and dir ~= "" then
+        local in_dir = {}
+        local prefix = dir .. "/"
+        for _, p in ipairs(all) do
+          if vim.startswith(p, prefix) then in_dir[#in_dir + 1] = p end
+        end
+        if #in_dir > 0 and #in_dir <= MAX_FILES_DIR then
+          return cb("dir:" .. dir, in_dir, nil)
+        end
       end
     end
 
-    local dir = vim.fs.dirname(current_path)
-    if dir and dir ~= "" then
-      local in_dir = {}
-      local prefix = dir .. "/"
-      for _, p in ipairs(all) do
-        if vim.startswith(p, prefix) then in_dir[#in_dir + 1] = p end
-      end
-      if #in_dir > 0 and #in_dir <= MAX_FILES_DIR then
-        return "dir:" .. dir, in_dir, nil
-      end
-    end
-  end
-
-  return nil, nil, ("scope too large (%d files, no package fits)"):format(#all)
+    cb(nil, nil, ("scope too large (%d files, no package fits)"):format(#all))
+  end)
 end
 
 -- Build per-client queue: filter by filetype, size, and a quick binary
@@ -298,6 +307,7 @@ local function open_file(path, mtime)
   local existing = vim.fn.bufnr(path)
   if existing ~= -1 and vim.api.nvim_buf_is_loaded(existing) then
     state.loaded[path] = mtime
+    state.order[#state.order + 1] = path
     return false
   end
   local ok, bufnr = pcall(vim.fn.bufadd, path)
@@ -308,6 +318,7 @@ local function open_file(path, mtime)
   local load_ok = pcall(vim.fn.bufload, bufnr)
   if not load_ok then return false end
   state.loaded[path] = mtime
+  state.order[#state.order + 1] = path
   return true
 end
 
@@ -456,79 +467,80 @@ function M.scan(opts)
     current_path = vim.api.nvim_buf_get_name(current_buf)
   end
 
-  local scope, files, err = pick_scope(repo_root, current_path)
-  if not scope then
-    notify(err or "no scope", vim.log.levels.WARN)
-    return
-  end
-
-  -- Build the per-client entry lists up front but keep them off `state`
-  -- until we know there is real work. Committing the scope (and empty
-  -- queues) before the total_queued check made
-  -- :LspWorkspaceScanStatus report a scope for a scan that never ran.
-  local queued = {}
-  local total_queued = 0
-  for _, client in ipairs(clients) do
-    local entries = filter_for_client(client, files)
-    if #entries > 0 then
-      queued[client.id] = entries
-      total_queued = total_queued + #entries
+  pick_scope(repo_root, current_path, function(scope, files, err)
+    if not scope then
+      notify(err or "no scope", vim.log.levels.WARN)
+      return
     end
-  end
 
-  if total_queued == 0 then
-    notify(("scope=%s but no files matched any client filetypes"):format(scope))
-    return
-  end
-
-  -- Reset the per-scan accumulators, but only for a genuinely fresh scan —
-  -- scan() is re-entrant and a second call while work is in flight just
-  -- adds to the running totals. These were previously never reset, so
-  -- bytes grew for the whole session until every scan tripped
-  -- MAX_BYTES_TOTAL and reported "hit memory cap" with a session-cumulative
-  -- MB figure. `state.loaded` deliberately stays cumulative: it is the
-  -- dedup registry and the set M.delta() re-stats, so clearing it would
-  -- make us forget buffers a previous scan opened.
-  local in_flight = false
-  for _, q in pairs(state.queues) do
-    if #q > 0 then
-      in_flight = true
-      break
+    -- Build the per-client entry lists up front but keep them off `state`
+    -- until we know there is real work. Committing the scope (and empty
+    -- queues) before the total_queued check made
+    -- :LspWorkspaceScanStatus report a scope for a scan that never ran.
+    local queued = {}
+    local total_queued = 0
+    for _, client in ipairs(clients) do
+      local entries = filter_for_client(client, files)
+      if #entries > 0 then
+        queued[client.id] = entries
+        total_queued = total_queued + #entries
+      end
     end
-  end
-  if not state.timer and not in_flight then
-    state.bytes_loaded = 0
-    state.files_loaded = 0
-  end
 
-  state.scope = scope
-  for client_id, entries in pairs(queued) do
-    state.queues[client_id] = state.queues[client_id] or {}
-    vim.list_extend(state.queues[client_id], entries)
-  end
+    if total_queued == 0 then
+      notify(("scope=%s but no files matched any client filetypes"):format(scope))
+      return
+    end
 
-  -- Snapshot total for progress %; account for any queue carried from a
-  -- prior in-flight scan (re-entrant scan call adds work).
-  local pending_already = 0
-  for _, q in pairs(state.queues) do pending_already = pending_already + #q end
-  state.total_queued = pending_already
-  state.last_progress_pct = -1
+    -- Reset the per-scan accumulators, but only for a genuinely fresh scan —
+    -- scan() is re-entrant and a second call while work is in flight just
+    -- adds to the running totals. These were previously never reset, so
+    -- bytes grew for the whole session until every scan tripped
+    -- MAX_BYTES_TOTAL and reported "hit memory cap" with a session-cumulative
+    -- MB figure. `state.loaded` deliberately stays cumulative: it is the
+    -- dedup registry and the set M.delta() re-stats, so clearing it would
+    -- make us forget buffers a previous scan opened.
+    local in_flight = false
+    for _, q in pairs(state.queues) do
+      if #q > 0 then
+        in_flight = true
+        break
+      end
+    end
+    if not state.timer and not in_flight then
+      state.bytes_loaded = 0
+      state.files_loaded = 0
+    end
 
-  local client_names = {}
-  for _, c in ipairs(clients) do client_names[#client_names + 1] = c.name end
-  progress_notify(
-    ("starting scan · %s 0%% · %d files · scope=%s · clients=%s"):format(
-      render_bar(0), total_queued, scope, table.concat(client_names, ",")
+    state.scope = scope
+    for client_id, entries in pairs(queued) do
+      state.queues[client_id] = state.queues[client_id] or {}
+      vim.list_extend(state.queues[client_id], entries)
+    end
+
+    -- Snapshot total for progress %; account for any queue carried from a
+    -- prior in-flight scan (re-entrant scan call adds work).
+    local pending_already = 0
+    for _, q in pairs(state.queues) do pending_already = pending_already + #q end
+    state.total_queued = pending_already
+    state.last_progress_pct = -1
+
+    local client_names = {}
+    for _, c in ipairs(clients) do client_names[#client_names + 1] = c.name end
+    progress_notify(
+      ("starting scan · %s 0%% · %d files · scope=%s · clients=%s"):format(
+        render_bar(0), total_queued, scope, table.concat(client_names, ",")
+      )
     )
-  )
 
-  install_keypause()
-  if not state.timer then
-    state.timer = vim.uv.new_timer()
-    if state.timer then
-      state.timer:start(BATCH_INTERVAL_MS, BATCH_INTERVAL_MS, vim.schedule_wrap(tick))
+    install_keypause()
+    if not state.timer then
+      state.timer = vim.uv.new_timer()
+      if state.timer then
+        state.timer:start(BATCH_INTERVAL_MS, BATCH_INTERVAL_MS, vim.schedule_wrap(tick))
+      end
     end
-  end
+  end)
 end
 
 --- Cancel the scan; already-loaded buffers stay loaded.
@@ -562,33 +574,84 @@ function M.detach(client_id)
   state.queues[client_id] = nil
 end
 
---- Re-stat loaded paths and trigger a reload for those whose mtime moved.
---- Bounded to MAX_DELTA *examined* paths per call. The counter used to be
---- incremented only inside the changed-mtime branch, which capped reloads
---- but not the fs_stat() walk — so every call synchronously stat'ed all of
---- state.loaded (up to MAX_FILES_FULL paths), and the caller is a
---- FocusGained autocmd, i.e. every alt-tab back into the editor.
+--- Stop scanning and release the hidden buffers previous scans opened, so
+--- servers see didClose and drop their diagnostics. Modified buffers are
+--- kept in the registry (not deleted) to avoid discarding user edits.
+function M.unload()
+  M.cancel()
+  state.queues = {}
+  local count, kept = 0, {}
+  for path in pairs(state.loaded) do
+    local bufnr = vim.fn.bufnr(path)
+    if bufnr ~= -1 and not pcall(vim.api.nvim_buf_delete, bufnr, { force = false }) then
+      kept[path] = true
+    else
+      count = count + 1
+    end
+  end
+  state.loaded = kept
+  state.order = {}
+  delta_cursor = 0
+  state.bytes_loaded = 0
+  state.files_loaded = 0
+  done_notify(("released %d scanned buffer(s)%s"):format(
+    count, next(kept) and " (modified kept)" or ""
+  ))
+end
+
+--- Re-stat loaded paths in round-robin order and trigger a reload for
+--- those whose mtime moved. Bounded to MAX_DELTA *examined* paths per
+--- call, continuing from where the last call stopped: the previous design
+--- walked pairs() state.loaded, so every FocusGained re-stat'ed a random
+--- subset and files outside that subset were never checked. Dead mirror
+--- slots are dropped once they reach half of the array.
 function M.delta()
-  if vim.tbl_isempty(state.loaded) then return end
+  local order = state.order
+  local total = #order
+  if total == 0 then return end
   local checked = 0
-  for path, prev_mtime in pairs(state.loaded) do
-    if checked >= MAX_DELTA then break end
-    checked = checked + 1
-    local stat = vim.uv.fs_stat(path)
-    if stat and stat.mtime.sec ~= prev_mtime then
-      local bufnr = vim.fn.bufnr(path)
-      if bufnr ~= -1 and vim.api.nvim_buf_is_loaded(bufnr) then
-        -- :checktime triggers FileChangedShell + reload, which fires
-        -- BufReadPost → didChange so the LSP re-analyses.
-        pcall(vim.api.nvim_buf_call, bufnr, function()
-          vim.cmd("checktime")
-        end)
-        state.loaded[path] = stat.mtime.sec
+  local dead = 0
+  local start = delta_cursor % total
+  local visited = 0
+  while visited < total and checked < MAX_DELTA do
+    local idx = (start + visited) % total + 1
+    visited = visited + 1
+    local path = order[idx]
+    if path then
+      local prev_mtime = state.loaded[path]
+      if not prev_mtime then
+        order[idx] = false
+        dead = dead + 1
       else
-        -- Buffer was wiped externally; forget it.
-        state.loaded[path] = nil
+        checked = checked + 1
+        local stat = vim.uv.fs_stat(path)
+        if stat and stat.mtime.sec ~= prev_mtime then
+          local bufnr = vim.fn.bufnr(path)
+          if bufnr ~= -1 and vim.api.nvim_buf_is_loaded(bufnr) then
+            -- :checktime triggers FileChangedShell + reload, which fires
+            -- BufReadPost → didChange so the LSP re-analyses.
+            pcall(vim.api.nvim_buf_call, bufnr, function()
+              vim.cmd("checktime")
+            end)
+            state.loaded[path] = stat.mtime.sec
+          else
+            -- Buffer was wiped externally; forget it.
+            state.loaded[path] = nil
+            order[idx] = false
+            dead = dead + 1
+          end
+        end
       end
     end
+    delta_cursor = (start + visited) % total
+  end
+  if dead * 2 >= total then
+    local compact = {}
+    for _, p in ipairs(order) do
+      if p then compact[#compact + 1] = p end
+    end
+    state.order = compact
+    delta_cursor = 0
   end
 end
 

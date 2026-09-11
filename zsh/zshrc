@@ -31,6 +31,13 @@ source "${ZSH}/config/aliases.zsh"
 # Functions
 source "${ZSH}/config/functions.zsh"
 
+# mise/fzf activation scripts run a fallback `compinit` while `compdef` is still
+# undefined — stub it so the real compinit in config/completions.zsh owns the
+# dump; a fallback would write it with system-only fpath and a fresh mtime.
+# Calls made against the stub are queued and replayed after real compinit.
+_zdefcomp=()
+compdef() { _zdefcomp+=("$*") }
+
 # Mise
 (( $+commands[mise] )) && eval "$(mise activate zsh)"
 
@@ -40,8 +47,6 @@ source "${ZSH}/config/functions.zsh"
 # Completion
 source "${ZSH}/config/completions.zsh"
 
-# Gopass
-(( $+commands[gopass] )) && source <(gopass completion zsh)
 
 # Work
 [[ ! -f "${ZSH}/config/work.zsh" ]] || source "${ZSH}/config/work.zsh"
@@ -50,4 +55,18 @@ source "${ZSH}/config/completions.zsh"
 source "${ZSH}/config/plugins.zsh"
 
 # Change theme mode
-set_theme_mode $THEME_MODE
+if [[ -n "${TMUX}" ]]; then
+  tmux source-file "${HOME}/.tmux.${THEME_MODE}.theme.conf"
+fi
+
+alias restish="noglob restish"
+# >>> restish completion >>>
+# Managed by `restish completion install zsh`.
+autoload -Uz compinit
+if ! whence -w compdef >/dev/null 2>&1; then
+  compinit
+fi
+if [ -r '/Users/jdacunha/.config/restish/completions/_restish.zsh' ]; then
+  source '/Users/jdacunha/.config/restish/completions/_restish.zsh'
+fi
+# <<< restish completion <<<

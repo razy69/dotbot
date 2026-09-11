@@ -5,7 +5,8 @@ activate_aggressive = true
 compile = false
 
 [tools]
-"github:ogham/exa" = "latest"
+direnv = "latest"
+eza = "latest"
 "github:solidiquis/erdtree" = { version = "latest", exe = "erd" }
 bat = "latest"
 delta = "latest"
